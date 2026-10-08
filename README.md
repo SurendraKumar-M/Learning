@@ -1,6 +1,6 @@
 # React Native / React Native Expo — 5+ Years Interview Preparation
 
-> Comprehensive interview Q&A covering JavaScript, React, React Native, Expo, navigation, state management, networking, storage, performance, native development, testing, architecture, security, production, and scenario-based questions.
+> Comprehensive interview Q&A covering JavaScript, TypeScript, React, React Native, Expo, navigation, state management, networking, storage, performance, native development, testing, architecture, security, production, and scenario-based questions.
 >
 > **Target:** React Native / React Native Expo interviews at 5+ years level.
 >
@@ -12,26 +12,26 @@
 
 1. [How to Use This Guide](#how-to-use-this-guide)
 2. [JavaScript Fundamentals](#part-1--javascript-fundamentals)
-3. [React Fundamentals](#part-2--react-fundamentals)
-4. [React Native Fundamentals](#part-3--react-native-fundamentals)
-5. [Navigation](#part-4--navigation)
-6. [Expo and EAS](#part-5--expo-and-eas)
-7. [State Management](#part-6--state-management)
-8. [Networking and API Architecture](#part-7--networking-and-api-architecture)
-9. [Storage and Offline Data](#part-8--storage-and-offline-data)
-10. [Performance](#part-9--performance)
-11. [Android, iOS, and Native Integration](#part-10--android-ios-and-native-integration)
-12. [Testing](#part-11--testing)
-13. [Architecture and Code Organization](#part-12--architecture-and-code-organization)
-14. [Authentication and Security](#part-13--authentication-and-security)
-15. [Production, Release, CI/CD, and OTA](#part-14--production-release-cicd-and-ota)
-16. [Scenario-Based 5+ Years Questions](#part-15--scenario-based-5-years-questions)
-17. [Coding Questions](#part-16--coding-questions)
-18. [Rapid-Fire Questions](#part-17--rapid-fire-questions)
-19. [Senior-Level Discussion Questions](#part-18--senior-level-discussion-questions)
-20. [Final Revision Checklist](#final-revision-checklist)
-21. [Current Official References](#current-official-references)
-
+3. [TypeScript Fundamentals](#part-2--typescript-fundamentals)
+4. [React Fundamentals](#part-3--react-fundamentals)
+5. [React Native Fundamentals](#part-4--react-native-fundamentals)
+6. [Navigation](#part-5--navigation)
+7. [Expo and EAS](#part-6--expo-and-eas)
+8. [State Management](#part-7--state-management)
+9. [Networking and API Architecture](#part-8--networking-and-api-architecture)
+10. [Storage and Offline Data](#part-9--storage-and-offline-data)
+11. [Performance](#part-10--performance)
+12. [Android, iOS, and Native Integration](#part-11--android-ios-and-native-integration)
+13. [Testing](#part-12--testing)
+14. [Architecture and Code Organization](#part-13--architecture-and-code-organization)
+15. [Authentication and Security](#part-14--authentication-and-security)
+16. [Production, Release, CI/CD, and OTA](#part-15--production-release-cicd-and-ota)
+17. [Scenario-Based 5+ Years Questions](#part-16--scenario-based-5-years-questions)
+18. [Coding Questions](#part-17--coding-questions)
+19. [Rapid-Fire Questions](#part-18--rapid-fire-questions)
+20. [Senior-Level Discussion Questions](#part-19--senior-level-discussion-questions)
+21. [Final Revision Checklist](#final-revision-checklist)
+22. [Current Official References](#current-official-references)
 ---
 
 # How to Use This Guide
@@ -764,7 +764,2269 @@ A practical debugging strategy is to reproduce the screen transition repeatedly 
 
 ---
 
-# Part 2 — React Fundamentals
+# Part 2 — TypeScript Fundamentals
+
+TypeScript is a major interview area for modern React Native codebases, especially at 5+ years level. The interviewer usually wants more than syntax: they want to know whether you can design safe types, model API data, build reusable generic utilities, prevent invalid states, and keep types maintainable as the codebase grows.
+
+> **Senior principle:** TypeScript improves developer-time correctness. It does not validate untrusted runtime data coming from an API, storage, navigation params, or native code by itself. Runtime validation is a separate concern.
+
+---
+
+## TSQ1. What is TypeScript and why use it in React Native?
+
+### Interview answer
+
+> TypeScript is a statically typed superset of JavaScript that adds a type system and compiles to JavaScript. In React Native, it helps catch many errors during development, makes component contracts explicit, improves refactoring and IDE support, and makes larger codebases easier to maintain.
+
+### React Native example
+
+```ts
+interface Product {
+  id: number;
+  title: string;
+  price: number;
+}
+
+function ProductCard({ product }: { product: Product }) {
+  return <Text>{product.title}</Text>;
+}
+```
+
+### Senior point
+
+TypeScript does not make the application automatically type-safe at runtime. An API can still return malformed JSON unless the response is validated.
+
+---
+
+## TSQ2. Is TypeScript compiled or interpreted?
+
+### Interview answer
+
+> TypeScript is transpiled/compiled into JavaScript. Type annotations and other TypeScript-only syntax are removed or transformed, and the resulting JavaScript is executed by the target runtime such as Hermes on React Native.
+
+```text
+TypeScript
+   ↓
+Type checking + transformation
+   ↓
+JavaScript
+   ↓
+Hermes / runtime
+```
+
+---
+
+## TSQ3. What is the difference between TypeScript and JavaScript?
+
+| JavaScript | TypeScript |
+|---|---|
+| Dynamically typed | Statically checked type system |
+| Runs directly in supported runtimes | Requires transformation to JS for typical use |
+| Types are not part of the language | Interfaces, type aliases, generics, unions, etc. |
+| Errors often discovered at runtime | Many errors discovered during development/build |
+
+### Senior point
+
+TypeScript is not a replacement for runtime validation, testing, or good architecture.
+
+---
+
+## TSQ4. What is type inference?
+
+### Interview answer
+
+> Type inference means TypeScript can determine a value's type without requiring an explicit annotation when enough information is available.
+
+```ts
+const name = 'Surendra'; // string
+const count = 10;        // number
+const isReady = true;    // boolean
+```
+
+Prefer inference when it is obvious:
+
+```ts
+const products = [] as Product[];
+```
+
+or, when initialization already communicates the type:
+
+```ts
+const count = 0;
+```
+
+---
+
+## TSQ5. When should you explicitly annotate a type?
+
+Use explicit annotations when they improve the contract or when inference is insufficient:
+
+```ts
+function calculateTotal(items: Product[]): number {
+  // ...
+}
+```
+
+Good places include:
+
+```text
+public function parameters
+public return values when useful
+complex object contracts
+API models
+state that has multiple possible shapes
+shared library boundaries
+```
+
+Avoid adding redundant annotations to every local variable.
+
+---
+
+## TSQ6. What is the difference between `type` and `interface`?
+
+### Interview answer
+
+> Both can model object shapes, and in many application cases either can work. Interfaces are especially useful for extensible object contracts and declaration merging, while type aliases are more flexible for unions, intersections, mapped types, tuples, and primitive aliases.
+
+```ts
+interface User {
+  id: string;
+  name: string;
+}
+
+type UserId = string;
+
+type Status = 'idle' | 'loading' | 'success' | 'error';
+```
+
+### Senior answer
+
+Don't claim that one is universally better. Establish a project convention and use the construct that best communicates the model.
+
+---
+
+## TSQ7. Can interfaces extend interfaces?
+
+Yes:
+
+```ts
+interface BaseEntity {
+  id: string;
+}
+
+interface User extends BaseEntity {
+  name: string;
+}
+```
+
+Multiple inheritance is also possible:
+
+```ts
+interface Admin extends User, PermissionSet {
+  isAdmin: true;
+}
+```
+
+---
+
+## TSQ8. Can type aliases be combined?
+
+Yes, through intersections:
+
+```ts
+type User = {
+  id: string;
+  name: string;
+};
+
+type Auditable = {
+  createdAt: string;
+  updatedAt: string;
+};
+
+type AdminUser = User & Auditable & {
+  role: 'admin';
+};
+```
+
+This is useful for composing domain models.
+
+---
+
+## TSQ9. What are union types?
+
+### Interview answer
+
+> A union means a value can be one of several types.
+
+```ts
+type Status = 'idle' | 'loading' | 'success' | 'error';
+```
+
+Or:
+
+```ts
+type Id = string | number;
+```
+
+Unions are particularly useful for state machines and discriminated unions.
+
+---
+
+## TSQ10. What are intersection types?
+
+An intersection combines requirements from multiple types:
+
+```ts
+type User = {
+  id: string;
+};
+
+type HasPermissions = {
+  permissions: string[];
+};
+
+type Admin = User & HasPermissions;
+```
+
+The resulting value must satisfy both contracts.
+
+---
+
+## TSQ11. `any` vs `unknown`.
+
+This is a common senior-level question.
+
+### `any`
+
+```ts
+let value: any = response;
+value.foo.bar();
+```
+
+Type checking is largely bypassed.
+
+### `unknown`
+
+```ts
+let value: unknown = response;
+```
+
+You must narrow before using it:
+
+```ts
+if (typeof value === 'string') {
+  value.toUpperCase();
+}
+```
+
+### Strong interview answer
+
+> I prefer `unknown` at trust boundaries because it forces validation or narrowing. `any` should be isolated and used only when there is a clear reason.
+
+---
+
+## TSQ12. `never` vs `void`.
+
+### `void`
+
+Usually means a function does not return a useful value:
+
+```ts
+function logMessage(message: string): void {
+  console.log(message);
+}
+```
+
+### `never`
+
+Means the function cannot complete normally:
+
+```ts
+function fail(message: string): never {
+  throw new Error(message);
+}
+```
+
+It is also important in exhaustive checks.
+
+---
+
+## TSQ13. What is type narrowing?
+
+### Interview answer
+
+> Narrowing is TypeScript's process of refining a broader type into a more specific type based on runtime checks or control-flow analysis.
+
+```ts
+function printId(id: string | number) {
+  if (typeof id === 'string') {
+    console.log(id.toUpperCase());
+  } else {
+    console.log(id.toFixed(0));
+  }
+}
+```
+
+Common narrowing tools:
+
+```text
+typeof
+instanceof
+in
+literal comparisons
+custom type guards
+truthiness checks
+```
+
+---
+
+## TSQ14. What is a type guard?
+
+A type guard is logic that gives TypeScript evidence about a value's type.
+
+```ts
+function isProduct(value: unknown): value is Product {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'id' in value &&
+    'title' in value
+  );
+}
+```
+
+Then:
+
+```ts
+if (isProduct(data)) {
+  data.title;
+}
+```
+
+### Senior point
+
+A custom type guard should actually validate the required properties. Do not use `value is Product` as a way to silence the compiler.
+
+---
+
+## TSQ15. What is a discriminated union?
+
+A discriminated union uses a shared literal property to distinguish variants.
+
+```ts
+type RequestState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: Product[] }
+  | { status: 'error'; message: string };
+```
+
+Then:
+
+```ts
+function renderState(state: RequestState) {
+  switch (state.status) {
+    case 'idle':
+      return null;
+    case 'loading':
+      return <ActivityIndicator />;
+    case 'success':
+      return <ProductList products={state.data} />;
+    case 'error':
+      return <Text>{state.message}</Text>;
+  }
+}
+```
+
+This is often safer than a collection of loosely related booleans such as:
+
+```ts
+isLoading: boolean;
+hasError: boolean;
+hasData: boolean;
+```
+
+---
+
+## TSQ16. Why are discriminated unions valuable in production apps?
+
+They make invalid states harder to represent.
+
+Instead of accidentally having:
+
+```text
+isLoading = true
+error = 'failed'
+data = validData
+```
+
+at the same time, the union defines mutually exclusive states.
+
+This is especially useful for:
+
+```text
+authentication
+API request state
+payment flows
+upload state
+navigation state
+form submission
+```
+
+---
+
+## TSQ17. What are literal types?
+
+Literal types restrict a value to exact values.
+
+```ts
+type Environment = 'development' | 'staging' | 'production';
+```
+
+This is much safer than:
+
+```ts
+type Environment = string;
+```
+
+when only three values are valid.
+
+---
+
+## TSQ18. What are enums and would you use them in a React Native project?
+
+### Interview answer
+
+> TypeScript enums provide a named set of values, but many React Native teams prefer string literal unions because they are simple, interoperable with JSON, and avoid some enum runtime behavior.
+
+Often:
+
+```ts
+type ThemeMode = 'light' | 'dark' | 'system';
+```
+
+is preferable to introducing an enum unless the project's conventions or runtime requirements justify it.
+
+---
+
+## TSQ19. What is the difference between optional property and `undefined`?
+
+```ts
+interface User {
+  name: string;
+  nickname?: string;
+}
+```
+
+`nickname` may be absent.
+
+Compare:
+
+```ts
+interface User2 {
+  name: string;
+  nickname: string | undefined;
+}
+```
+
+This describes a required property whose value may be `undefined`.
+
+That distinction can matter when using exact optional-property semantics and when interacting with APIs.
+
+---
+
+## TSQ20. What is optional chaining?
+
+```ts
+user.profile?.address?.city
+```
+
+It safely accesses nested properties when an intermediate value may be `null` or `undefined`.
+
+It does not replace proper modeling of required data.
+
+---
+
+## TSQ21. What is the non-null assertion operator `!`?
+
+```ts
+const element = ref.current!;
+```
+
+It tells the compiler:
+
+> “I know this value is not null or undefined here.”
+
+### Senior warning
+
+It adds no runtime validation. Overusing `!` can hide real bugs. Prefer control-flow checks where possible.
+
+---
+
+## TSQ22. What is type assertion?
+
+```ts
+const user = value as User;
+```
+
+### Interview answer
+
+> A type assertion changes how TypeScript treats a value at compile time; it does not convert or validate the runtime value.
+
+Therefore:
+
+```ts
+const user = JSON.parse(input) as User;
+```
+
+does not prove the JSON actually matches `User`.
+
+---
+
+## TSQ23. Type assertion vs type casting.
+
+TypeScript assertions are not runtime casts in the traditional sense.
+
+```ts
+const value = input as User;
+```
+
+The runtime value is unchanged.
+
+This distinction is important when dealing with API responses, persistence, or native data.
+
+---
+
+## TSQ24. What are generics?
+
+### Interview answer
+
+> Generics allow us to write reusable code that preserves relationships between input and output types without hardcoding one concrete type.
+
+```ts
+function identity<T>(value: T): T {
+  return value;
+}
+```
+
+React Native example:
+
+```ts
+type ApiResponse<T> = {
+  data: T;
+  status: number;
+  message?: string;
+};
+```
+
+Then:
+
+```ts
+type ProductsResponse = ApiResponse<Product[]>;
+```
+
+---
+
+## TSQ25. Why are generics useful in API layers?
+
+They prevent copying the same response wrapper for every endpoint.
+
+```ts
+type ApiResponse<T> = {
+  data: T;
+  success: boolean;
+};
+
+async function getProducts(): Promise<ApiResponse<Product[]>> {
+  // ...
+}
+
+async function getUser(): Promise<ApiResponse<User>> {
+  // ...
+}
+```
+
+The wrapper is shared while the payload remains strongly typed.
+
+---
+
+## TSQ26. What is a generic constraint?
+
+```ts
+function getId<T extends { id: string }>(item: T) {
+  return item.id;
+}
+```
+
+`T` can be many types, but every valid type must contain an `id: string` property.
+
+This is useful when building reusable helpers that need a minimum structural contract.
+
+---
+
+## TSQ27. What is `keyof`?
+
+`keyof` produces a union of property keys.
+
+```ts
+type User = {
+  id: string;
+  name: string;
+  age: number;
+};
+
+type UserKey = keyof User;
+// 'id' | 'name' | 'age'
+```
+
+Generic example:
+
+```ts
+function getValue<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+```
+
+---
+
+## TSQ28. What is indexed access type `T[K]`?
+
+It retrieves the type associated with a key.
+
+```ts
+type UserName = User['name']; // string
+```
+
+Combined with generics:
+
+```ts
+function getValue<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+```
+
+This preserves the relationship between the selected key and the returned value type.
+
+---
+
+## TSQ29. What are utility types?
+
+TypeScript provides utilities for transforming existing types.
+
+Important ones for interviews:
+
+```text
+Partial
+Required
+Readonly
+Pick
+Omit
+Record
+Exclude
+Extract
+NonNullable
+ReturnType
+Parameters
+Awaited
+```
+
+---
+
+## TSQ30. Explain `Partial`, `Required`, `Readonly`, `Pick`, and `Omit`.
+
+```ts
+type User = {
+  id: string;
+  name: string;
+  email: string;
+};
+```
+
+### Partial
+
+```ts
+type UserPatch = Partial<User>;
+```
+
+All fields become optional.
+
+### Required
+
+```ts
+type CompleteUser = Required<User>;
+```
+
+### Readonly
+
+```ts
+type ReadonlyUser = Readonly<User>;
+```
+
+### Pick
+
+```ts
+type UserPreview = Pick<User, 'id' | 'name'>;
+```
+
+### Omit
+
+```ts
+type UserWithoutEmail = Omit<User, 'email'>;
+```
+
+---
+
+## TSQ31. What is `Record`?
+
+`Record<K, V>` creates an object type whose keys are `K` and values are `V`.
+
+```ts
+type Permission = 'read' | 'write' | 'delete';
+
+type PermissionMap = Record<Permission, boolean>;
+```
+
+Now every declared permission key is expected:
+
+```ts
+const permissions: PermissionMap = {
+  read: true,
+  write: false,
+  delete: false,
+};
+```
+
+Useful for config maps, registries, feature flags, and lookup tables.
+
+---
+
+## TSQ32. What are mapped types?
+
+Mapped types transform properties of another type.
+
+```ts
+type Optional<T> = {
+  [K in keyof T]?: T[K];
+};
+```
+
+This is essentially the idea behind `Partial<T>`.
+
+Advanced codebases use mapped types for:
+
+```text
+form schemas
+permissions
+API transformations
+feature flags
+state selectors
+configuration maps
+```
+
+---
+
+## TSQ33. What are conditional types?
+
+Conditional types choose one type based on another type relationship.
+
+```ts
+type IsString<T> = T extends string ? true : false;
+```
+
+They power many advanced TypeScript utilities.
+
+At 5+ years level, understand the concept, but avoid writing extremely clever conditional types when a simpler model is easier for the team to maintain.
+
+---
+
+## TSQ34. What does `extends` mean in different TypeScript contexts?
+
+It can mean different things:
+
+### Interface inheritance
+
+```ts
+interface Admin extends User {}
+```
+
+### Generic constraint
+
+```ts
+function getId<T extends { id: string }>(item: T) {}
+```
+
+### Conditional type test
+
+```ts
+type Result<T> = T extends string ? 'text' : 'other';
+```
+
+A good interview answer recognizes the context rather than giving a single definition.
+
+---
+
+## TSQ35. What are function overloads?
+
+Overloads let you define multiple call signatures for a function while implementing it once.
+
+```ts
+function format(value: number): string;
+function format(value: Date): string;
+function format(value: number | Date): string {
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  return value.toFixed(2);
+}
+```
+
+Use overloads when the relationship between input and output is important to callers.
+
+---
+
+## TSQ36. What is structural typing?
+
+### Interview answer
+
+> TypeScript is structurally typed, meaning compatibility is based primarily on the shape of a value rather than its explicit nominal class identity.
+
+```ts
+interface User {
+  id: string;
+}
+
+const item = {
+  id: '123',
+  name: 'Surendra',
+};
+
+const user: User = item;
+```
+
+`item` is compatible because it has at least the required structure.
+
+---
+
+## TSQ37. What is excess property checking?
+
+TypeScript can be stricter for fresh object literals:
+
+```ts
+interface User {
+  name: string;
+}
+
+const user: User = {
+  name: 'Surendra',
+  age: 25, // error in this fresh literal
+};
+```
+
+This does not mean TypeScript is nominally typed. It is a specific safety check applied to object literals.
+
+---
+
+## TSQ38. What is `as const`?
+
+`as const` preserves literal types and makes object/array properties readonly at the type level.
+
+```ts
+const config = {
+  environment: 'production',
+  retry: 3,
+} as const;
+```
+
+Now `environment` is typed as the literal `'production'`, not general `string`.
+
+Useful for route maps, action definitions, static configuration, and literal unions.
+
+---
+
+## TSQ39. What is the difference between `const` and `as const`?
+
+```ts
+const role = 'admin';
+```
+
+Because of inference, `role` can already have a narrow literal type in many cases.
+
+But:
+
+```ts
+const config = {
+  role: 'admin',
+};
+```
+
+properties are generally widened.
+
+```ts
+const config = {
+  role: 'admin',
+} as const;
+```
+
+preserves `'admin'` and readonly semantics.
+
+---
+
+## TSQ40. What is the `satisfies` operator?
+
+### Interview answer
+
+> `satisfies` checks that an expression conforms to a type while preserving the expression's more specific inferred type.
+
+```ts
+type ThemeConfig = {
+  primary: string;
+  spacing: number;
+};
+
+const theme = {
+  primary: '#000',
+  spacing: 8,
+} satisfies ThemeConfig;
+```
+
+Compared with a direct annotation, `satisfies` can preserve useful literal information while still validating the object shape.
+
+It is very useful for typed configuration objects.
+
+---
+
+## TSQ41. What is strict mode in TypeScript?
+
+A project can enable stronger checks through `strict` and related compiler options.
+
+Typical benefits:
+
+```text
+strictNullChecks
+noImplicitAny
+strictFunctionTypes
+strictPropertyInitialization
+```
+
+A mature codebase should normally favor strict settings and solve the underlying type problems rather than weakening the compiler whenever an error appears.
+
+---
+
+## TSQ42. Why is `strictNullChecks` important?
+
+Without strict null checking, `null` and `undefined` can become much easier to misuse.
+
+With it enabled:
+
+```ts
+const user: User | null = getUser();
+
+user.name; // error until narrowed
+```
+
+This forces explicit handling of loading, missing, and unavailable data.
+
+---
+
+## TSQ43. How do you type React component props?
+
+```ts
+type ButtonProps = {
+  title: string;
+  disabled?: boolean;
+  onPress: () => void;
+};
+
+function AppButton({ title, disabled, onPress }: ButtonProps) {
+  return (
+    <Pressable disabled={disabled} onPress={onPress}>
+      <Text>{title}</Text>
+    </Pressable>
+  );
+}
+```
+
+### Senior recommendation
+
+Prefer a focused public prop contract rather than passing an enormous object and coupling the component to an entire domain model when the component only needs three fields.
+
+---
+
+## TSQ44. How do you type `children` in React?
+
+When appropriate:
+
+```ts
+import type { ReactNode } from 'react';
+
+type CardProps = {
+  children: ReactNode;
+};
+```
+
+`ReactNode` is useful for components that accept general React-renderable content.
+
+Do not assume every component needs `children`.
+
+---
+
+## TSQ45. How do you type `useState`?
+
+Inference is often enough:
+
+```ts
+const [count, setCount] = useState(0);
+```
+
+For nullable or union state:
+
+```ts
+const [user, setUser] = useState<User | null>(null);
+```
+
+For more complex state:
+
+```ts
+type Status = 'idle' | 'loading' | 'success' | 'error';
+
+const [status, setStatus] = useState<Status>('idle');
+```
+
+---
+
+## TSQ46. How do you type `useRef` in React Native?
+
+For a native component ref, use the component's ref type when available.
+
+Example conceptually:
+
+```ts
+const inputRef = useRef<TextInput>(null);
+```
+
+Then:
+
+```ts
+inputRef.current?.focus();
+```
+
+For general mutable values:
+
+```ts
+const requestId = useRef<string | null>(null);
+```
+
+Choose the ref type according to whether the ref is imperative, nullable, or simply a mutable container.
+
+---
+
+## TSQ47. How do you type `useReducer`?
+
+Model actions explicitly:
+
+```ts
+type State = {
+  count: number;
+};
+
+type Action =
+  | { type: 'increment' }
+  | { type: 'decrement' }
+  | { type: 'reset'; value: number };
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'increment':
+      return { count: state.count + 1 };
+    case 'decrement':
+      return { count: state.count - 1 };
+    case 'reset':
+      return { count: action.value };
+  }
+}
+```
+
+The discriminated union gives strong action narrowing.
+
+---
+
+## TSQ48. How do you type React Native navigation params?
+
+The exact syntax depends on the navigation solution, but the principle is:
+
+> Define a route-to-parameter map and make navigation APIs use that map.
+
+Conceptually:
+
+```ts
+type RootStackParamList = {
+  Home: undefined;
+  ProductDetails: { productId: string };
+  Search: { query?: string };
+};
+```
+
+Then navigation calls can be checked so that:
+
+```ts
+navigation.navigate('ProductDetails', {
+  productId: '123',
+});
+```
+
+matches the route contract.
+
+---
+
+## TSQ49. How do you type API responses?
+
+```ts
+type ApiResponse<T> = {
+  success: boolean;
+  data: T;
+  message?: string;
+};
+
+type Product = {
+  id: number;
+  title: string;
+  price: number;
+};
+
+type ProductsResponse = ApiResponse<Product[]>;
+```
+
+### Senior point
+
+The type describes what you **expect**. Runtime validation should still verify untrusted data.
+
+---
+
+## TSQ50. How do you safely type an API response from `fetch`?
+
+Avoid:
+
+```ts
+const data = await response.json() as Product[];
+```
+
+as the only safety measure.
+
+A better approach is:
+
+```text
+HTTP response
+   ↓
+parse JSON
+   ↓
+validate runtime shape
+   ↓
+convert/normalize if needed
+   ↓
+use strongly typed domain data
+```
+
+Libraries such as Zod or custom validators can implement the runtime boundary.
+
+The exact library is less important than understanding the distinction between compile-time types and runtime validation.
+
+---
+
+## TSQ51. What is the difference between DTO and domain model?
+
+### Interview answer
+
+> A DTO represents the shape used at an external boundary such as an API, while a domain model represents the shape the application wants to work with internally.
+
+For example:
+
+```ts
+type ProductDto = {
+  product_id: number;
+  product_name: string;
+};
+
+type Product = {
+  id: number;
+  name: string;
+};
+```
+
+Map DTO to domain:
+
+```ts
+function mapProduct(dto: ProductDto): Product {
+  return {
+    id: dto.product_id,
+    name: dto.product_name,
+  };
+}
+```
+
+This reduces API-specific coupling throughout the UI.
+
+---
+
+## TSQ52. How would you type a reusable API client?
+
+```ts
+type RequestOptions = {
+  signal?: AbortSignal;
+};
+
+async function get<T>(
+  url: string,
+  options?: RequestOptions
+): Promise<T> {
+  const response = await fetch(url, {
+    signal: options?.signal,
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  return response.json() as Promise<T>;
+}
+```
+
+### Senior caveat
+
+The generic makes the caller's contract clean, but `T` is still an assertion about runtime data. A production client can combine generics with runtime schema validation.
+
+---
+
+## TSQ53. How do you type errors in API code?
+
+Do not assume:
+
+```ts
+catch (error: Error) {
+```
+
+means the runtime value really is an `Error`.
+
+Prefer:
+
+```ts
+catch (error: unknown) {
+  if (error instanceof Error) {
+    console.log(error.message);
+  }
+}
+```
+
+Then define an application-level error model when appropriate.
+
+---
+
+## TSQ54. How do you model loading, success, and error states safely?
+
+Prefer a discriminated union:
+
+```ts
+type AsyncState<T> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: Error };
+```
+
+Then:
+
+```ts
+const state: AsyncState<Product[]> = ...;
+```
+
+This prevents combinations that do not make sense and gives better narrowing than several independent flags.
+
+---
+
+## TSQ55. What is the difference between `unknown`, `object`, `{}`, and `Record<string, unknown>`?
+
+### `unknown`
+
+Any value, but must be narrowed before use.
+
+### `object`
+
+A non-primitive object value; it says very little about its properties.
+
+### `{}`
+
+A very broad type that accepts most non-nullish values in many contexts; it is often misunderstood and should not be used as a generic “object” type.
+
+### `Record<string, unknown>`
+
+Represents an object with string keys and unknown values:
+
+```ts
+function inspect(input: Record<string, unknown>) {}
+```
+
+For JSON-like objects, `Record<string, unknown>` is often more informative than `{}`.
+
+---
+
+## TSQ56. What are declaration files (`.d.ts`)?
+
+### Interview answer
+
+> Declaration files describe the types of JavaScript modules or APIs so TypeScript can type-check code that may not itself be written in TypeScript.
+
+Example:
+
+```text
+library.js
+library.d.ts
+```
+
+The declaration file describes the public API without containing the runtime implementation.
+
+This is especially relevant when integrating older JavaScript or native libraries.
+
+---
+
+## TSQ57. How do you type a JavaScript library that has no types?
+
+Options include, in increasing order of quality:
+
+```text
+1. Check whether official/community types exist
+2. Install the available @types package if appropriate
+3. Add a local declaration file
+4. Create a proper public type surface
+5. Avoid spreading `any` through the entire application
+```
+
+Example:
+
+```ts
+declare module 'legacy-library' {
+  export function connect(url: string): Promise<void>;
+}
+```
+
+Keep the unsafe boundary isolated.
+
+---
+
+## TSQ58. What are `import type` and type-only imports?
+
+```ts
+import type { Product } from './types';
+```
+
+This communicates that the import is needed only for type checking and helps keep type dependencies separate from runtime dependencies.
+
+It is especially useful in shared modules and libraries where runtime import behavior matters.
+
+---
+
+## TSQ59. How would you type Redux Toolkit state and actions?
+
+Typical approach:
+
+```ts
+type CartItem = {
+  productId: number;
+  quantity: number;
+};
+
+type CartState = {
+  items: CartItem[];
+};
+```
+
+Then let Redux Toolkit infer as much as possible from `createSlice`, while defining the domain state clearly.
+
+Conceptually:
+
+```text
+Domain types
+    ↓
+Slice state
+    ↓
+Actions
+    ↓
+Selectors
+    ↓
+Components
+```
+
+Avoid duplicating the same type definitions in every layer.
+
+---
+
+## TSQ60. How do you type selectors?
+
+Start with a typed root state:
+
+```ts
+type RootState = ReturnType<typeof store.getState>;
+```
+
+Then:
+
+```ts
+const selectCartItems = (state: RootState) => state.cart.items;
+```
+
+Selectors can then be reused by screens and hooks without repeating state shape knowledge.
+
+---
+
+## TSQ61. How do you type a generic reusable list component?
+
+```tsx
+type ListProps<T> = {
+  data: T[];
+  renderItem: (item: T) => React.ReactNode;
+};
+
+function GenericList<T>({ data, renderItem }: ListProps<T>) {
+  return (
+    <>
+      {data.map((item, index) => (
+        <React.Fragment key={index}>
+          {renderItem(item)}
+        </React.Fragment>
+      ))}
+    </>
+  );
+}
+```
+
+In a real React Native list, use a stable business key rather than an array index whenever identity can change.
+
+The important concept is that the component remains reusable without sacrificing the item's type.
+
+---
+
+## TSQ62. What is a generic component useful for in React Native?
+
+Common uses include:
+
+```text
+reusable lists
+form controls
+select/dropdown components
+tables
+API wrappers
+pagination helpers
+storage wrappers
+query abstractions
+```
+
+For example, a dropdown can support:
+
+```ts
+Dropdown<Option>
+Dropdown<User>
+Dropdown<Category>
+```
+
+while preserving the selected value's type.
+
+---
+
+## TSQ63. How would you type a reusable form component?
+
+You can model field names and values with generics:
+
+```ts
+type FormProps<T extends Record<string, unknown>> = {
+  values: T;
+  onChange: <K extends keyof T>(
+    field: K,
+    value: T[K]
+  ) => void;
+};
+```
+
+Now:
+
+```ts
+onChange('email', 'user@example.com');
+```
+
+is different from:
+
+```ts
+onChange('age', 25);
+```
+
+The generic keeps field name and field value types connected.
+
+---
+
+## TSQ64. How do you type event handlers in React Native?
+
+Use the event type exposed by the component/API when available rather than `any`.
+
+For example, press handlers often need no event argument:
+
+```ts
+const handlePress = () => {
+  // ...
+};
+```
+
+For text input or gesture-related callbacks, use the specific handler types provided by the relevant React Native API/library.
+
+### Senior point
+
+Don't manually invent event shapes if the library already exports a canonical type.
+
+---
+
+## TSQ65. What is the danger of overusing generics?
+
+Generics can become harder to understand than the original problem.
+
+Bad senior practice:
+
+```text
+five nested conditional types
++ mapped types
++ infer
++ recursive generics
+```
+
+for a component that could have been:
+
+```ts
+type Props = {
+  title: string;
+  onPress: () => void;
+};
+```
+
+### Rule
+
+> Use advanced types to encode meaningful constraints, not to demonstrate TypeScript knowledge.
+
+---
+
+## TSQ66. What is `infer` in conditional types?
+
+`infer` lets TypeScript infer a type variable from within another type expression.
+
+A simplified example:
+
+```ts
+type UnwrapPromise<T> =
+  T extends Promise<infer U> ? U : T;
+```
+
+Then:
+
+```ts
+type A = UnwrapPromise<Promise<string>>; // string
+```
+
+You should understand the concept and recognize it in utility types, even if you rarely need to write it yourself.
+
+---
+
+## TSQ67. What is `ReturnType`?
+
+```ts
+function createUser() {
+  return {
+    id: '1',
+    name: 'Surendra',
+  };
+}
+
+type User = ReturnType<typeof createUser>;
+```
+
+This is useful for keeping types synchronized with implementation when appropriate.
+
+Be careful not to create unclear type dependencies just to avoid writing an explicit domain type.
+
+---
+
+## TSQ68. What are `Parameters` and `Awaited`?
+
+### Parameters
+
+```ts
+function login(email: string, password: string) {}
+
+type LoginArgs = Parameters<typeof login>;
+// [email: string, password: string]
+```
+
+### Awaited
+
+```ts
+async function getUser(): Promise<User> {
+  // ...
+}
+
+type UserResult = Awaited<ReturnType<typeof getUser>>;
+// User
+```
+
+These can be useful when deriving types from existing function contracts.
+
+---
+
+## TSQ69. How does TypeScript help with large-scale React Native architecture?
+
+It can make architectural boundaries explicit:
+
+```text
+UI layer
+  ↓ typed props
+Feature/application layer
+  ↓ typed use cases
+Service layer
+  ↓ typed API client
+DTO / runtime validation boundary
+  ↓
+Backend
+```
+
+It also helps with:
+
+```text
+route contracts
+state contracts
+API models
+design-system props
+analytics events
+feature flags
+configuration schemas
+native module interfaces
+```
+
+The key is using types at meaningful boundaries rather than typing every variable indiscriminately.
+
+---
+
+## TSQ70. How would you design a strongly typed configuration-driven React Native app?
+
+For a backend-controlled UI/configuration system, use a discriminated schema:
+
+```ts
+type ScreenBlock =
+  | {
+      type: 'banner';
+      id: string;
+      imageUrl: string;
+      action?: ActionConfig;
+    }
+  | {
+      type: 'productGrid';
+      id: string;
+      categoryId: string;
+      columns: 2 | 3;
+    }
+  | {
+      type: 'text';
+      id: string;
+      text: string;
+    };
+```
+
+Then map known block types to a component registry:
+
+```ts
+const componentRegistry = {
+  banner: Banner,
+  productGrid: ProductGrid,
+  text: TextBlock,
+} as const;
+```
+
+### Senior architecture rule
+
+> Keep the backend declarative and validated. Do not treat remote configuration as executable client-side code.
+
+---
+
+## TSQ71. How do you prevent invalid navigation parameters with TypeScript?
+
+Model route contracts centrally:
+
+```ts
+type Routes = {
+  Home: undefined;
+  ProductDetails: { productId: string };
+};
+```
+
+Then expose navigation helpers based on that map.
+
+The goal is to make mistakes such as:
+
+```ts
+navigate('ProductDetails', { id: 10 });
+```
+
+fail during development because the contract requires:
+
+```ts
+{ productId: string }
+```
+
+---
+
+## TSQ72. How do you avoid duplicate model definitions across a large app?
+
+Establish ownership.
+
+```text
+API DTO
+→ services/api/types
+
+Domain model
+→ feature/domain/types
+
+UI-specific props
+→ component boundary
+```
+
+Don't create five nearly identical `User` types unless the representations genuinely differ.
+
+When they differ intentionally, map between them explicitly rather than relying on broad casts.
+
+---
+
+## TSQ73. How do you type environment configuration?
+
+```ts
+type EnvironmentConfig = {
+  apiUrl: string;
+  environment: 'development' | 'staging' | 'production';
+};
+```
+
+Then centralize access:
+
+```ts
+export const config: EnvironmentConfig = {
+  apiUrl: process.env.API_URL ?? '',
+  environment: 'development',
+};
+```
+
+For React Native/Expo projects, the actual environment-variable mechanism depends on the build setup.
+
+### Security reminder
+
+TypeScript cannot make an embedded secret secure. Anything shipped in the app should be treated as potentially inspectable.
+
+---
+
+## TSQ74. How do you type feature flags?
+
+Use literal keys and centralized configuration:
+
+```ts
+type FeatureFlags = {
+  newCheckout: boolean;
+  realtimeChat: boolean;
+  barcodeScanner: boolean;
+};
+```
+
+For fixed keys, `Record` can also be useful:
+
+```ts
+type Feature = 'chat' | 'payments' | 'scanner';
+type Flags = Record<Feature, boolean>;
+```
+
+This prevents typos such as:
+
+```ts
+flags.realtimChat
+```
+
+---
+
+## TSQ75. How would you type a permission system?
+
+Use literal unions:
+
+```ts
+type Permission =
+  | 'products.read'
+  | 'products.write'
+  | 'orders.read'
+  | 'orders.refund';
+
+type PermissionSet = Set<Permission>;
+```
+
+This gives autocomplete and catches unsupported permission strings in client code.
+
+At runtime, still validate server-provided permissions.
+
+---
+
+## TSQ76. How do you type analytics events safely?
+
+Use a discriminated event map:
+
+```ts
+type AnalyticsEvent =
+  | {
+      name: 'product_viewed';
+      properties: { productId: string };
+    }
+  | {
+      name: 'checkout_started';
+      properties: { cartValue: number };
+    };
+```
+
+Now the event name and properties remain connected.
+
+This prevents accidentally sending the wrong payload to analytics.
+
+---
+
+## TSQ77. What is `readonly` and when would you use it?
+
+```ts
+type Config = {
+  readonly apiUrl: string;
+};
+```
+
+It prevents mutation through that type at compile time.
+
+For arrays:
+
+```ts
+readonly string[]
+```
+
+or:
+
+```ts
+ReadonlyArray<string>
+```
+
+Useful for immutable contracts, configuration, reducer inputs, and APIs where callers should not mutate provided collections.
+
+---
+
+## TSQ78. Is `readonly` a runtime freeze?
+
+No.
+
+`readonly` is primarily a compile-time restriction.
+
+```ts
+const config: Readonly<Config> = ...;
+```
+
+does not automatically perform:
+
+```js
+Object.freeze(config);
+```
+
+For runtime immutability, a separate mechanism is required.
+
+---
+
+## TSQ79. Tuple vs array.
+
+### Array
+
+```ts
+string[]
+```
+
+Any number of strings.
+
+### Tuple
+
+```ts
+[string, number]
+```
+
+Fixed positional structure.
+
+Example:
+
+```ts
+const response: [number, string] = [200, 'OK'];
+```
+
+Tuples are useful when position itself has meaning.
+
+---
+
+## TSQ80. How would you explain TypeScript to a 5+ years interviewer in one answer?
+
+### Interview answer
+
+> I use TypeScript primarily as an architectural tool, not just as syntax on top of JavaScript. I define clear contracts at component, navigation, state, API, and service boundaries; use unions, generics, utility types, and narrowing where they meaningfully constrain invalid states; and keep unsafe runtime boundaries isolated. For external data, I combine compile-time types with runtime validation because TypeScript types disappear at runtime.
+
+---
+
+# TypeScript — Senior Scenario Questions
+
+## Scenario 1. An API type says `Product[]`, but production crashes because `price` is missing. Why?
+
+Because TypeScript only checks the code against the declared type during development/build. It does not validate the JSON arriving over the network.
+
+Better architecture:
+
+```text
+API response
+   ↓
+unknown
+   ↓
+Runtime validation
+   ↓
+Product DTO
+   ↓
+Domain model
+   ↓
+UI
+```
+
+---
+
+## Scenario 2. A developer uses `any` in the API layer because “the backend changes frequently.” What would you recommend?
+
+I would isolate the uncertainty at the boundary rather than spreading `any` throughout the application.
+
+Better:
+
+```text
+unknown
+ ↓
+validate
+ ↓
+map
+ ↓
+strongly typed domain model
+```
+
+This lets the rest of the application retain useful compiler guarantees.
+
+---
+
+## Scenario 3. A component has 25 generic parameters and is difficult to understand. What does that tell you?
+
+Likely the abstraction is too complex.
+
+At 5+ years level, optimize for:
+
+```text
+correctness
+readability
+maintainability
+team comprehension
+```
+
+not maximum type-level cleverness.
+
+---
+
+## Scenario 4. A type assertion fixes all TypeScript errors. Is that good?
+
+Not necessarily.
+
+```ts
+value as SomeType
+```
+
+can suppress useful compiler feedback without changing the runtime value.
+
+I would ask:
+
+```text
+Why is the compiler unable to prove this?
+Can I narrow it?
+Can I model the state more accurately?
+Should I validate runtime data?
+Is the type boundary wrong?
+```
+
+---
+
+## Scenario 5. How would you gradually convert a large JavaScript React Native project to TypeScript?
+
+A realistic migration:
+
+```text
+1. Enable TypeScript incrementally
+2. Establish compiler/lint rules
+3. Type shared models and utilities
+4. Type API boundaries
+5. Type navigation
+6. Type reusable components
+7. Type state management
+8. Migrate high-value screens/features
+9. Reduce `any`
+10. Tighten strictness over time
+```
+
+Avoid attempting a massive rewrite with no incremental delivery.
+
+---
+
+## Scenario 6. How would you prevent API DTO changes from breaking the UI everywhere?
+
+Introduce a boundary:
+
+```text
+Backend
+  ↓
+DTO
+  ↓
+Mapper / adapter
+  ↓
+Domain model
+  ↓
+Feature
+  ↓
+UI
+```
+
+The UI depends on the domain model rather than directly mirroring backend naming and nesting.
+
+---
+
+## Scenario 7. How would you model payment states?
+
+A discriminated union is a good fit:
+
+```ts
+type PaymentState =
+  | { status: 'idle' }
+  | { status: 'processing'; transactionId: string }
+  | { status: 'success'; receiptId: string }
+  | { status: 'failed'; code: string; message: string };
+```
+
+This makes illegal state combinations less likely and produces clearer UI logic.
+
+---
+
+## Scenario 8. How would you design a typed repository pattern?
+
+Define a generic contract:
+
+```ts
+interface Repository<T, ID> {
+  getById(id: ID): Promise<T | null>;
+  list(): Promise<T[]>;
+  create(input: T): Promise<T>;
+}
+```
+
+Then:
+
+```ts
+class ProductRepository implements Repository<Product, number> {
+  // implementation
+}
+```
+
+Use this only when the abstraction genuinely reduces coupling. Do not introduce repository layers solely because they sound architectural.
+
+---
+
+## Scenario 9. How do you keep TypeScript types from becoming duplicated and inconsistent?
+
+Establish a single source of truth where possible:
+
+```text
+shared domain types
+API schemas / generated types
+central route maps
+central config types
+```
+
+When types describe different representations, name them explicitly:
+
+```text
+ProductDto
+Product
+ProductCardProps
+ProductFormValues
+```
+
+This makes the differences intentional.
+
+---
+
+## Scenario 10. What TypeScript topics should a senior React Native developer be able to explain without hesitation?
+
+```text
+interfaces vs types
+union/intersection types
+narrowing and type guards
+unknown vs any
+never and void
+generics and constraints
+keyof and indexed access
+utility types
+mapped types
+conditional types
+literal types
+as const
+satisfies
+strictNullChecks
+function overloads
+structural typing
+discriminated unions
+React prop/state/ref typing
+navigation typing
+API typing
+runtime validation boundaries
+```
+
+---
+
+# TypeScript Coding Questions
+
+## Coding 1. Create a generic API response type.
+
+```ts
+type ApiResponse<T> = {
+  data: T;
+  success: boolean;
+  message?: string;
+};
+```
+
+---
+
+## Coding 2. Write a type-safe `get` helper using `keyof`.
+
+```ts
+function getValue<T, K extends keyof T>(
+  obj: T,
+  key: K
+): T[K] {
+  return obj[key];
+}
+```
+
+---
+
+## Coding 3. Create a type where every property is optional.
+
+```ts
+type Optional<T> = {
+  [K in keyof T]?: T[K];
+};
+```
+
+Equivalent built-in utility:
+
+```ts
+Partial<T>
+```
+
+---
+
+## Coding 4. Create an exhaustive switch helper.
+
+```ts
+function assertNever(value: never): never {
+  throw new Error(`Unhandled value: ${String(value)}`);
+}
+```
+
+Then:
+
+```ts
+switch (state.status) {
+  case 'idle':
+    return null;
+  case 'loading':
+    return null;
+  case 'success':
+    return state.data;
+  case 'error':
+    return state.message;
+  default:
+    return assertNever(state);
+}
+```
+
+If a new union member is added but not handled, the compiler can surface the missing case.
+
+---
+
+## Coding 5. Create a type-safe event map.
+
+```ts
+type Events = {
+  login: { userId: string };
+  logout: { userId: string };
+  productViewed: { productId: number };
+};
+
+type EventName = keyof Events;
+```
+
+A generic emitter can then connect the event name to its payload type.
+
+---
+
+## Coding 6. Create a generic selection type.
+
+```ts
+type SelectOption<T> = {
+  label: string;
+  value: T;
+};
+```
+
+Now:
+
+```ts
+type CategoryOption = SelectOption<number>;
+type UserOption = SelectOption<User>;
+```
+
+---
+
+# TypeScript Rapid-Fire
+
+| Question | Crisp answer |
+|---|---|
+| `any` vs `unknown` | `unknown` requires narrowing; `any` largely disables type checking. |
+| `never` | A type representing values that never occur / functions that don't complete normally. |
+| `void` | A function does not return a useful value. |
+| Union | One of several possible types. |
+| Intersection | Must satisfy multiple types. |
+| `keyof` | Produces a union of property keys. |
+| `typeof` | Runtime operator and a TypeScript type-query form in type positions. |
+| `as const` | Preserves literal types and readonly semantics. |
+| `satisfies` | Checks conformance while preserving useful inferred specificity. |
+| Generic | Reusable type parameter that preserves type relationships. |
+| Type guard | Runtime logic that narrows a type. |
+| Discriminated union | Union variants distinguished by a common literal property. |
+| `Partial<T>` | Makes properties optional. |
+| `Pick<T, K>` | Selects a subset of properties. |
+| `Omit<T, K>` | Removes selected properties. |
+| `Record<K, V>` | Maps a key set to a value type. |
+| `Readonly<T>` | Prevents mutation through that type. |
+| `ReturnType<T>` | Extracts a function's return type. |
+| `Parameters<T>` | Extracts a function's parameter tuple. |
+| `Awaited<T>` | Extracts the resolved type of a promise-like type. |
+
+---
+
+# Part 3 — React Fundamentals
 
 ## Q25. What is React?
 
@@ -1370,7 +3632,7 @@ An error boundary is not a general-purpose asynchronous exception handler. Netwo
 
 ---
 
-# Part 3 — React Native Fundamentals
+# Part 4 — React Native Fundamentals
 
 ## Q55. What is React Native?
 
@@ -1787,7 +4049,7 @@ The main interview point is to understand touch interaction, accessibility, hit 
 
 ---
 
-# Part 4 — Navigation
+# Part 5 — Navigation
 
 ## Q74. React Navigation vs Expo Router.
 
@@ -1870,7 +4132,7 @@ Production concerns include:
 
 ---
 
-# Part 5 — Expo and EAS
+# Part 6 — Expo and EAS
 
 ## Q77. What is Expo?
 
@@ -2051,7 +4313,7 @@ The runtime can also receive API-driven content, but native app identity element
 
 ---
 
-# Part 6 — State Management
+# Part 7 — State Management
 
 ## Q87. When would you use Redux?
 
@@ -2206,7 +4468,7 @@ For complex derived data, memoized selectors can prevent unnecessary recalculati
 
 ---
 
-# Part 7 — Networking and API Architecture
+# Part 8 — Networking and API Architecture
 
 ## Q95. How do you structure API calls in a large React Native application?
 
@@ -2431,7 +4693,7 @@ A production-quality client should also consider:
 
 ---
 
-# Part 8 — Storage and Offline Data
+# Part 9 — Storage and Offline Data
 
 ## Q102. AsyncStorage vs SecureStore.
 
@@ -2502,7 +4764,7 @@ For complex offline-first apps, a local database can be more appropriate than a 
 
 ---
 
-# Part 9 — Performance
+# Part 10 — Performance
 
 ## Q105. A `FlatList` screen is lagging. What do you check?
 
@@ -2668,7 +4930,7 @@ If the baseline continuously increases without returning near the expected range
 
 ---
 
-# Part 10 — Android, iOS, and Native Integration
+# Part 11 — Android, iOS, and Native Integration
 
 ## Q111. Why do React Native projects contain Android and iOS folders?
 
@@ -2874,7 +5136,7 @@ Examples include camera, microphone, location, notifications, and photo/media ac
 
 ---
 
-# Part 11 — Testing
+# Part 12 — Testing
 
 ## Q121. What should you test in a React Native application?
 
@@ -2964,7 +5226,7 @@ A healthy suite commonly has many fast unit/component tests, fewer integration t
 
 ---
 
-# Part 12 — Architecture and Code Organization
+# Part 13 — Architecture and Code Organization
 
 ## Q126. How would you structure a large React Native application?
 
@@ -3172,7 +5434,7 @@ Also set team conventions early and enforce them with review, linting, and archi
 
 ---
 
-# Part 13 — Authentication and Security
+# Part 14 — Authentication and Security
 
 ## Q132. How would you design authentication?
 
@@ -3260,7 +5522,7 @@ Public application configuration can be bundled. Private server credentials cann
 
 ---
 
-# Part 14 — Production, Release, CI/CD, and OTA
+# Part 15 — Production, Release, CI/CD, and OTA
 
 ## Q136. How would you create Dev / QA / Production environments?
 
@@ -3418,7 +5680,7 @@ Monitor crash rate, ANR rate, API errors, startup metrics, and business-critical
 
 ---
 
-# Part 15 — Scenario-Based 5+ Years Questions
+# Part 16 — Scenario-Based 5+ Years Questions
 
 ## Q143. Your screen makes an API call twice. What do you check?
 
@@ -3776,7 +6038,7 @@ Do not blindly replay non-idempotent operations. Use server-supported idempotenc
 
 ---
 
-# Part 16 — Coding Questions
+# Part 17 — Coding Questions
 
 ## Coding 1. Reverse a string.
 
@@ -4011,7 +6273,7 @@ Production concerns:
 
 ---
 
-# Part 17 — Rapid-Fire Questions
+# Part 18 — Rapid-Fire Questions
 
 ## Q156. `null` vs `undefined`
 
@@ -4190,7 +6452,7 @@ Depending on the selector/equality setup, this can cause unnecessary updates. Me
 
 ---
 
-# Part 18 — Senior-Level Discussion Questions
+# Part 19 — Senior-Level Discussion Questions
 
 ## Q169. Why use Redux?
 
