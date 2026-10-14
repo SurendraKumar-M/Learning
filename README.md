@@ -1,4713 +1,1394 @@
-# React Native / React Native Expo — 5+ Years Interview Preparation
+# Template-Driven SaaS Platform for Building Websites and Mobile Apps
 
-> Comprehensive interview Q&A covering JavaScript, React, React Native, Expo, navigation, state management, networking, storage, performance, native development, testing, architecture, security, production, and scenario-based questions.
->
-> **Target:** React Native / React Native Expo interviews at 5+ years level.
->
-> **Recommended answer pattern:** Direct answer → internal behavior → practical usage → trade-off → failure mode / follow-up.
+> **Project status:** Planning / pre-MVP  
+> **Working concept:** A self-service platform where businesses select a template, customize branding and content, publish a website, and later generate a separately branded Expo / React Native mobile application.  
+> **Initial constraint:** Solo founder, keep early costs low, validate demand before buying more infrastructure or building advanced features.
 
 ---
 
 ## Table of Contents
 
-1. [How to Use This Guide](#how-to-use-this-guide)
-2. [JavaScript Fundamentals](#part-1--javascript-fundamentals)
-3. [React Fundamentals](#part-2--react-fundamentals)
-4. [React Native Fundamentals](#part-3--react-native-fundamentals)
-5. [Navigation](#part-4--navigation)
-6. [Expo and EAS](#part-5--expo-and-eas)
-7. [State Management](#part-6--state-management)
-8. [Networking and API Architecture](#part-7--networking-and-api-architecture)
-9. [Storage and Offline Data](#part-8--storage-and-offline-data)
-10. [Performance](#part-9--performance)
-11. [Android, iOS, and Native Integration](#part-10--android-ios-and-native-integration)
-12. [Testing](#part-11--testing)
-13. [Architecture and Code Organization](#part-12--architecture-and-code-organization)
-14. [Authentication and Security](#part-13--authentication-and-security)
-15. [Production, Release, CI/CD, and OTA](#part-14--production-release-cicd-and-ota)
-16. [Scenario-Based 5+ Years Questions](#part-15--scenario-based-5-years-questions)
-17. [Coding Questions](#part-16--coding-questions)
-18. [Rapid-Fire Questions](#part-17--rapid-fire-questions)
-19. [Senior-Level Discussion Questions](#part-18--senior-level-discussion-questions)
-20. [Final Revision Checklist](#final-revision-checklist)
-21. [Current Official References](#current-official-references)
+1. [Executive Summary](#1-executive-summary)
+2. [Product Vision and Value Proposition](#2-product-vision-and-value-proposition)
+3. [Target Customers and Initial Niche](#3-target-customers-and-initial-niche)
+4. [Product Principles](#4-product-principles)
+5. [MVP Scope and Non-Goals](#5-mvp-scope-and-non-goals)
+6. [User Journeys](#6-user-journeys)
+7. [Recommended Technology Stack](#7-recommended-technology-stack)
+8. [High-Level Architecture](#8-high-level-architecture)
+9. [Template and Rendering Architecture](#9-template-and-rendering-architecture)
+10. [Mobile App Generation Strategy](#10-mobile-app-generation-strategy)
+11. [Monorepo Structure](#11-monorepo-structure)
+12. [Initial Database Design](#12-initial-database-design)
+13. [Authentication, Authorization, and Multi-Tenancy](#13-authentication-authorization-and-multi-tenancy)
+14. [Website Publishing and Domains](#14-website-publishing-and-domains)
+15. [Native Build Pipeline](#15-native-build-pipeline)
+16. [Subscription and Revenue Model](#16-subscription-and-revenue-model)
+17. [Low-Cost Infrastructure Strategy](#17-low-cost-infrastructure-strategy)
+18. [AI-Assisted Development Workflow](#18-ai-assisted-development-workflow)
+19. [Development Roadmap](#19-development-roadmap)
+20. [Testing and Quality Strategy](#20-testing-and-quality-strategy)
+21. [Security and Privacy Checklist](#21-security-and-privacy-checklist)
+22. [Risks and Mitigations](#22-risks-and-mitigations)
+23. [Metrics and Validation](#23-metrics-and-validation)
+24. [Definition of Done](#24-definition-of-done)
+25. [Immediate Next Steps](#25-immediate-next-steps)
+26. [Questions to Validate Before Building](#26-questions-to-validate-before-building)
+27. [Prompt for an Independent ChatGPT Review](#27-prompt-for-an-independent-chatgpt-review)
+28. [External Resources to Verify](#28-external-resources-to-verify)
 
 ---
 
-# How to Use This Guide
+## 1. Executive Summary
 
-A 5+ years interviewer is unlikely to judge you only on whether you can define a hook or a component. The panel usually looks for four additional things:
+The goal is to build a multi-tenant SaaS platform that enables small businesses to create and manage a branded online presence without having to build a website or mobile app from scratch.
 
-- Whether you understand **why** a technology behaves the way it does.
-- Whether you can discuss **trade-offs** instead of presenting one tool as universally correct.
-- Whether you can **debug production problems systematically**.
-- Whether you can make reasonable **architecture decisions** for a growing application.
+A customer should be able to:
 
-For most questions, use this answer format:
+1. Register and create a workspace for their business.
+2. Create a project and select a template for a specific business type.
+3. Customize the logo, app/business name, colors, typography, page content, images, navigation, and supported features.
+4. Preview the website and mobile layout.
+5. Publish a website on a platform-provided subdomain and, later, connect a custom domain.
+6. In a later phase, request a separately branded Expo / React Native Android or iOS build.
+7. Manage their content and project settings from the same dashboard.
 
-> **1. Definition:** What is it?
->
-> **2. Internals:** How does it work?
->
-> **3. Practical usage:** Where would you use it in a real project?
->
-> **4. Trade-off:** What are its limitations?
->
-> **5. Scenario:** What can go wrong and how would you debug it?
+The platform owner earns revenue from customer subscriptions, higher usage limits, branded mobile app builds, and potentially paid onboarding or white-label services.
 
-Do not memorize the exact wording. Learn the underlying model and then explain it naturally.
+### Core strategic decision
 
----
+**Start with a controlled template system and website publishing. Do not start by building a general-purpose no-code editor or fully automated app-store publishing system.**
 
-# Part 1 — JavaScript Fundamentals
+The initial product should prove that a customer can choose a template, customize it without coding, and publish a useful website. Native app build automation comes after the website experience and demand are validated.
 
-## Q1. What is the difference between `var`, `let`, and `const`?
+### Working assumptions
 
-### Interview answer
-
-`var` is function-scoped, while `let` and `const` are block-scoped. `var` declarations are hoisted and initialized with `undefined`. `let` and `const` are also hoisted in the language's execution model, but they remain uninitialized and are inaccessible during the Temporal Dead Zone. `const` prevents reassignment of the binding, but it does not make referenced objects immutable.
-
-```js
-var a = 10;
-let b = 20;
-const c = 30;
-```
-
-```js
-{
-  var x = 10;
-  let y = 20;
-}
-
-console.log(x); // 10
-console.log(y); // ReferenceError
-```
-
-### Important follow-up
-
-```js
-const user = {
-  name: 'Surendra',
-};
-
-user.name = 'Kumar'; // allowed
-
-// user = {}; // TypeError
-```
-
-The binding is constant; the object it references is not automatically frozen.
+- The project is developed by one person.
+- The founder is familiar with React, React Native, Expo, TypeScript, and JavaScript.
+- The preferred initial backend is Supabase to reduce the amount of infrastructure to maintain.
+- Next.js will be used for the SaaS dashboard and customer website rendering.
+- Expo / React Native will be used for mobile app experiences and native builds.
+- Google Antigravity Pro is available as the primary AI coding environment at the start.
+- The first version should use free or low-cost services where appropriate, but reliability, security, and commercial-use terms take priority once customers depend on the service.
+- Initial market focus is not final and should be validated with prospective customers.
 
 ---
 
-## Q2. What is hoisting?
+## 2. Product Vision and Value Proposition
 
-### Interview answer
+### Vision
 
-Hoisting is the behavior produced by JavaScript's declaration processing before code execution within a scope. Function declarations can be called before their source position. `var` declarations are initialized to `undefined`. `let` and `const` declarations exist in the scope but cannot be accessed before initialization because of the Temporal Dead Zone.
+Make it possible for a small business to create, customize, and manage a professional website and eventually a mobile app through one easy-to-use platform.
 
-```js
-console.log(a);
-var a = 10;
-// undefined
-```
+### Customer problem
 
-```js
-sayHello();
+Many small businesses need an online presence but may not have the budget, technical expertise, or time to manage a bespoke development project. Existing website builders may not provide the desired workflow for a branded native mobile app, while hiring separate web and mobile developers can be expensive.
 
-function sayHello() {
-  console.log('Hello');
-}
-```
+### Proposed value proposition
 
-### Senior follow-up
+> Choose a professionally designed business template, customize it with your brand and content, publish your website, and later generate a compatible branded mobile app from the same project configuration.
 
-Do not say that `let` and `const` are “not hoisted.” A better explanation is:
+### Potential differentiators
 
-> They are hoisted in the sense that their bindings are created during scope setup, but they are not initialized before execution reaches their declaration.
+- Website and mobile project managed in one dashboard.
+- Niche-specific templates rather than generic blank pages.
+- Shared business data and configuration across web and mobile experiences.
+- Controlled customization that is easier to support than arbitrary user-generated code.
+- A path from a simple hosted website to a separately branded mobile app.
+- Affordable entry plan for small businesses.
 
----
-
-## Q3. What is the Temporal Dead Zone (TDZ)?
-
-### Interview answer
-
-The Temporal Dead Zone is the time between entering a scope and the point where a `let`, `const`, or `class` declaration is initialized. Accessing the binding during that interval throws a `ReferenceError`.
-
-```js
-console.log(name); // ReferenceError
-let name = 'Surendra';
-```
-
-The TDZ helps catch accidental access-before-initialization bugs.
+These differentiators are hypotheses, not proven advantages. Customer interviews and paid pilots must validate them.
 
 ---
 
-## Q4. Explain JavaScript execution context.
+## 3. Target Customers and Initial Niche
 
-### Interview answer
+Do not build templates for every industry at the beginning. Each industry has its own data, workflows, and expectations.
 
-An execution context is the environment in which JavaScript code executes. At a high level, JavaScript starts with a global execution context and creates additional function execution contexts when functions are called.
+### Potential initial niches
 
-Conceptually each context contains information about the currently executing code, its variables and lexical environment, and execution state.
+| Niche | Likely initial features | Complexity | Notes |
+|---|---|---:|---|
+| Salons and local service businesses | Service list, staff profiles, business hours, contact, inquiries, booking request | Low–medium | Good MVP candidate if local businesses value a simple online presence |
+| Fitness studios and coaches | Classes, schedules, trainer profiles, membership inquiry, booking | Medium | May need recurring schedules and member management later |
+| Small retailers | Product catalog, categories, cart, checkout, orders | Medium–high | Payment, inventory, refunds, and orders expand scope considerably |
+| Restaurants | Menu, opening hours, location, reservations or ordering | Medium–high | Online ordering and delivery logistics can become complex |
+
+### Initial recommendation
+
+Start with **one narrow customer segment**, such as salons or fitness studios, after speaking with 5–10 potential customers. The choice should depend on which group has a real problem, is easy to reach, and is willing to pay.
+
+### Discovery questions for potential customers
+
+- How do you currently share your services, pricing, opening hours, and contact details online?
+- Do you already have a website? What frustrates you about it?
+- Do your customers ask for an app, or is a website enough?
+- Which task would an online platform need to solve to be worth paying for?
+- Would you prefer a monthly subscription, a setup fee, or a combination?
+- What would you expect to pay for a working website? For a separate Android/iOS app?
+- Who would own and manage customer data, domain registration, app-store accounts, and payment accounts?
+
+Do not treat positive feedback alone as validation. Look for specific commitments such as a pilot, a deposit, or willingness to pay for a defined plan.
+
+---
+
+## 4. Product Principles
+
+1. **Validate before expanding.** Build the smallest complete workflow that a customer will pay for.
+2. **Configuration over code generation.** Use trusted, version-controlled templates and validated project configuration rather than generating arbitrary source code for every user.
+3. **Secure tenant isolation from day one.** Every customer-owned record must have a clear ownership path and tested access policies.
+4. **Version the configuration.** Published sites must be recoverable when a customer or a deployment causes a problem.
+5. **Separate draft and published states.** Editing must not unintentionally break the live site.
+6. **Keep platform billing separate from customer business transactions.** Avoid becoming the custodian of every customer's sales revenue.
+7. **Keep costs measurable.** Track hosting, database, storage, build, bandwidth, email/SMS, payment, and support costs.
+8. **Make AI-generated changes reviewable.** Use small commits, automated checks, and code review even when the founder is the only developer.
+9. **Design for growth without premature complexity.** Use a modular monorepo first; introduce separate services when a clear need appears.
+10. **Check current vendor and app-store policies.** Pricing, free quotas, platform terms, and publication requirements change over time.
+
+---
+
+## 5. MVP Scope and Non-Goals
+
+### MVP: must-have
+
+- User registration, sign-in, and sign-out.
+- Workspace creation and basic ownership.
+- Project creation.
+- Two templates within the chosen niche.
+- Template configuration stored in Supabase/PostgreSQL.
+- Basic editor for logo, images, colors, text, and section visibility.
+- Website preview.
+- Draft and published states.
+- Website publishing on a provider/platform subdomain.
+- Basic page title, meta description, and social sharing metadata.
+- Project version history or a safe rollback mechanism.
+- Secure multi-tenant data policies using Supabase RLS.
+- Minimal administrative visibility into projects, publication status, and errors.
+- Error reporting and basic usage/cost tracking.
+
+### Next after MVP
+
+- Custom domains and automated TLS setup.
+- More template variants for the validated niche.
+- Customer booking or lead capture workflow, if required by the niche.
+- Preview mode for Expo/mobile layout.
+- Automated Android builds for a selected branded project.
+- Paid subscriptions and usage allowances.
+- Build-job tracking and downloadable artifacts.
+
+### Explicit non-goals for the first version
+
+- A free-form drag-and-drop editor comparable to professional design tools.
+- Every business niche at once.
+- Customer-authored JavaScript execution.
+- User-created plugins or arbitrary components.
+- A full multi-vendor marketplace.
+- Complex inventory, accounting, delivery, refunds, and payout systems.
+- Automatic app-store approval or guaranteed publication.
+- A separate backend/database deployment for every generated app.
+- AI-generated production code for every customer project.
+- Microservices unless scaling or operational requirements justify them.
+
+---
+
+## 6. User Journeys
+
+### A. SaaS customer journey
+
+1. Customer visits the marketing site.
+2. Customer creates an account and verifies their email if required.
+3. Customer creates a workspace and enters basic business details.
+4. Customer creates a project.
+5. Customer chooses a supported template.
+6. The platform copies the template's default configuration into a new project version.
+7. Customer edits text, images, theme, contact details, and supported sections.
+8. Customer previews the draft.
+9. Customer publishes the site.
+10. Customer receives a platform subdomain and can share the URL.
+11. Customer updates content in the dashboard; changes remain draft until republished, unless a setting is explicitly designed for safe immediate updates.
+12. Customer upgrades when they need more projects, features, custom domains, or native app builds.
+
+### B. Internal admin journey
+
+1. Inspect project status and basic errors.
+2. View build/publish job status.
+3. Manage template availability and compatibility versions.
+4. Review usage and billing state.
+5. Help a customer recover a configuration version or troubleshoot publishing.
+
+Administrative capabilities must be protected and audited. Do not provide a generic admin override that bypasses tenant safeguards without logging and access controls.
+
+### C. Later branded mobile app journey
+
+1. Customer chooses “Generate mobile app.”
+2. The platform checks plan entitlement, required fields, assets, identifiers, and configuration validity.
+3. The backend creates a build job and stores its status.
+4. A trusted build worker prepares configuration based on a version-controlled Expo template.
+5. EAS Build or an appropriate managed build environment produces the binary.
+6. The platform records success/failure and provides a result or actionable error.
+7. The customer handles distribution and required developer-account steps, or purchases a separately scoped publishing assistance service.
+
+---
+
+## 7. Recommended Technology Stack
+
+Use the smallest stack that meets the product needs. Avoid introducing tools just because they are popular.
+
+| Layer | Initial choice | Reason / notes |
+|---|---|---|
+| SaaS dashboard | Next.js + TypeScript | Dashboard, authenticated pages, server-side functions, editor UI |
+| Website runtime | Next.js + React | Render published customer websites from validated project configuration |
+| Mobile runtime | Expo + React Native + TypeScript | Mobile preview and future branded builds |
+| Database | Supabase PostgreSQL | Managed relational database and SQL capabilities |
+| Authentication | Supabase Auth | Managed authentication and session handling |
+| File storage | Supabase Storage | Logos, banners, service images and other assets |
+| Authorization | PostgreSQL RLS + server-side checks | Enforce tenant boundaries at the data layer as well as the application layer |
+| Schema validation | Zod | Runtime validation for saved project configuration and API input |
+| Forms | React Hook Form + Zod | Form state and validation in the dashboard |
+| State management | React state initially; Zustand or Redux Toolkit when needed | Avoid unnecessary global state; use existing expertise when complexity warrants it |
+| Styling | Tailwind CSS for dashboard | Consistent, fast dashboard UI development |
+| Monorepo | npm/Yarn/pnpm workspaces; optionally Turborepo | Shared packages and coordinated builds |
+| Version control | Git + GitHub | Change history, issue tracking, rollback, and collaboration readiness |
+| Mobile builds | Expo EAS Build | Managed Expo/React Native build workflow; verify current plan quotas and pricing |
+| SaaS billing | A supported Indian billing provider such as Razorpay, subject to eligibility and terms | Recurring subscription/payment handling; verify current requirements before integration |
+| Error monitoring | Start with provider logs; add a suitable error monitoring service when needed | Do not overbuild observability before the first usable workflow |
+| Email | Supabase Auth email defaults for early development; reliable transactional email service for production if required | Verify rate limits and production deliverability |
+
+### Should Django REST Framework be included immediately?
+
+Not by default. Supabase is enough for the initial authentication, relational database, file storage, and straightforward data operations.
+
+Consider Django REST Framework later if there is a specific need for complex backend workflows, Python libraries, custom administrative systems, integrations, or a centralized orchestration API that is easier to maintain in Django. Adding a second backend too early increases deployment, authentication, testing, and operational complexity.
+
+### Architecture boundary
+
+The shared package should primarily contain types, validation schemas, and business rules. Do not force all visual UI components to be shared between React for web and React Native for mobile. Web and mobile may share configuration and data models while rendering different layouts.
+
+---
+
+## 8. High-Level Architecture
 
 ```text
-Global Execution Context
-        |
-        v
-Function Execution Context
-        |
-        v
-Nested Function Context
-```
-
-You should understand the conceptual phases:
-
-```text
-Creation / setup
-      ↓
-Execution
-```
-
-Avoid presenting this as a literal two-step algorithm with every engine implementation detail fixed; the model is primarily useful for reasoning about scope, hoisting, and function execution.
-
----
-
-## Q5. What is the call stack?
-
-### Interview answer
-
-The call stack tracks active JavaScript execution frames. When a function is called, a frame is pushed onto the stack. When it returns, that frame is removed.
-
-```js
-function first() {
-  second();
-}
-
-function second() {
-  console.log('Hello');
-}
-
-first();
-```
-
-Conceptually:
-
-```text
-second()
-first()
-global()
-```
-
-Then the frames unwind.
-
-### Why is it important in React Native?
-
-A long-running synchronous calculation on the JS thread can prevent other JavaScript work from running promptly, which can contribute to interaction and rendering problems.
-
----
-
-## Q6. What is a closure?
-
-### Interview answer
-
-A closure occurs when a function retains access to variables from its lexical scope even after the outer function has returned.
-
-```js
-function counter() {
-  let count = 0;
-
-  return function increment() {
-    count += 1;
-    return count;
-  };
-}
-
-const increment = counter();
-
-console.log(increment()); // 1
-console.log(increment()); // 2
-```
-
-`increment` closes over `count`.
-
-### React Native relevance
-
-Closures appear in:
-
-- event handlers
-- `useEffect`
-- `useCallback`
-- timers
-- promise callbacks
-- custom hooks
-- state updater functions
-
-Understanding closures is essential for debugging **stale state**.
-
----
-
-## Q7. What is a stale closure in React?
-
-### Interview answer
-
-A stale closure happens when a callback retains values from an older render and later executes with those captured values instead of the latest state or props.
-
-```js
-function Screen() {
-  const [count, setCount] = useState(0);
-
-  const handleClick = () => {
-    setTimeout(() => {
-      console.log(count);
-    }, 3000);
-  };
-
-  // ...
-}
-```
-
-The timeout callback captures `count` from the render where that callback was created.
-
-### How do you handle it?
-
-Use the right strategy for the problem.
-
-When calculating new state from previous state:
-
-```js
-setCount(prev => prev + 1);
-```
-
-When an imperative callback genuinely needs a mutable reference to the latest value:
-
-```js
-const countRef = useRef(count);
-countRef.current = count;
-```
-
-### Senior point
-
-Do not use refs automatically to fix every stale closure. First determine whether the code should instead have correct dependencies or use a functional state update.
-
----
-
-## Q8. Explain `this` in JavaScript.
-
-### Interview answer
-
-For normal functions, the value of `this` is primarily determined by how the function is called.
-
-```js
-const user = {
-  name: 'Surendra',
-  greet() {
-    console.log(this.name);
-  },
-};
-
-user.greet(); // this -> user
-```
-
-If the method is extracted, the receiver can be lost:
-
-```js
-const greet = user.greet;
-greet();
-```
-
-Arrow functions behave differently: they do not create their own `this`; they use the lexical `this` from the surrounding scope.
-
-### Senior follow-up
-
-Know the common call patterns:
-
-```text
-obj.method()       → this is obj
-func.call(obj)     → explicit this
-func.apply(obj)    → explicit this
-func.bind(obj)     → returns bound function
-new Func()         → this refers to created instance
-arrow function     → lexical this
-```
-
----
-
-## Q9. What is the difference between `call`, `apply`, and `bind`?
-
-### Interview answer
-
-All three can control `this` for normal functions.
-
-```js
-function greet(city) {
-  console.log(this.name, city);
-}
-
-const user = { name: 'Surendra' };
-
-greet.call(user, 'Coimbatore');
-greet.apply(user, ['Coimbatore']);
-
-const bound = greet.bind(user);
-bound('Coimbatore');
-```
-
-- `call` invokes immediately with arguments separately.
-- `apply` invokes immediately with arguments as an array-like collection.
-- `bind` returns a new function with `this` and optional leading arguments bound.
-
----
-
-## Q10. What is the prototype chain?
-
-### Interview answer
-
-JavaScript uses prototype-based inheritance. If a property is not found directly on an object, the runtime looks up the object's prototype and continues through the prototype chain until it finds the property or reaches `null`.
-
-```text
-object
-  ↓
-prototype
-  ↓
-prototype
-  ↓
-Object.prototype
-  ↓
-null
-```
-
-Methods such as `toString` are typically found through this chain rather than being duplicated on every object instance.
-
----
-
-## Q11. Are JavaScript classes actually classical inheritance?
-
-### Interview answer
-
-JavaScript provides `class` syntax and inheritance constructs, but the language itself remains prototype-based. Classes provide a more familiar syntax over prototype mechanisms rather than replacing them with a purely classical object model.
-
-```js
-class Animal {
-  speak() {
-    console.log('sound');
-  }
-}
-
-class Dog extends Animal {
-  bark() {
-    console.log('bark');
-  }
-}
-```
-
-A senior interviewer may ask what `extends` ultimately establishes: it sets up a prototype relationship between the child and parent constructor/prototype objects.
-
----
-
-## Q12. Shallow copy vs deep copy.
-
-### Shallow copy
-
-```js
-const user = {
-  name: 'A',
-  address: {
-    city: 'Chennai',
-  },
-};
-
-const copy = { ...user };
-```
-
-`copy.address` still references the same nested object.
-
-### Deep copy
-
-For cloneable data, modern JavaScript provides:
-
-```js
-const cloned = structuredClone(user);
-```
-
-Other strategies or libraries may be appropriate for special object types.
-
-### React relevance
-
-For nested state updates, copy each changed level:
-
-```js
-setUser(prev => ({
-  ...prev,
-  address: {
-    ...prev.address,
-    city: 'Coimbatore',
-  },
-}));
-```
-
----
-
-## Q13. What is immutability and why is it important in React?
-
-### Interview answer
-
-Immutability means you avoid changing an existing state value in place and instead produce a new value representing the next state. React and many state libraries rely on reference identity for efficient change detection and memoization.
-
-Bad:
-
-```js
-user.name = 'Kumar';
-setUser(user);
-```
-
-Better:
-
-```js
-setUser(prev => ({
-  ...prev,
-  name: 'Kumar',
-}));
-```
-
-### Important nuance
-
-Immutability is not the same as deep-freezing every object. The practical goal is predictable state transitions and stable identity semantics.
-
----
-
-## Q14. Difference between `==` and `===`.
-
-```js
-5 == '5';  // true
-5 === '5'; // false
-```
-
-### Interview answer
-
-`==` performs type coercion as part of comparison. `===` compares without the usual coercive conversion of `==`. In application code, `===` is generally preferred because its behavior is more predictable.
-
-Know a few edge cases, but don't fill an interview with coercion trivia unless asked.
-
----
-
-## Q15. Explain the JavaScript event loop.
-
-### Interview answer
-
-Synchronous JavaScript executes on the call stack. Asynchronous operations are coordinated by the runtime. When asynchronous work is ready, its continuation is queued, and the event loop decides when queued work can run after the current execution stack is clear.
-
-Conceptually:
-
-```text
-                JavaScript
-                    |
-               Call Stack
-                    |
-        -------------------------
-        |                       |
-   Microtask Queue          Task Queue
-        |                       |
-        -------- Event Loop -----
-```
-
-Example:
-
-```js
-console.log('A');
-
-setTimeout(() => {
-  console.log('B');
-}, 0);
-
-Promise.resolve().then(() => {
-  console.log('C');
-});
-
-console.log('D');
-```
-
-Typical order in environments with standard promise microtask scheduling:
-
-```text
-A
-D
-C
-B
-```
-
-The exact task scheduling model depends on the JavaScript host, but the core interview concept is that Promise reactions run as microtasks and timers are handled as tasks.
-
----
-
-## Q16. What is the difference between microtasks and macrotasks/tasks?
-
-Examples commonly treated as microtasks:
-
-```text
-Promise.then / catch / finally
-queueMicrotask
-```
-
-Examples of tasks/macrotask-style APIs:
-
-```text
-setTimeout
-setInterval
-message events and other host tasks
-```
-
-General mental model:
-
-```text
-Current synchronous work
-        ↓
-Microtasks
-        ↓
-Next scheduled task
-```
-
-### Interview trap
-
-`setTimeout(fn, 0)` does not mean “run immediately.” It means the callback becomes eligible to run after the current work and according to the host's scheduling rules.
-
----
-
-## Q17. Explain Promise states.
-
-A Promise is initially:
-
-```text
-pending
-```
-
-It eventually becomes one of:
-
-```text
-fulfilled
-rejected
-```
-
-Once settled, it cannot transition to the other final state.
-
-```text
-pending
-  |
-  +---- fulfilled
-  |
-  +---- rejected
-```
-
----
-
-## Q18. Difference between `Promise.all`, `Promise.allSettled`, `Promise.race`, and `Promise.any`.
-
-### `Promise.all`
-
-Waits for all inputs. Rejects when one rejects.
-
-```js
-await Promise.all([
-  fetchUser(),
-  fetchProducts(),
-  fetchOrders(),
-]);
-```
-
-Use when all operations are required for success.
-
-### `Promise.allSettled`
-
-Waits for every Promise and provides each result status. Useful when partial success matters.
-
-### `Promise.race`
-
-Settles when the first input settles, whether fulfilled or rejected.
-
-### `Promise.any`
-
-Fulfills as soon as the first input fulfills. It rejects only if all inputs reject.
-
-### Interview follow-up
-
-Ask yourself whether the API design really requires serial execution or whether independent requests can be parallelized safely.
-
----
-
-## Q19. What does `async/await` actually do?
-
-### Interview answer
-
-`async/await` is syntax built around Promise-based asynchronous programming. An `async` function always returns a Promise. `await` suspends the continuation of that async function until the awaited Promise settles; it does not block the whole JavaScript runtime in the same way a synchronous blocking operation would.
-
-```js
-async function getData() {
-  const response = await fetch(url);
-  return response.json();
-}
-```
-
-### Senior follow-up
-
-Know when to parallelize:
-
-```js
-const [user, products] = await Promise.all([
-  getUser(),
-  getProducts(),
-]);
-```
-
-instead of unnecessarily doing:
-
-```js
-const user = await getUser();
-const products = await getProducts();
-```
-
-when the operations are independent.
-
----
-
-## Q20. Is `await` blocking?
-
-### Interview answer
-
-It suspends the current async function's continuation. It does not block unrelated JavaScript execution in the general sense, and it is not equivalent to a thread-blocking synchronization primitive.
-
-A stronger answer than “`await` blocks JavaScript” is:
-
-> `await` pauses that function's async continuation while control returns to the runtime until the Promise settles.
-
----
-
-## Q21. What is debouncing?
-
-Debouncing delays execution until a period of inactivity has passed.
-
-Search example:
-
-```text
-R
-Re
-Rea
-React
-   ↓
-(wait)
-   ↓
-API call
-```
-
-Typical use cases:
-
-- search boxes
-- validation
-- window resizing
-- autosave triggers
-
----
-
-## Q22. What is throttling?
-
-Throttling limits how often a function can execute within a time window.
-
-Typical use cases:
-
-- scroll events
-- gesture-related work
-- analytics sampling
-- frequent sensor/location updates
-
-Difference:
-
-```text
-Debounce → wait until activity settles
-Throttle → execute at controlled intervals
-```
-
----
-
-## Q23. How does garbage collection work?
-
-### Interview answer
-
-JavaScript runtimes automatically reclaim memory that is no longer reachable. Modern engines use garbage-collection strategies to identify objects that are no longer needed and reclaim their memory.
-
-For React Native, resource cleanup still matters even if JavaScript memory is garbage-collected. Native handles, listeners, timers, subscriptions, sockets, and other resources may require explicit cleanup.
-
-Example:
-
-```js
-useEffect(() => {
-  const subscription = subscribe();
-
-  return () => {
-    subscription.remove();
-  };
-}, []);
-```
-
----
-
-## Q24. What causes memory leaks in React Native?
-
-Common causes include:
-
-- timers that are never cleared
-- event listeners/subscriptions that are never removed
-- WebSockets that remain open
-- callbacks that retain unexpectedly large object graphs
-- large image/data caches
-- native resources that aren't released correctly
-- long-lived stores holding unnecessary data
-
-A practical debugging strategy is to reproduce the screen transition repeatedly and inspect whether memory or active resources continuously grow.
-
----
-
-# Part 2 — React Fundamentals
-
-## Q25. What is React?
-
-### Interview answer
-
-React is a library for building user interfaces with a declarative component model. You describe the UI for a given state, and React coordinates the process of producing the next rendered tree when state or props change.
-
-For React Native:
-
-```text
-React components
-      ↓
-React Native renderer
-      ↓
-Native platform UI
-```
-
----
-
-## Q26. What is the Virtual DOM?
-
-### Interview answer
-
-The Virtual DOM is a conceptual representation of the UI tree used by React's rendering model. When a component renders again, React produces a new element tree and determines what must change relative to the previous tree before committing updates.
-
-Avoid saying:
-
-> React rebuilds and compares the entire real DOM every time.
-
-That oversimplifies React's reconciliation process.
-
-In React Native there is no browser DOM equivalent; the same React rendering model is paired with native renderers.
-
----
-
-## Q27. What is reconciliation?
-
-### Interview answer
-
-Reconciliation is the process by which React determines how a new rendered element tree relates to the previous tree and which component identities and updates should be preserved, replaced, or changed.
-
-Key concepts include:
-
-- element/component type
-- stable keys in lists
-- component identity
-- tree structure
-- props and state changes
-
----
-
-## Q28. What is the difference between render phase and commit phase?
-
-### Render phase
-
-React computes what the next UI should look like.
-
-### Commit phase
-
-React applies the necessary updates to the host environment.
-
-Conceptually:
-
-```text
-State update
-    ↓
-Render
-    ↓
-Reconciliation
-    ↓
-Commit
-    ↓
-Host UI update
-```
-
-### Senior point
-
-Render work should be treated as pure. Do not trigger network requests, subscriptions, or other imperative side effects from the component render function.
-
----
-
-## Q29. Why should side effects not happen during render?
-
-Because a render is supposed to be a pure calculation of UI. React may render more than once, restart work, or abandon a render before it commits.
-
-Bad:
-
-```js
-function UserScreen() {
-  fetchUser();
-  return <View />;
-}
-```
-
-Better:
-
-```js
-useEffect(() => {
-  fetchUser();
-}, [userId]);
-```
-
-Depending on the operation, an event handler or data-fetching abstraction can be even more appropriate than an effect.
-
----
-
-## Q30. What is a React component?
-
-### Interview answer
-
-A component is a reusable UI unit that accepts inputs such as props and returns a description of what should be rendered.
-
-```jsx
-function UserCard({ user }) {
-  return (
-    <View>
-      <Text>{user.name}</Text>
-    </View>
-  );
-}
-```
-
-A component can own local state and coordinate hooks, but it should avoid becoming an unstructured container for every business rule in the application.
-
----
-
-## Q31. Props vs state.
-
-| Props | State |
-|---|---|
-| Inputs from a parent/owner | Data owned by a component or state system |
-| Read-only from the receiving component's perspective | Changes over time |
-| Used to configure/render a child | Represents dynamic application/UI state |
-
-Example prop:
-
-```jsx
-<UserCard user={user} />
-```
-
-Example state:
-
-```js
-const [loading, setLoading] = useState(false);
-```
-
----
-
-## Q32. What happens when `setState` is called?
-
-### Interview answer
-
-A state update schedules React to process an update. React may batch updates, compute the next state, render affected components, and commit the resulting changes.
-
-For state derived from previous state, use a functional updater:
-
-```js
-setCount(prev => prev + 1);
-setCount(prev => prev + 1);
-```
-
-This lets each updater receive the current queued state value rather than relying on a captured variable from the surrounding render.
-
----
-
-## Q33. Why use functional state updates?
-
-When the next value depends on the previous value:
-
-```js
-setCount(prev => prev + 1);
-```
-
-It is especially useful for:
-
-- multiple updates
-- batched updates
-- timers
-- asynchronous callbacks
-- event handlers that may run after the current render
-
----
-
-## Q34. Explain `useEffect`.
-
-### Interview answer
-
-`useEffect` is used to synchronize a component with external systems or imperative resources that are not part of rendering itself. Examples include subscriptions, timers, network synchronization, event listeners, and other APIs.
-
-```js
-useEffect(() => {
-  const subscription = subscribe();
-
-  return () => {
-    subscription.remove();
-  };
-}, []);
-```
-
-### Senior point
-
-Not every piece of logic belongs in an effect. Derived values should usually be calculated during render, while user-triggered actions often belong in event handlers.
-
----
-
-## Q35. What does the dependency array mean?
-
-```js
-useEffect(() => {
-  fetchUser(userId);
-}, [userId]);
-```
-
-The effect reads `userId`, so changes to that reactive value are relevant to the effect. React compares dependency values between renders and reruns the effect when they have changed.
-
-A dependency array is **not** an arbitrary “when I want this effect to run” list. It should represent the reactive values the effect depends on, with deliberate exceptions when using established patterns.
-
----
-
-## Q36. What is wrong with this?
-
-```js
-useEffect(() => {
-  fetchUser(userId);
-}, []);
-```
-
-If `userId` can change, the effect may keep using the value captured from the initial render.
-
-A good interview answer:
-
-> I would check whether `userId` is actually stable. If it is reactive, it should normally be represented in the dependencies or the logic should be refactored so that the effect's dependencies accurately describe what it synchronizes with.
-
----
-
-## Q37. What does `useEffect` cleanup do?
-
-```js
-useEffect(() => {
-  const listener = addListener();
-
-  return () => {
-    listener.remove();
-  };
-}, []);
-```
-
-Cleanup runs before a subsequent execution of the same effect when dependencies change and when the effect is removed/unmounted according to React's lifecycle semantics.
-
-Use cleanup for:
-
-- event listeners
-- timers
-- subscriptions
-- WebSockets
-- native observers
-- request cancellation where appropriate
-
----
-
-## Q38. Explain `useMemo`.
-
-### Interview answer
-
-`useMemo` caches the result of a calculation between renders until its dependencies change.
-
-```js
-const filteredProducts = useMemo(() => {
-  return products.filter(product =>
-    product.name.includes(search)
-  );
-}, [products, search]);
-```
-
-Use it when:
-
-- a calculation is meaningfully expensive, or
-- stable reference identity is valuable for downstream optimization.
-
-Do not use it as a blanket rule for every variable. Memoization itself has cost and complexity.
-
----
-
-## Q39. Explain `useCallback`.
-
-### Interview answer
-
-`useCallback` returns the same function reference between renders until one of its dependencies changes.
-
-```js
-const handlePress = useCallback(() => {
-  navigation.navigate('Details');
-}, [navigation]);
-```
-
-It is most useful when reference stability matters, for example:
-
-- passing a callback to a memoized child
-- using a callback in dependency tracking
-- avoiding needless downstream prop changes in an expensive subtree
-
-It does not make the underlying function intrinsically faster.
-
----
-
-## Q40. `useMemo` vs `useCallback`.
-
-```text
-useMemo
-→ memoizes a calculated value
-
-useCallback
-→ memoizes a function reference
-```
-
-Conceptually:
-
-```js
-useCallback(fn, deps)
-```
-
-is closely related to:
-
-```js
-useMemo(() => fn, deps)
-```
-
-but the semantic intent is clearer with `useCallback` when the thing being memoized is a function.
-
----
-
-## Q41. What is `React.memo`?
-
-### Interview answer
-
-`React.memo` creates a memoized component that can skip a re-render when its props compare as unchanged.
-
-```js
-const UserCard = React.memo(function UserCard({ user }) {
-  return <Text>{user.name}</Text>;
-});
-```
-
-However, this can be undermined by unstable props:
-
-```jsx
-<UserCard
-  user={user}
-  onPress={() => handlePress(user)}
-/>
-```
-
-The callback is a new function on each parent render.
-
----
-
-## Q42. Does `React.memo` guarantee no re-render?
-
-No.
-
-### Interview answer
-
-`React.memo` is a performance optimization, not a semantic guarantee. A component can still render because its own state changes, consumed context changes, props change, or React otherwise needs to render it.
-
-Also, preventing every render is not inherently the goal. The goal is to prevent unnecessary expensive work.
-
----
-
-## Q43. What is the Context API?
-
-### Interview answer
-
-Context allows a value to be provided to a subtree without explicitly passing it through every intermediate component as a prop.
-
-Common uses:
-
-- theme
-- localization
-- authentication dependencies
-- application configuration
-- relatively stable cross-cutting data
-
-```jsx
-<AuthProvider>
-  <App />
-</AuthProvider>
-```
-
----
-
-## Q44. Should Context replace Redux?
-
-Not automatically.
-
-A strong distinction is:
-
-```text
-Context
-→ dependency propagation / shared values
-
-Redux
-→ centralized application state and predictable state transitions
-```
-
-Context is excellent for relatively stable cross-cutting dependencies. Redux or another store can be more appropriate when state is large, frequently updated, shared across many features, or benefits from centralized transitions, middleware, persistence, or debugging tooling.
-
----
-
-## Q45. What causes Context performance problems?
-
-Consider:
-
-```jsx
-<AuthContext.Provider value={{ user, login }}>
-  {children}
-</AuthContext.Provider>
-```
-
-If the provider renders and creates a fresh object, consumers may observe a new context value.
-
-Possible mitigation:
-
-```js
-const value = useMemo(
-  () => ({ user, login }),
-  [user, login]
-);
-```
-
-However, the bigger architectural consideration is provider scope. Avoid putting high-frequency changing values into very broad contexts when more localized state would be better.
-
----
-
-## Q46. What is `useRef`?
-
-### Interview answer
-
-`useRef` stores a mutable value that persists across renders without causing a re-render when the `.current` value changes.
-
-Example:
-
-```js
-const inputRef = useRef(null);
-
-inputRef.current?.focus();
-```
-
-It can also hold:
-
-- timer IDs
-- previous values
-- imperative handles
-- mutable instance-like state
-- latest values for carefully designed callbacks
-
----
-
-## Q47. `useState` vs `useRef`.
-
-| `useState` | `useRef` |
-|---|---|
-| Updating state schedules rendering | Changing `.current` does not schedule rendering |
-| Represents UI/application state | Represents a persistent mutable cell |
-| State transitions are part of React's update model | Mutations are imperative and not themselves rendered |
-
-Use a ref when rendering should **not** be triggered by the value changing.
-
----
-
-## Q48. What are the Rules of Hooks?
-
-The core rules are:
-
-1. Call hooks only at the top level of a React function component or custom hook.
-2. Call hooks only from React components or custom hooks.
-
-Bad:
-
-```js
-if (isLoggedIn) {
-  useEffect(() => {}, []);
-}
-```
-
-Hook order must remain consistent across renders so React can correctly associate hook state with hook calls.
-
----
-
-## Q49. What is a custom hook?
-
-### Interview answer
-
-A custom hook is a reusable function beginning with `use` that can compose React hooks and encapsulate reusable stateful behavior.
-
-```js
-function useAuth() {
-  const [user, setUser] = useState(null);
-
-  const login = async credentials => {
-    // login logic
-  };
-
-  return { user, login };
-}
-```
-
-The goal is to separate reusable behavior from UI composition.
-
----
-
-## Q50. Why are keys important in React lists?
-
-Keys give elements stable identity so React can reason about inserted, removed, or reordered items.
-
-```jsx
-products.map(product => (
-  <ProductCard
-    key={product.id}
-    product={product}
-  />
-));
-```
-
-Use stable IDs whenever possible.
-
----
-
-## Q51. Why can using array index as a key cause bugs?
-
-Imagine:
-
-```text
-A
-B
-C
-```
-
-Then insert `X` at the top:
-
-```text
-X
-A
-B
-C
-```
-
-Indexes shift. React may associate an existing component instance with different data than before.
-
-This can lead to:
-
-- wrong local input state
-- mismatched component state
-- unexpected animations
-- confusing list updates
-
-Index keys are not inherently forbidden; they are risky when items can be reordered, inserted, removed, or otherwise change identity.
-
----
-
-## Q52. What is Strict Mode?
-
-### Interview answer
-
-React Strict Mode enables additional development-time checks intended to surface unsafe patterns. In development, some behavior can be repeated or simulated to expose missing cleanup and side-effect bugs. This should not be interpreted as a promise that production executes the exact same development checks.
-
-When an API appears to run twice in development, inspect:
-
-- Strict Mode behavior
-- effect dependencies
-- mount/unmount behavior
-- cleanup
-- duplicate invocation from app code
-
----
-
-## Q53. What is lazy loading?
-
-```js
-const Profile = lazy(() => import('./Profile'));
-```
-
-Combined with:
-
-```jsx
-<Suspense fallback={<Loader />}>
-  <Profile />
-</Suspense>
-```
-
-The module is loaded when React needs it according to the surrounding code-splitting/runtime model.
-
-For mobile, evaluate whether code splitting materially improves startup and whether the resulting loading behavior is appropriate for the product.
-
----
-
-## Q54. What is an Error Boundary?
-
-### Interview answer
-
-An Error Boundary is a component that catches errors during rendering and lifecycle behavior in descendant components and shows fallback UI instead of allowing the affected subtree to fail unhandled.
-
-An error boundary is not a general-purpose asynchronous exception handler. Network errors, promise rejections, timers, and event callback failures often require their own handling patterns.
-
----
-
-# Part 3 — React Native Fundamentals
-
-## Q55. What is React Native?
-
-### Interview answer
-
-React Native is a framework for building native mobile applications using React and JavaScript/TypeScript. React supplies the declarative component model, while React Native provides host components, a renderer, and APIs for interacting with Android and iOS capabilities.
-
-Example:
-
-```jsx
-<View>
-  <Text>Hello</Text>
-</View>
-```
-
-These are React Native components, not HTML DOM elements.
-
----
-
-## Q56. React vs React Native.
-
-| React (web) | React Native |
-|---|---|
-| Browser UI | Native mobile UI |
-| DOM host environment | Native host environment |
-| `div` | `View` |
-| `button` | `Pressable` / platform controls |
-| Browser CSS | React Native style system + Yoga layout |
-| Browser APIs | Native/mobile APIs |
-
-The programming model is React, but the host renderer and platform capabilities are different.
-
----
-
-## Q57. Explain React Native architecture.
-
-You should understand both the historical architecture and the modern New Architecture.
-
-### Legacy architecture
-
-A simplified mental model is:
-
-```text
-JavaScript
-    |
-    | serialized async Bridge communication
-    ↓
-Native
-```
-
-### New Architecture
-
-A simplified mental model:
-
-```text
-React
-  ↓
-Fabric renderer
-  ↓
-Native rendering
-
-JavaScript
-  ↓
-JSI
-  ↓
-TurboModules / native capabilities
-  ↓
-Native
-```
-
-Important New Architecture concepts:
-
-- Fabric
-- TurboModules
-- JSI
-- concurrent React capabilities / improved scheduling integration
-- code generation and typed native interfaces in the wider architecture ecosystem
-
-Do not describe the New Architecture as “just replacing the bridge with JSI.” It is a broader redesign of the rendering and native module systems.
-
----
-
-## Q58. What is the React Native Bridge?
-
-### Interview answer
-
-In the legacy React Native architecture, the Bridge was a communication mechanism between JavaScript and native code. Communication commonly involved batching/serialization and asynchronous transfer across the boundary.
-
-This could become expensive for very high-frequency communication such as:
-
-- gesture updates
-- animation values
-- large event streams
-- frequent native callbacks
-
-The New Architecture moves away from this legacy communication model and uses JSI-based mechanisms plus modern rendering/native module systems.
-
----
-
-## Q59. What is JSI?
-
-### Interview answer
-
-JSI, the JavaScript Interface, is a C++ interface that allows JavaScript engines and native/C++ code to interact more directly than the old serialized Bridge model.
-
-Conceptually:
-
-```text
-Old
-JS → Bridge → Native
-
-Modern
-JS ↔ JSI ↔ C++ / Native infrastructure
-```
-
-JSI enables libraries and React Native internals to implement lower-overhead interactions, including synchronous/native-adjacent patterns where appropriate.
-
----
-
-## Q60. What are TurboModules?
-
-### Interview answer
-
-TurboModules are part of React Native's New Architecture for integrating native modules with JavaScript. They support a more modern module-loading and interoperability model, including JSI-based communication patterns and lazy loading.
-
-Examples of native capabilities that may be exposed as modules include:
-
-- camera
-- biometrics
-- Bluetooth
-- device sensors
-- secure storage
-- payments
-
----
-
-## Q61. What is Fabric?
-
-### Interview answer
-
-Fabric is React Native's modern rendering system. It is part of the New Architecture and is designed to improve how React's rendering model integrates with native views and modern React capabilities.
-
-Conceptually:
-
-```text
-React tree
-   ↓
-Fabric renderer
-   ↓
-Native host views
-```
-
-When discussing Fabric, focus on its role as the renderer rather than describing it simply as a performance toggle.
-
----
-
-## Q62. What is Hermes?
-
-### Interview answer
-
-Hermes is a JavaScript engine optimized for React Native workloads, with a focus on mobile constraints such as startup performance and memory usage.
-
-A useful mental model is:
-
-```text
-React Native application
-      ↓
-JS bundle
-      ↓
-JavaScript engine (commonly Hermes)
-      ↓
-React Native runtime / renderer
-```
-
-Know how Hermes can affect debugging, stack traces, startup characteristics, and runtime behavior in production.
-
----
-
-## Q63. What are the JavaScript thread and UI/main thread?
-
-A simplified model is:
-
-```text
-JS thread / runtime
-  ├─ React/business logic
-  ├─ state processing
-  ├─ API callbacks
-  └─ JavaScript computations
-
-UI/Main thread
-  ├─ native UI work
-  ├─ layout and drawing
-  └─ user interaction handling
-```
-
-A long-running synchronous JavaScript computation can delay JS-side work and make the app feel unresponsive.
-
-Do not present this model as if React Native has only exactly two threads. Modern RN apps can involve multiple runtime/native threads. The model is useful for identifying whether work is JS-bound or native/UI-bound.
-
----
-
-## Q64. How would you debug UI lag in React Native?
-
-### Strong 5+ years answer
-
-First determine the bottleneck instead of applying random optimizations. I would establish whether the issue is:
-
-- JavaScript execution
-- UI/native work
-- excessive renders
-- expensive component work
-- list virtualization
-- image decoding
-- animation/gesture processing
-- networking/data transformation
-- memory pressure
-
-Then profile the interaction and compare before/after changes.
-
-A good diagnostic flow is:
-
-```text
-Reproduce
-  ↓
-Profile
-  ↓
-Identify bottleneck
-  ↓
-Target optimization
-  ↓
-Measure again
-```
-
----
-
-## Q65. Why is `FlatList` preferred over `ScrollView` for large lists?
-
-### Interview answer
-
-`ScrollView` generally renders all of its children, whereas `FlatList` uses virtualization to render a window of items around the visible area and manage item recycling/rendering more efficiently.
-
-For large datasets, use:
-
-```jsx
-<FlatList
-  data={products}
-  renderItem={renderItem}
-  keyExtractor={item => String(item.id)}
-/>
-```
-
-rather than rendering a very large array directly inside a `ScrollView`.
-
----
-
-## Q66. Important `FlatList` optimization techniques.
-
-Know these and, more importantly, know when to use them:
-
-- stable `keyExtractor`
-- lightweight row components
-- `React.memo` for expensive rows when appropriate
-- stable `renderItem` references when it matters
-- `getItemLayout` for fixed-size items
-- pagination/infinite loading
-- sensible `initialNumToRender`
-- `maxToRenderPerBatch`
-- `windowSize`
-- careful use of `removeClippedSubviews`
-- image sizing/caching
-- avoid large derived calculations in every row
-- avoid passing constantly changing objects/functions unnecessarily
-
-Do not present these as a magic checklist. Profiling is more important than changing ten props at once.
-
----
-
-## Q67. What is `getItemLayout`?
-
-For fixed or predictable row dimensions, `getItemLayout` lets the list calculate item positions without dynamically measuring every item.
-
-```js
-getItemLayout={(data, index) => ({
-  length: ITEM_HEIGHT,
-  offset: ITEM_HEIGHT * index,
-  index,
-})}
-```
-
-This can improve operations such as jumping to an item by index and reduce measurement work.
-
----
-
-## Q68. `FlatList` vs `SectionList`.
-
-### `FlatList`
-
-For a single flat sequence:
-
-```text
-Products
-Users
-Messages
-```
-
-### `SectionList`
-
-For grouped/sectioned data:
-
-```text
-A
-  Apple
-  Amazon
-
-B
-  BMW
-  Boeing
-```
-
----
-
-## Q69. What is `VirtualizedList`?
-
-### Interview answer
-
-`VirtualizedList` is the lower-level virtualization primitive used by `FlatList` and `SectionList`. It provides more direct control for advanced cases where data access or list behavior differs from the standard array-based components.
-
----
-
-## Q70. How can you prevent unnecessary React Native renders?
-
-Start with architecture before micro-optimizations:
-
-1. Keep state as local as practical.
-2. Create useful component boundaries.
-3. Avoid recreating expensive data structures unnecessarily.
-4. Use `React.memo` when it meaningfully reduces expensive child work.
-5. Use `useCallback` when function identity matters.
-6. Use `useMemo` for expensive calculations or important stable references.
-7. Avoid expensive work during render.
-8. Virtualize large collections.
-9. Avoid broad context updates for high-frequency state.
-10. Optimize selectors and derived data when using state libraries.
-
----
-
-## Q71. LayoutAnimation / Animated vs Reanimated.
-
-The exact APIs differ by version, but the conceptual distinction is important.
-
-React Native provides animation primitives, while Reanimated is designed for advanced, highly interactive animations and gestures where running work closer to the UI/native execution side can reduce JS-thread pressure.
-
-Typical Reanimated use cases:
-
-- gesture-driven interactions
-- shared values
-- complex transitions
-- high-frequency visual updates
-- UI-thread-oriented animation work
-
-The senior-level point is:
-
-> High-frequency visual work should not unnecessarily depend on a busy JavaScript thread.
-
----
-
-## Q72. Why avoid expensive calculations inside render?
-
-Consider:
-
-```jsx
-function ProductList({ products }) {
-  const result = hugeCalculation(products);
-  return <FlatList data={result} />;
-}
-```
-
-If the component renders frequently, the calculation repeats.
-
-A potential optimization is:
-
-```js
-const result = useMemo(
-  () => hugeCalculation(products),
-  [products]
-);
-```
-
-Only use this if the calculation is meaningful enough to justify memoization.
-
----
-
-## Q73. What is `Pressable` and why might you prefer it over older touchables?
-
-### Interview answer
-
-`Pressable` is a React Native core component designed around press interaction states and gives more control over pressed behavior.
-
-It is useful for reusable interaction components because you can derive styling from pressed state.
-
-```jsx
-<Pressable
-  onPress={handlePress}
-  style={({ pressed }) => [
-    styles.button,
-    pressed && styles.pressed,
-  ]}
->
-  <Text>Submit</Text>
-</Pressable>
-```
-
-The main interview point is to understand touch interaction, accessibility, hit areas, and platform behavior rather than memorizing a component name.
-
----
-
-# Part 4 — Navigation
-
-## Q74. React Navigation vs Expo Router.
-
-### Interview answer
-
-React Navigation provides navigation primitives and configuration patterns for React Native. Expo Router adds file-based routing and deep integration with the Expo toolchain.
-
-Expo Router conventionally maps filesystem structure to routes:
-
-```text
-app/
-├── index.tsx
-├── login.tsx
-├── profile.tsx
-└── products/
-    └── [id].tsx
-```
-
-The right choice depends on the project's routing conventions, web support needs, team preferences, and existing architecture.
-
----
-
-## Q75. How would you implement authentication navigation?
-
-Typical model:
-
-```text
-                    Root
-                      |
-             Authenticated?
-              /           \
-            No             Yes
-            |                |
-         AuthStack        AppStack
-            |                |
-          Login          Home/Profile
-```
-
-The key is that access control should be driven by actual authentication/session state, not simply by visually hiding screens.
-
-With Expo Router, this commonly maps to public/authenticated route groups and an auth-aware root layout.
-
----
-
-## Q76. How do deep links work?
-
-Example:
-
-```text
-myapp://products/123
-```
-
-or web-based app links/universal links:
-
-```text
-https://example.com/products/123
-```
-
-The application maps:
-
-```text
-URL
- ↓
-route
- ↓
-screen
- ↓
-parameters
-```
-
-Production concerns include:
-
-- cold start vs warm start
-- authentication state
-- expired or invalid links
-- nested navigation
-- Android App Links
-- iOS Universal Links
-- navigation state restoration
-
----
-
-# Part 5 — Expo and EAS
-
-## Q77. What is Expo?
-
-### Interview answer
-
-Expo is a framework and ecosystem around React Native that provides standardized tooling for app development, native capabilities, builds, updates, and deployment workflows. Expo projects can also use custom native modules and native configuration through development builds, prebuild/config plugins, and native project code when necessary.
-
-A good modern interview answer avoids describing Expo as a “beginner-only wrapper.”
-
----
-
-## Q78. What is Expo Go?
-
-### Interview answer
-
-Expo Go is a prebuilt development client containing a predefined set of Expo capabilities. It is convenient for learning and projects that fit within its supported native surface, but it is not a substitute for a project-specific development build when custom native modules or native configuration are required.
-
----
-
-## Q79. Expo Go vs Development Build.
-
-| Expo Go | Development Build |
-|---|---|
-| Prebuilt client | Project-specific native client |
-| Limited to included native capabilities | Can include custom native modules |
-| Very quick to start | More closely matches your native app |
-| Excellent for learning/prototyping | Better for serious native customization |
-
-A development build is an installable debug-oriented application binary tailored to your project.
-
----
-
-## Q80. What is `expo prebuild`?
-
-### Interview answer
-
-`expo prebuild` generates native Android and iOS projects from the Expo configuration and the project's native module requirements.
-
-Conceptually:
-
-```text
-app.json / app.config.js
-       +
-Expo/native packages
-       ↓
-expo prebuild
-       ↓
-android/ + ios/
-```
-
-It is particularly relevant when native project configuration is needed while keeping configuration-driven reproducibility.
-
----
-
-## Q81. What are Expo config plugins?
-
-### Interview answer
-
-Config plugins allow packages or app configuration to modify native project settings during prebuild instead of requiring every native modification to be done manually in generated files.
-
-Conceptually:
-
-```text
-Expo config
-   ↓
-Config plugin
-   ↓
-Native project modifications
-   ├─ AndroidManifest
-   ├─ Gradle settings
-   ├─ Info.plist
-   └─ Xcode project configuration
-```
-
-They are important for reproducible native configuration.
-
----
-
-## Q82. What is EAS Build?
-
-### Interview answer
-
-EAS Build is Expo's hosted build service for creating Android and iOS application binaries. It supports build profiles, signing credentials, internal distribution, and automated workflows.
-
-Example:
-
-```bash
-eas build --platform all
-```
-
-In an interview, mention that build profiles let teams separate development, preview/QA, and production behavior.
-
----
-
-## Q83. What is EAS Update?
-
-### Interview answer
-
-EAS Update allows compatible JavaScript and asset changes to be delivered to existing application binaries without producing a new native binary for every JS/assets-only change.
-
-Conceptually:
-
-```text
-Existing binary
-    |
-    +── Native runtime
-    +── JS/assets
-          ↑
-       EAS Update
-```
-
-The update still must be compatible with the binary's native runtime. `runtimeVersion` is part of the compatibility model.
-
----
-
-## Q84. Can EAS Update replace Play Store/App Store releases?
-
-No.
-
-### Interview answer
-
-OTA updates are not a replacement for native releases. If you change native code, native dependencies, native configuration, or anything that changes the runtime contract, a new application binary is generally required.
-
-For compatible JS/assets changes, an OTA update can avoid a full store release.
-
----
-
-## Q85. What are EAS build profiles?
-
-Example:
+                         BUSINESS OWNER
+                               |
+                               v
+                     NEXT.JS SAAS DASHBOARD
+                  Auth / Projects / Template Editor
+                               |
+                               v
+                 VALIDATION + PROJECT SERVICE LAYER
+                   /            |             \
+                  v             v              v
+             SUPABASE       ASSET STORAGE    BILLING
+            Auth + SQL       Logos/images    Later phase
+                  |
+                  v
+          VERSIONED PROJECT CONFIG
+                  |
+           +------+----------------+
+           |                       |
+           v                       v
+  WEBSITE RENDERER          EXPO MOBILE RUNTIME
+           |                       |
+           v                       v
+  HOSTED CUSTOMER SITE      NATIVE BUILD SERVICE
+                                   |
+                                   v
+                           EAS / BUILD WORKER
+                                   |
+                                   v
+                          ANDROID / iOS ARTIFACT
+```
+
+### Key design choices
+
+- One SaaS control plane manages user accounts, workspaces, projects, templates, publishing, and billing.
+- Projects are tenant-owned records in a shared database.
+- Template definitions and rendering components are maintained in version-controlled code.
+- Customer choices/content are stored as validated configuration and related domain data.
+- Websites are rendered by a runtime that resolves a host/subdomain to a published project version.
+- A separate build service handles native compilation later; the web request should not wait for a long build.
+- Build credentials and privileged secrets exist only in trusted server-side environments.
+
+---
+
+## 9. Template and Rendering Architecture
+
+### Recommended model: controlled configuration-driven templates
+
+Do not create a completely separate codebase for every customer at the beginning. Maintain a set of trusted templates and render them from each customer's configuration.
+
+A template should define:
+
+- A stable template ID and version.
+- Supported page types and section types.
+- Default configuration.
+- A schema for validating customizations.
+- Feature capabilities and compatibility requirements.
+- Web components and, when available, mobile equivalents.
+- Migration logic if the configuration schema changes.
+
+### Example configuration
+
+This is a conceptual example only. Final schema design should be validated against the chosen niche and component registry.
 
 ```json
 {
-  "build": {
-    "development": {},
-    "preview": {},
-    "production": {}
-  }
-}
-```
-
-Typical roles:
-
-```text
-development
-→ developer iteration / development client
-
-preview
-→ QA / internal distribution
-
-production
-→ store/release binaries
-```
-
-Profiles can also control environment variables, distribution mode, channel, simulator/device settings, and other build behavior.
-
----
-
-## Q86. How would you manage app icons, names, bundle IDs, and other app branding in Expo?
-
-For a configurable multi-brand application, define branding as build-time configuration rather than runtime secret logic.
-
-Conceptually:
-
-```text
-Brand configuration
-      ↓
-Expo app config
-      ↓
-EAS build profile / environment
-      ↓
-app name, icons, package/bundle ID
-      ↓
-separate native binary
-```
-
-The runtime can also receive API-driven content, but native app identity elements such as the launcher icon and bundle identifier are generally build-time concerns, not values that can be safely changed inside an already-installed binary by downloading JSON.
-
----
-
-# Part 6 — State Management
-
-## Q87. When would you use Redux?
-
-### Interview answer
-
-I use Redux when shared application state becomes complex enough that centralized predictable updates, middleware, persistence, debugging, cross-feature coordination, or explicit state transitions provide real value.
-
-Examples:
-
-- authentication/session state
-- cart
-- favorites
-- user preferences
-- feature flags
-- complex multi-screen workflows
-
-I would not introduce Redux simply because an app has more than one component.
-
----
-
-## Q88. Redux Toolkit vs legacy Redux.
-
-Redux Toolkit is the recommended approach for modern Redux applications. It reduces boilerplate and standardizes patterns with utilities such as:
-
-- `configureStore`
-- `createSlice`
-- `createAsyncThunk`
-- RTK Query
-
-Example:
-
-```js
-const cartSlice = createSlice({
-  name: 'cart',
-  initialState: { items: [] },
-  reducers: {
-    addItem(state, action) {
-      state.items.push(action.payload);
-    },
+  "schemaVersion": 1,
+  "template": {
+    "id": "salon-v1",
+    "version": 1
   },
-});
-```
-
-The mutation-style code is translated into immutable updates by Immer.
-
----
-
-## Q89. Is Redux Toolkit actually mutating state?
-
-### Interview answer
-
-The reducer code can look mutative because Redux Toolkit uses Immer. Immer tracks the changes and produces an immutable next state.
-
-So:
-
-```js
-state.items.push(item);
-```
-
-is mutation-like reducer syntax, but the resulting Redux state update remains immutable from the store's perspective.
-
----
-
-## Q90. Context vs Redux.
-
-A useful interview distinction:
-
-```text
-Context
-→ dependency propagation
-
-Redux
-→ centralized application state
-```
-
-Context is good for relatively stable cross-cutting dependencies. Redux is useful when complex shared state needs a predictable update model, middleware, persistence, or debugging.
-
----
-
-## Q91. What is Redux middleware?
-
-### Interview answer
-
-Middleware runs between dispatch and reducer processing.
-
-```text
-dispatch(action)
-       ↓
-middleware
-       ↓
-reducer
-       ↓
-store update
-       ↓
-UI
-```
-
-Use cases include:
-
-- async workflows
-- analytics
-- logging
-- error reporting
-- side effects
-- conditional dispatching
-
----
-
-## Q92. What is RTK Query?
-
-### Interview answer
-
-RTK Query is Redux Toolkit's data-fetching and caching solution. It addresses server-state concerns such as request lifecycle, caching, deduplication, invalidation, refetching, and derived loading/error status.
-
-A useful conceptual distinction is:
-
-```text
-Client/application state
-→ Redux slices
-
-Server/API state
-→ RTK Query or another server-state cache
-```
-
----
-
-## Q93. Should all API data be stored in Redux?
-
-No.
-
-### Interview answer
-
-The right home for data depends on its lifecycle. Server state often belongs in a dedicated caching/data-fetching layer such as RTK Query. Local UI state can stay in a component. Cross-feature client state may belong in Redux. Storing every response in a global store can create unnecessary complexity and duplication.
-
----
-
-## Q94. What are selectors and why are they important?
-
-Selectors read data from state and can centralize derived-state logic.
-
-Example:
-
-```js
-const selectCartTotal = state =>
-  state.cart.items.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-```
-
-For complex derived data, memoized selectors can prevent unnecessary recalculation and help control rerenders.
-
----
-
-# Part 7 — Networking and API Architecture
-
-## Q95. How do you structure API calls in a large React Native application?
-
-Avoid scattering raw HTTP calls throughout every screen.
-
-Prefer layers such as:
-
-```text
-Screen
-  ↓
-Hook / state abstraction
-  ↓
-Service / repository
-  ↓
-API client
-  ↓
-Backend
-```
-
-Typical folders:
-
-```text
-src/
-├── api/
-├── services/
-├── hooks/
-├── store/
-└── features/
-```
-
-The exact naming is less important than separation of concerns.
-
----
-
-## Q96. How would you implement access-token refresh?
-
-Typical flow:
-
-```text
-API request
-    ↓
-401 Unauthorized
-    ↓
-Access token expired?
-    ↓
-Refresh token
-    ↓
-New access token
-    ↓
-Retry original request
-```
-
-Production concerns:
-
-- refresh request must not recursively trigger itself
-- multiple failing requests must not start multiple refresh flows unnecessarily
-- queued requests should be resolved/rejected correctly
-- refresh-token expiry must lead to logout/session reset
-- retries need a hard upper bound
-- race conditions must be handled
-
-A useful pattern is a shared “refresh in progress” Promise so concurrent requests can await the same refresh operation.
-
-```text
-Request A ─┐
-Request B ─┼──→ one refresh operation
-Request C ─┘
-              ↓
-           new token
-              ↓
-       retry queued requests
-```
-
----
-
-## Q97. How do you avoid refresh-token race conditions?
-
-Maintain one refresh operation at a time.
-
-Conceptually:
-
-```js
-let refreshPromise = null;
-
-async function getFreshToken() {
-  if (!refreshPromise) {
-    refreshPromise = refreshAccessToken()
-      .finally(() => {
-        refreshPromise = null;
-      });
-  }
-
-  return refreshPromise;
+  "business": {
+    "name": "Sunrise Salon",
+    "description": "Hair and beauty services",
+    "phone": "+91-0000000000",
+    "email": "hello@example.com"
+  },
+  "theme": {
+    "primaryColor": "#7856D7",
+    "backgroundColor": "#FFFFFF",
+    "textColor": "#222222",
+    "fontFamily": "Inter"
+  },
+  "branding": {
+    "logoAssetId": "asset-logo-001",
+    "iconAssetId": "asset-icon-001"
+  },
+  "navigation": ["Home", "Services", "Contact"],
+  "features": {
+    "serviceList": true,
+    "bookingRequest": true,
+    "contactForm": true
+  },
+  "sections": [
+    { "type": "hero", "visible": true },
+    { "type": "service-list", "visible": true },
+    { "type": "testimonials", "visible": false },
+    { "type": "contact-section", "visible": true }
+  ]
 }
 ```
 
-Every 401 handler can await the same Promise. Production implementations need additional handling for failure, logout, request cancellation, and request retry limits.
+Avoid putting secrets, service-role credentials, payment provider secret keys, or private data in the project configuration.
 
----
-
-## Q98. How do you cancel API requests?
-
-Where the HTTP API supports it, use `AbortController`.
-
-```js
-const controller = new AbortController();
-
-fetch(url, {
-  signal: controller.signal,
-});
-
-controller.abort();
-```
-
-Useful for:
-
-- search-as-you-type
-- abandoning obsolete requests
-- screen-specific requests
-- avoiding wasted work after navigation
-
----
-
-## Q99. How do you handle loading, success, empty, and error states?
-
-Do not model everything as one `loading` boolean.
-
-A more explicit state model is:
-
-```text
-idle
-loading
-success + data
-success + empty
-error + previous data (if applicable)
-```
-
-With server-state libraries, these states may be represented separately as fetching/loading/error flags plus cached data.
-
-The UI should distinguish:
-
-```text
-first load
-background refetch
-empty result
-network error
-permission error
-server error
-```
-
----
-
-## Q100. What if the API responds slowly?
-
-Analyze the entire path:
-
-```text
-DNS/network
-  ↓
-server processing
-  ↓
-response payload
-  ↓
-transport
-  ↓
-JSON parsing/data normalization
-  ↓
-React state update
-  ↓
-rendering
-```
-
-Possible improvements:
-
-- pagination
-- smaller payloads
-- response compression
-- parallel independent requests
-- caching
-- stale-while-revalidate patterns
-- prefetching
-- deferred non-critical calls
-
-Do not blame the mobile UI automatically.
-
----
-
-## Q101. How would you structure an Axios API client?
-
-A typical abstraction:
-
-```js
-const api = axios.create({
-  baseURL: BASE_URL,
-  timeout: 15000,
-});
-
-api.interceptors.request.use(config => {
-  // attach access token / request metadata
-  return config;
-});
-
-api.interceptors.response.use(
-  response => response,
-  async error => {
-    // classify errors / refresh / retry as appropriate
-    throw error;
-  }
-);
-```
-
-A production-quality client should also consider:
-
-- retry policy
-- idempotency
-- cancellation
-- token refresh recursion
-- request correlation IDs
-- structured errors
-- logging redaction
-- environment configuration
-
----
-
-# Part 8 — Storage and Offline Data
-
-## Q102. AsyncStorage vs SecureStore.
-
-### AsyncStorage
-
-Good for ordinary persistent application data such as:
-
-- preferences
-- flags
-- simple cache values
-- non-sensitive local state
-
-### SecureStore / platform-secure storage
-
-Better for sensitive credentials and secrets that require platform-backed secure storage.
-
-Do not describe generic persistent key-value storage as a secure vault simply because it is inside the app sandbox.
-
----
-
-## Q103. Where should access tokens be stored?
-
-### Interview answer
-
-Sensitive session credentials should use an appropriate platform-backed secure storage strategy when feasible. The exact approach depends on the token model, threat model, expiry policy, backend capabilities, and whether refresh tokens are used.
-
-Also say:
-
-> The security of a mobile application cannot depend on a secret embedded in the application bundle. Anything shipped to the client should be considered potentially discoverable.
-
----
-
-## Q104. How would you implement offline support?
-
-Separate:
-
-```text
-UI state
-Server state
-Local persisted state
-Sync queue
-```
-
-Possible architecture:
-
-```text
-UI
- ↓
-Local data/cache
- ↓
-Sync engine
- ↓
-API
-```
-
-Important design decisions:
-
-- source of truth
-- conflict resolution
-- queued writes
-- retries
-- idempotency
-- timestamps/versioning
-- cache invalidation
-- partial connectivity
-
-For complex offline-first apps, a local database can be more appropriate than a simple key-value store.
-
----
-
-# Part 9 — Performance
-
-## Q105. A `FlatList` screen is lagging. What do you check?
-
-### Strong answer
-
-I would profile rather than blindly modify props.
-
-Check:
-
-1. Row complexity.
-2. Number of rows re-rendering.
-3. Unstable callbacks/objects.
-4. Large images.
-5. Expensive selectors/derived calculations.
-6. JS thread workload.
-7. UI/native work.
-8. Nested lists.
-9. Excessively frequent state updates.
-10. Animation/gesture workloads.
-
-Then optimize one bottleneck at a time.
-
----
-
-## Q106. What is a major mistake in React Native performance work?
-
-Premature optimization.
-
-Bad approach:
-
-```text
-useMemo everywhere
-useCallback everywhere
-React.memo everywhere
-random FlatList tuning
-```
-
-Better:
-
-```text
-Measure
- ↓
-Identify bottleneck
- ↓
-Optimize
- ↓
-Measure again
-```
-
----
-
-## Q107. How do images affect performance?
-
-Large images can consume:
-
-- network bandwidth
-- memory
-- decode time
-- GPU resources
-- cache space
-
-If a screen displays a 100×100 image but downloads a huge original image, the app can waste resources before the image is displayed.
-
-Use:
-
-- appropriately sized images
-- thumbnails
-- responsive CDN transformations
-- caching
-- suitable formats
-- lazy loading where appropriate
-
----
-
-## Q108. How do you optimize application startup?
-
-Think about the complete critical path:
-
-```text
-Native initialization
-       ↓
-JS engine/runtime
-       ↓
-Bundle loading
-       ↓
-Root initialization
-       ↓
-Critical data
-       ↓
-First meaningful UI
-```
-
-Possible improvements:
-
-- reduce startup JS work
-- defer non-critical initialization
-- avoid unnecessary synchronous work
-- reduce dependency/bundle costs
-- optimize assets
-- cache or precompute critical configuration
-- avoid serializing independent initialization requests
-- delay secondary analytics/feature initialization
-
-Measure startup rather than guessing.
-
----
-
-## Q109. How would you improve a slow application launch caused by many API requests?
-
-First classify which requests are truly blocking.
-
-Example:
-
-```text
-Critical
-→ auth/session restoration
-→ minimum home content
-
-Non-critical
-→ analytics
-→ recommendations
-→ secondary widgets
-```
-
-Then:
-
-```text
-critical calls
-   ↓
-first meaningful UI
-   ↓
-background requests
-```
-
-Parallelize independent requests and use caching where appropriate.
-
----
-
-## Q110. How do you diagnose memory pressure?
-
-Look for:
-
-- large image allocations
-- retained screen data
-- unbounded arrays/caches
-- listeners/subscriptions
-- native view retention
-- repeated screen mount cycles
-- large global store objects
-
-Use profiling tools available for the platform and compare memory after repeated navigation cycles.
-
-A useful test is:
-
-```text
-Open screen
-→ leave screen
-→ reopen repeatedly
-→ compare memory baseline
-```
-
-If the baseline continuously increases without returning near the expected range, investigate retained resources.
-
----
-
-# Part 10 — Android, iOS, and Native Integration
-
-## Q111. Why do React Native projects contain Android and iOS folders?
-
-Because the delivered application is a native Android/iOS application. JavaScript is one part of the application runtime.
-
-Android includes things such as:
-
-```text
-Gradle
-Kotlin/Java
-AndroidManifest
-Resources
-```
-
-iOS includes:
-
-```text
-Xcode project/workspace
-Swift/Objective-C
-Info.plist
-CocoaPods/native packages
-```
-
----
-
-## Q112. What is Gradle?
-
-### Interview answer
-
-Gradle is the build system used by Android projects. In React Native it handles compilation, dependency resolution, plugins, build variants, signing integration, generated code, and the overall Android build lifecycle.
-
-You should recognize:
-
-```text
-Debug
-Release
-Product Flavors
-Build Types
-```
-
-and understand that React Native package compatibility can depend on Gradle/AGP/JDK/Kotlin/NDK combinations.
-
----
-
-## Q113. What is Android Gradle Plugin (AGP)?
-
-### Interview answer
-
-The Android Gradle Plugin integrates Android-specific build logic into Gradle. It controls Android compilation, packaging, resource processing, manifest merging, variant configuration, and other platform-specific build behavior.
-
-In React Native projects, compatibility matters between:
-
-```text
-React Native
-AGP
-Gradle
-JDK
-Kotlin
-NDK
-Android SDK
-```
-
----
-
-## Q114. What is CocoaPods?
-
-CocoaPods is a dependency management system commonly used by iOS projects to integrate native libraries.
-
-Typical command:
-
-```bash
-cd ios
-pod install
-```
-
-You should know the difference between changing JavaScript dependencies and integrating native iOS dependencies.
-
----
-
-## Q115. Why can `pod install` fail after adding a package?
-
-Possible reasons:
-
-- incompatible native dependency versions
-- deployment target mismatch
-- Xcode incompatibility
-- Ruby/CocoaPods environment issues
-- framework/static library settings
-- architecture problems
-- package-specific post-install requirements
-- stale Pod state
-
-Do not give “delete Pods and reinstall” as your entire answer. First identify the actual failing dependency or build phase.
-
----
-
-## Q116. How do you troubleshoot a React Native Android build failure?
-
-### Strong sequence
-
-```text
-1. Read the first meaningful error.
-2. Identify the failing Gradle task.
-3. Classify the problem:
-   JS / Gradle / Kotlin / Java / C++ / CMake / NDK / manifest / dependency.
-4. Check version compatibility.
-5. Inspect package-specific native setup.
-6. Reproduce with the smallest relevant command.
-7. Clean only the affected build state.
-8. Rebuild and verify.
-```
-
-Avoid blindly deleting all caches. Destructive cleanup is a troubleshooting tool, not a diagnosis.
-
----
-
-## Q117. Why can a React Native library work on one RN version and fail on another?
-
-Native packages can depend on:
-
-- React Native APIs
-- New Architecture support
-- JSI
-- Fabric
-- TurboModules
-- Gradle/AGP
-- Kotlin
-- NDK/CMake
-- Android SDK
-- iOS deployment targets
-- Xcode/Swift
-- autolinking
-
-Version compatibility is effectively a matrix.
-
-```text
-RN version
-   ×
-package version
-   ×
-platform tooling
-   ×
-architecture mode
-```
-
----
-
-## Q118. What is autolinking?
-
-### Interview answer
-
-Autolinking allows React Native projects to automatically discover and integrate many native packages according to their package metadata/configuration instead of requiring developers to manually register every dependency.
-
-When autolinking fails, investigate:
-
-- package metadata
-- native project configuration
-- unsupported platform
-- New Architecture integration
-- manual linking leftovers
-- build/cache state
-
----
-
-## Q119. What are Android build variants and iOS schemes/configurations?
-
-A production app often needs more than one environment.
-
-Android commonly uses build types/flavors:
-
-```text
-Debug
-Release
-QA
-Production
-```
-
-Organizations may combine flavors and build types.
-
-iOS uses schemes/configurations to select environment and build settings.
-
-A strong setup keeps environment-specific values explicit and repeatable rather than hidden in source code.
-
----
-
-## Q120. How do you handle Android and iOS permissions?
-
-Use the platform's permission model and request permissions as close as possible to the feature that needs them.
-
-Consider:
-
-```text
-permission rationale
-least privilege
-first-use timing
-permanently denied state
-settings fallback
-platform differences
-privacy requirements
-```
-
-Examples include camera, microphone, location, notifications, and photo/media access.
-
----
-
-# Part 11 — Testing
-
-## Q121. What should you test in a React Native application?
-
-Prioritize observable behavior and business risk.
-
-Test:
-
-- core business logic
-- component behavior
-- user interactions
-- navigation flows
-- API states
-- authentication
-- payment-critical flows
-- edge cases
-- important accessibility behavior
-
-Do not equate a large number of snapshot files with strong test coverage.
-
----
-
-## Q122. Jest vs React Native Testing Library.
-
-### Jest
-
-Useful for:
-
-- unit tests
-- mocking
-- assertions
-- pure functions
-- state logic
-
-### React Native Testing Library
-
-Useful for:
-
-- component behavior
-- screen-level interactions
-- querying rendered output
-- simulating user actions
-
-Preferred mindset:
-
-> Test what the user can observe and do rather than overfitting tests to component implementation details.
-
----
-
-## Q123. What is snapshot testing?
-
-Snapshot testing stores a serialized representation of output and compares future output to that snapshot.
-
-It can help with stable UI structures but becomes noisy when overused. A failing snapshot should lead to a meaningful review rather than an automatic “update snapshot” action.
-
----
-
-## Q124. What should you mock?
-
-Mock external boundaries when necessary:
-
-- HTTP APIs
-- native device services
-- storage
-- analytics
-- time
-- navigation boundaries
-- platform-specific modules
-
-Avoid mocking every internal function just to make a test green. The more internal implementation you mock, the more fragile your tests can become.
-
----
-
-## Q125. Unit vs integration vs E2E.
-
-```text
-Unit
-→ isolated logic
-
-Integration
-→ multiple pieces working together
-
-E2E
-→ real user flow through the application
-```
-
-A healthy suite commonly has many fast unit/component tests, fewer integration tests, and a smaller set of high-value E2E scenarios.
-
----
-
-# Part 12 — Architecture and Code Organization
-
-## Q126. How would you structure a large React Native application?
-
-One scalable option is feature-oriented organization:
-
-```text
-src/
-├── app/
-│   ├── navigation/
-│   ├── providers/
-│   └── config/
-│
-├── features/
-│   ├── auth/
-│   │   ├── screens/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── services/
-│   │   ├── store/
-│   │   └── types/
-│   ├── products/
-│   ├── cart/
-│   └── profile/
-│
-├── components/
-│   ├── Button/
-│   ├── Input/
-│   └── Modal/
-│
-├── services/
-│   ├── api/
-│   ├── storage/
-│   ├── analytics/
-│   └── notifications/
-│
-├── utils/
-├── constants/
-├── types/
-└── assets/
-```
-
-The exact tree is less important than:
-
-- feature ownership
-- dependency direction
-- testability
-- reusable primitives
-- clear boundaries
-- minimal coupling
-
----
-
-## Q127. What is a good component architecture?
-
-Avoid giant screen components.
-
-Bad:
-
-```text
-ProductScreen.tsx
-  → 1000+ lines
-  → API calls
-  → form validation
-  → payment logic
-  → store updates
-  → analytics
-  → JSX
-```
-
-Prefer:
-
-```text
-ProductScreen
- ├── ProductHeader
- ├── ProductGallery
- ├── ProductInfo
- ├── ProductVariants
- ├── ProductPrice
- ├── AddToCart
- └── RecommendationList
-```
-
-Business logic can move into hooks/services/selectors while the screen coordinates presentation and interaction.
-
----
-
-## Q128. How do you decide whether something should be a component, hook, utility, or service?
-
-### Component
-
-UI responsibility:
-
-```text
-Button
-Card
-Header
-ProductRow
-```
-
-### Hook
-
-Reusable React-aware stateful logic:
-
-```text
-useAuth()
-useProducts()
-useNetworkStatus()
-```
-
-### Utility
-
-Pure, generic logic:
-
-```text
-formatCurrency()
-validateEmail()
-calculateTotal()
-```
-
-### Service
-
-External/system interaction:
-
-```text
-API
-storage
-analytics
-payments
-notifications
-```
-
----
-
-## Q129. What is separation of concerns?
-
-The idea is to avoid making one module responsible for unrelated jobs.
-
-Instead of:
-
-```text
-Screen
-├─ API
-├─ validation
-├─ payment
-├─ persistence
-├─ analytics
-├─ business rules
-└─ 700 lines of JSX
-```
-
-Prefer:
-
-```text
-Screen
-   ↓
-Hook / ViewModel
-   ↓
-Domain/service logic
-   ↓
-API / Store / Persistence
-```
-
-The separation should make testing, reuse, and debugging easier—not simply create dozens of tiny files with no real boundaries.
-
----
-
-## Q130. What is dependency inversion in a mobile application?
-
-### Interview answer
-
-High-level business logic should depend on abstractions rather than directly on platform/network implementations where practical.
-
-For example:
-
-```text
-CheckoutService
-      ↓
-PaymentGateway interface
-      ↓
-StripePaymentGateway
-```
-
-Testing can inject:
-
-```text
-FakePaymentGateway
-```
-
-This is useful in apps with multiple backend/payment providers, platform-specific implementations, or heavy testing requirements.
-
----
-
-## Q131. How do you prevent a project from becoming a “god screen” architecture?
-
-Use clear boundaries:
-
-- screen coordinates UI
-- hooks manage reusable interaction/state logic
-- domain services own business operations
-- selectors derive state
-- API layer handles transport concerns
-- components remain focused
-
-Also set team conventions early and enforce them with review, linting, and architecture documentation.
-
----
-
-# Part 13 — Authentication and Security
-
-## Q132. How would you design authentication?
-
-Typical structure:
-
-```text
-Login
- ↓
-Access Token + Refresh Token
- ↓
-Secure Storage
- ↓
-API Client
- ↓
-401?
- ↓
-Refresh
- ↓
-Retry
-```
-
-Also consider:
-
-- app startup session restoration
-- token expiration
-- logout
-- refresh failure
-- multi-device sessions
-- session revocation
-- biometric re-authentication where required
-- secure storage
-- server-side authorization
-
----
-
-## Q133. What happens when the refresh token expires?
-
-Do not keep retrying forever.
-
-```text
-API
- ↓
-401
- ↓
-refresh attempt
- ↓
-refresh fails
- ↓
-clear session
- ↓
-redirect to login
-```
-
-Notify the UI appropriately and prevent multiple screens from independently showing conflicting auth states.
-
----
-
-## Q134. How do you secure API communication?
-
-At minimum:
-
-- use HTTPS
-- validate server certificates according to platform/runtime standards
-- avoid logging secrets/tokens
-- use secure credential storage
-- enforce server-side authorization
-- minimize sensitive data in the client
-- avoid shipping private keys in the app bundle
-
-For higher-risk apps, security requirements may include certificate pinning, device integrity controls, jailbreak/root detection, or other measures depending on the threat model.
-
-Do not overpromise that any mobile client can be made completely secret or tamper-proof.
-
----
-
-## Q135. Can you hide an API secret inside the React Native bundle?
-
-No, not reliably.
-
-### Interview answer
-
-Any secret shipped to a client can potentially be extracted by someone who controls the device or analyzes the application package. Sensitive secrets should remain on trusted backend infrastructure.
-
-Public application configuration can be bundled. Private server credentials cannot be made secure simply by obfuscating them.
-
----
-
-# Part 14 — Production, Release, CI/CD, and OTA
-
-## Q136. How would you create Dev / QA / Production environments?
-
-A clean model is:
-
-```text
-                         App
-                          |
-                  Environment Config
-              /            |            \
-            DEV            QA            PROD
-             |              |              |
-           API-A          API-B          API-C
-```
-
-Typical controls:
-
-- environment variables
-- Expo app config
-- EAS build profiles
-- separate bundle/application identifiers where needed
-- separate Firebase projects if required
-- separate API endpoints
-- environment-specific analytics
-- distinct update channels/streams
-
-Avoid scattering hardcoded production URLs across the codebase.
-
----
-
-## Q137. How do you handle secrets in CI/CD?
-
-Store secrets in the CI provider or secure build service's secret management system, not in Git.
-
-Examples:
-
-```text
-API private key
-signing credentials
-service-account credentials
-third-party secrets
-```
+### Component registry
 
-Even environment variables in a client build can become public if they are bundled into the application. CI secrecy only helps for credentials that remain on the server/build side.
+Example TypeScript union:
 
----
-
-## Q138. Production crash only; development is fine. What do you investigate?
-
-Check:
-
-```text
-release-only code paths
-minification
-Hermes/runtime differences
-native release settings
-R8/ProGuard rules
-permissions
-configuration/environment variables
-missing assets
-native package compatibility
-EAS build profile
-OTA update/runtime compatibility
-crash logs
+```ts
+export type SectionType =
+  | "hero"
+  | "service-list"
+  | "product-grid"
+  | "testimonials"
+  | "booking-form"
+  | "contact-section";
 ```
-
-The first step should be obtaining a real crash stack/diagnostic signal rather than guessing.
-
----
 
-## Q139. The app works in Expo Go but fails in a development build. Why?
+A renderer maps a validated `SectionType` to an existing trusted component. The customer may configure supported properties; the customer must not be able to inject arbitrary executable code.
 
-Potential causes:
+### Draft and published versions
 
-- a custom native dependency
-- missing config-plugin changes
-- native permission/configuration mismatch
-- Android/iOS project configuration
-- a package that is included in one client but not another
-- native initialization code
+Use versioned project configuration. The dashboard saves a draft version, and publishing points the project's published reference to a validated immutable version. Rollback should restore a previous published version without deleting history.
 
-Remember:
+Possible fields include:
 
-```text
-Expo Go
-≠
-your project's custom native binary
-```
-
----
+- `draft_version_id`
+- `published_version_id`
+- `published_at`
+- `publication_status`
 
-## Q140. How do you manage release versions?
+The final design may use a separate publication table or deployment history table if that is cleaner.
 
-At minimum, distinguish:
+### Schema compatibility
 
-```text
-Human-facing version
-→ 1.8.0
-
-Platform build/version code
-→ incrementing build identifier
-```
+A published project can outlive the current release of the renderer. Therefore:
 
-A mature release process should define when each changes, how it is generated, and how CI validates that versions are unique and consistent.
+- Store `schemaVersion` and template ID/version.
+- Keep old template versions rendering for a reasonable compatibility window.
+- Write explicit migrations for configuration changes.
+- Test sample project configurations before deploying a renderer change.
+- Never silently reinterpret a customer's saved configuration if it can alter the live site.
 
 ---
-
-## Q141. What is CI/CD for React Native?
-
-### CI
 
-Automatically validate changes:
+## 10. Mobile App Generation Strategy
 
-```text
-install
-→ lint
-→ typecheck
-→ unit tests
-→ build/test checks
-```
+There are two different mobile delivery models. They should not be confused.
 
-### CD
+### Model A: shared Expo app / remote configuration
 
-Automate release steps:
-
-```text
-build
-→ sign
-→ distribute
-→ publish/update
-→ monitor
-```
+One installed Expo app loads a project's content and supported configuration. This is useful for development preview and may be suitable for a single shared app product, but it does not automatically give every business its own app-store identity.
 
-Common release gates include tests, environment validation, changelog/version checks, and manual approval for production.
+Advantages:
 
----
+- Quick iteration on supported content and theme changes.
+- Fewer native builds during early development.
+- Useful for a mobile preview.
 
-## Q142. How would you implement phased rollout?
+Limitations:
 
-A strong mobile release strategy can use:
+- All customers may effectively be using the same installed application identity.
+- App name, icon, bundle/application ID, and native settings cannot generally be changed for an already-installed binary just by updating database configuration.
+- Store distribution and platform policy implications need separate evaluation.
 
-```text
-Internal testing
- ↓
-Small percentage
- ↓
-Monitoring
- ↓
-Expanded rollout
- ↓
-100%
-```
+### Model B: separately branded native application
 
-Monitor crash rate, ANR rate, API errors, startup metrics, and business-critical flows.
+A build is produced for each customer or customer project using a trusted Expo template and customer-specific configuration.
 
----
+The build may need:
 
-# Part 15 — Scenario-Based 5+ Years Questions
+- App display name.
+- Unique iOS bundle identifier and Android application ID.
+- App icon and splash assets.
+- Environment/configuration values.
+- Required entitlements and native plugins.
+- Signing/build credentials.
+- A supported runtime/template version.
+- Customer-owned store accounts and distribution details, where applicable.
 
-## Q143. Your screen makes an API call twice. What do you check?
+Changing native identity or native capabilities generally requires a new build. Compatible JavaScript/assets may sometimes be updated using Expo's update mechanisms, subject to runtime compatibility and platform policy.
 
-### Strong answer
+### Recommended order
 
-I would investigate systematically:
+1. Build a mobile preview renderer that consumes the same validated configuration.
+2. Ensure one branded Android test app can be generated repeatably.
+3. Add an asynchronous job queue and status reporting.
+4. Add plan entitlements and build quotas.
+5. Add iOS builds after the Android workflow is reliable.
+6. Add store submission assistance only after confirming current Apple/Google policies and the correct account ownership model.
 
-1. Is development Strict Mode contributing to repeated effect behavior?
-2. Is the effect dependency array correct?
-3. Is the screen mounting/unmounting unexpectedly because of navigation?
-4. Is there another API invocation path?
-5. Does a state update trigger an effect that calls the API again?
-6. Is a parent remounting the component?
-7. Is a data-fetching library already doing its own refetch?
-8. Is an interceptor retrying the request?
+### Build pipeline safeguards
 
-Example loop:
+- Never execute arbitrary customer-provided build scripts.
+- Validate asset types and configuration before queuing a build.
+- Use isolated or appropriately managed build infrastructure.
+- Do not expose signing credentials or privileged environment variables.
+- Rate-limit build requests and enforce plan limits.
+- Store job status, timestamps, build identifiers, logs where appropriate, and artifact metadata.
+- Provide actionable failure messages and allow safe retries.
+- Track per-build costs and prevent unlimited build loops.
 
-```js
-useEffect(() => {
-  fetchData();
-}, [data]);
+### Important app-store caveat
+
+Generating an installable binary does not guarantee app-store approval. Near-identical or template-generated apps may face review or quality restrictions, and requirements change. Customers should own appropriate developer accounts and have a legitimate use case and differentiated business content. Check the latest store rules before selling automated publication as a feature.
+
+---
+
+## 11. Monorepo Structure
+
+A starting structure could look like this:
+
+```text
+app-builder/
+├── AGENTS.md
+├── README.md
+├── package.json
+├── tsconfig.base.json
+├── apps/
+│   ├── dashboard/             # Next.js SaaS dashboard/editor
+│   ├── website-runtime/       # Next.js published website renderer
+│   └── mobile/                # Expo / React Native preview/runtime
+├── packages/
+│   ├── schemas/               # Zod configuration and API schemas
+│   ├── types/                 # Shared TypeScript types
+│   ├── template-registry/     # Template metadata and capabilities
+│   ├── template-configs/      # Versioned defaults and migrations
+│   ├── business-logic/        # Shared rules without UI dependencies
+│   └── supabase/              # Generated DB types and safe helpers
+├── supabase/
+│   ├── migrations/
+│   ├── seed.sql
+│   └── tests/
+├── workers/
+│   └── build-service/         # Later: native build orchestration
+├── docs/
+│   ├── architecture.md
+│   ├── database-design.md
+│   ├── security.md
+│   ├── template-system.md
+│   └── roadmap.md
+└── tests/
 ```
+
+This is an intended structure, not a requirement to create every folder on day one. Start with the smallest working monorepo and add packages when code is genuinely shared.
 
-If `fetchData()` updates `data`, this can create repeated requests.
+### Monorepo rules
+
+- Choose one package manager and commit its lockfile.
+- Pin or deliberately manage important framework/tool versions.
+- Keep secrets out of source control.
+- Generate database types from Supabase when useful; avoid manually duplicating schema types indefinitely.
+- Keep React DOM and React Native-specific UI implementations separate.
+- Keep the root README focused on setup, commands, and the current project state. This strategic plan can live in `docs/roadmap.md` once the repository grows.
 
 ---
-
-## Q144. The app freezes when opening a screen. What do you check?
-
-First determine whether the freeze is caused by synchronous JavaScript work, navigation/rendering, native initialization, or a network wait that is incorrectly blocking UI logic.
-
-Look for:
 
-- large loops
-- heavy JSON transformations
-- synchronous storage operations
-- expensive render calculations
-- huge lists
-- expensive image decoding
-- native module initialization
-- repeated state updates
+## 12. Initial Database Design
 
-Never use a loader to hide a synchronous block of the main/JS execution path; remove or defer the blocking work.
+Use a shared PostgreSQL database with clear tenant ownership relationships. A separate Supabase project per customer would create unnecessary provisioning, cost, and maintenance work for the initial product.
 
----
-
-## Q145. FlatList freezes while scrolling. What do you do?
+### Core tables
 
-Check:
-
-```text
-Row complexity
-Image sizes
-Row rerenders
-Unstable props
-Selectors
-Nested lists
-JS-thread work
-Animation/gesture work
-Virtualization configuration
-```
+| Table | Purpose | Initial priority |
+|---|---|---:|
+| `profiles` | User-specific profile information linked to authentication identity | Must-have |
+| `workspaces` | Business/customer account and ownership boundary | Must-have |
+| `workspace_members` | Workspace membership and roles | Must-have, even if initially only owner exists |
+| `projects` | Website/mobile project metadata and state | Must-have |
+| `templates` | Template ID, version, status, supported capabilities | Must-have |
+| `project_versions` | Versioned project configuration and publication history | Must-have |
+| `assets` | Metadata for uploaded assets and their ownership | Must-have |
+| `domains` | Platform subdomain and customer custom-domain mappings | Needed for publishing |
+| `subscriptions` | Plan and payment-provider state | Needed before paid launch |
+| `usage_events` or counters | Publish/build usage and plan enforcement | Needed before paid usage limits |
+| `build_jobs` | Request, status, provider build ID, outputs, timestamps | Later mobile phase |
+| `audit_logs` | Sensitive administrative/security events | Add before broader production use |
 
-Then profile and optimize the specific hotspot.
+Potential later tables depend on the first niche:
 
----
+- `services`, `staff`, `appointments` for salons/service businesses.
+- `classes`, `trainers`, `memberships` for fitness businesses.
+- `products`, `orders`, `order_items`, `inventory` for commerce.
 
-## Q146. API request takes 8 seconds. How do you optimize it?
+Do not build every vertical's data model in advance.
 
-First determine whether the 8 seconds are:
+### Example relationship diagram
 
-```text
-client wait
-network latency
-server processing
-payload transfer
-client parsing
-rendering
+```mermaid
+erDiagram
+    PROFILES ||--o{ WORKSPACE_MEMBERS : joins
+    WORKSPACES ||--o{ WORKSPACE_MEMBERS : contains
+    WORKSPACES ||--o{ PROJECTS : owns
+    TEMPLATES ||--o{ PROJECTS : initializes
+    PROJECTS ||--o{ PROJECT_VERSIONS : stores
+    PROJECTS ||--o{ ASSETS : uses
+    PROJECTS ||--o{ BUILD_JOBS : requests
+    WORKSPACES ||--o| SUBSCRIPTIONS : has
+    PROJECTS ||--o{ DOMAINS : publishes_to
 ```
-
-Then, depending on the cause:
-
-- optimize backend queries
-- paginate
-- reduce payload
-- compress responses
-- cache
-- parallelize independent calls
-- prefetch
-- render partial UI early
-- defer non-critical work
-
----
-
-## Q147. App crashes only after navigating back and forth many times. What do you suspect?
-
-Potentially:
 
-- leaked listeners
-- timers
-- subscriptions
-- retained screen state
-- WebSockets
-- native resources
-- accumulating caches
-- repeated event handlers
+### Design recommendations
 
-Reproduce the navigation loop and inspect resource/memory growth.
+- Use UUID primary keys unless there is a specific reason not to.
+- Use foreign keys and appropriate `ON DELETE` behavior deliberately.
+- Add `created_at` and `updated_at` consistently.
+- Store user identity in the trusted authentication identity, not in a user-editable field.
+- Use a `workspace_id` on tenant-owned records where it improves clear enforcement and query design.
+- For JSONB configuration, validate with Zod in trusted server-side code and maintain a schema version.
+- Avoid storing public asset URLs as the only source of truth if asset metadata and access control matter; associate assets with asset records/IDs.
+- Keep payment-provider identifiers and subscription state server-controlled.
+- Add indexes for ownership filters and frequently queried fields after validating actual query patterns.
+- Use migrations as the source of truth for schema evolution.
 
 ---
-
-## Q148. A third-party library breaks after a React Native upgrade. What is your process?
-
-```text
-1. Check React Native release notes.
-2. Check library compatibility matrix/changelog.
-3. Check New Architecture support.
-4. Check native build tool versions.
-5. Inspect the native compilation/runtime error.
-6. Reproduce in a minimal example if necessary.
-7. Upgrade/downgrade compatible versions.
-8. Replace the library if it is unmaintained or incompatible.
-```
-
-Don't blindly force incompatible versions through Gradle or CocoaPods without understanding the native ABI/API implications.
-
----
-
-## Q149. A library supports React Native but crashes on the New Architecture. What do you do?
 
-Check:
+## 13. Authentication, Authorization, and Multi-Tenancy
 
-- RN version
-- library version
-- New Architecture support status
-- Fabric compatibility if it is a UI library
-- TurboModule/JSI requirements if it is a native module
-- codegen requirements
-- Android/iOS native setup
+Security boundaries must be established before real customer data is stored.
 
-Then reproduce with the smallest possible example and select a compatible release or alternative.
+### Suggested roles
 
----
-
-## Q150. How would you implement backend-driven UI?
-
-Suppose the backend returns:
-
-```json
-{
-  "home": {
-    "title": "Welcome",
-    "showBanner": true,
-    "sections": [
-      {
-        "type": "banner",
-        "image": "https://cdn.example.com/banner.png"
-      },
-      {
-        "type": "productCarousel",
-        "categoryId": "123"
-      }
-    ]
-  }
-}
-```
+- **Owner:** manages the workspace, billing, members, projects, and publishing.
+- **Editor:** edits project content and may publish if granted permission.
+- **Viewer:** can preview and inspect but cannot change project data.
+- **Platform administrator:** a separate, tightly controlled operational role; not a normal customer role.
 
-A safe architecture is:
+### Essential rules
 
-```text
-Backend configuration
-        ↓
-Schema validation
-        ↓
-Normalization
-        ↓
-Component registry
-        ↓
-UI renderer
-```
+1. Every customer project is associated with a workspace.
+2. Membership is the basis for authorizing access to workspace data.
+3. Configure RLS policies for every exposed tenant-owned table.
+4. Do not rely only on hiding UI buttons; enforce authorization in the database and trusted server-side handlers.
+5. Protect storage objects through policies or a secure server-mediated access approach appropriate for the asset.
+6. Never expose a Supabase service-role/secret key in browser code, the mobile bundle, or public environment variables.
+7. Keep payment webhooks and privileged build/publish operations server-side.
+8. Validate all IDs and input data; possession of a project ID is not proof of authorization.
+9. Add rate limiting to authentication-adjacent, form, publishing, and build operations as needed.
+10. Audit sensitive administrative actions and keep production secrets out of logs.
 
-Example:
-
-```js
-const componentRegistry = {
-  banner: Banner,
-  productCarousel: ProductCarousel,
-  categoryGrid: CategoryGrid,
-};
-```
+### Required tenant-isolation tests
 
-The backend chooses among **known, validated component types**.
+Create two test users and two workspaces. Verify that:
 
-### Critical security point
+- User A cannot read User B's project by changing the project ID.
+- User A cannot update or delete User B's project.
+- User A cannot read or replace User B's assets.
+- User A cannot create a version attached to User B's project.
+- A non-owner cannot manage workspace membership or billing.
+- Anonymous users can access only intentionally published public data.
+- Server-side jobs do not trust client-supplied workspace IDs without independently checking permissions.
 
-Do not allow the backend to download and execute arbitrary JavaScript as part of normal content configuration. Prefer a declarative schema and a controlled registry.
+Test policies using realistic authenticated roles, not only with an administrator/service-role connection that bypasses ordinary RLS checks.
 
 ---
-
-## Q151. How would you build a React Native app as a SaaS white-label platform?
-
-Use three levels of configuration.
-
-### 1. Runtime configuration
-
-```text
-colors
-text
-features
-API content
-ordering
-visibility
-```
-
-Fetched from APIs.
-
-### 2. Build-time branding
-
-```text
-app display name
-launcher icon
-bundle identifier
-package identifier
-native splash assets
-```
 
-Produced by the build pipeline.
+## 14. Website Publishing and Domains
 
-### 3. Tenant/backend configuration
+### Initial publishing model
 
-```text
-tenant ID
-feature flags
-content schema
-branding settings
-API endpoints
-permissions
-```
+1. Each project has a draft configuration version.
+2. The user previews the draft.
+3. On publish, the platform validates all configuration and referenced assets.
+4. A published version is marked immutable for rollback purposes.
+5. A hostname/subdomain resolves to the project's published version.
+6. The website runtime renders that version.
+7. The dashboard displays publishing status and any errors.
 
-Conceptually:
+### Platform subdomains
 
-```text
-                 SaaS Platform
-                      |
-          ---------------------------
-          |            |            |
-       Tenant A     Tenant B     Tenant C
-          |            |            |
-      Config API    Config API    Config API
-          |            |            |
-       RN App      RN App        RN App
-          |            |            |
-      EAS Builds / Releases / Updates
-```
+Start with a platform-controlled hostname, for example:
 
-For a true white-label product, the pipeline may need a separate native binary per tenant or per branding configuration, especially when icons, names, package IDs, signing credentials, or store listings differ.
+`https://sunrise-salon.example-platform-domain.com`
 
----
+The example is illustrative; choose a real domain after validating the product.
 
-## Q152. How would you implement feature flags?
+Hostname resolution needs to be safe. Normalize hostnames, verify domain ownership where required, prevent one project from claiming another project's hostname, and avoid using an arbitrary incoming host to query private project data.
 
-Feature flags should be typed, centrally evaluated, and have safe defaults.
+### Custom domains later
 
-Example:
+Custom-domain support typically involves:
 
-```js
-const flags = {
-  newCheckout: false,
-  enableWallet: true,
-};
-```
+- Domain input and normalization.
+- Domain ownership verification through DNS or the hosting provider's supported process.
+- Correct DNS instructions.
+- TLS/HTTPS provisioning and renewal.
+- Host-to-project mapping.
+- Handling duplicate domains and removals safely.
+- Clear status and troubleshooting information.
 
-Important concerns:
+Do not add custom domains before the basic platform-hosted publishing flow works reliably.
 
-- default behavior when the flag service is unavailable
-- caching
-- rollout percentage
-- tenant/user targeting
-- auditability
-- stale flags
-- cleanup of old flags
+### SEO and production quality
 
-Avoid allowing arbitrary remote flags to bypass authorization or security controls.
+- Unique title and meta description.
+- Correct canonical URL when relevant.
+- Open Graph/social share metadata.
+- Sitemap and robots rules as appropriate.
+- Mobile-responsive output and accessibility checks.
+- Sensible 404 and unpublished-project behavior.
+- No private draft data in public responses.
 
 ---
-
-## Q153. How would you implement analytics without slowing the app?
-
-Treat analytics as non-critical background work where possible.
-
-Design:
-
-```text
-UI event
-  ↓
-Analytics abstraction
-  ↓
-queue/buffer
-  ↓
-batch/send
-```
-
-Consider:
-
-- batching
-- deduplication
-- event sampling
-- offline queue
-- sensitive data filtering
-- avoiding blocking the UI
-
-Keep analytics calls out of core business logic where possible through an abstraction.
 
----
+## 15. Native Build Pipeline
 
-## Q154. How would you design push notifications?
+Native builds are a separate system from website publishing. Keep them out of the critical path for basic website publishing.
 
-Break the problem into:
+### Proposed later workflow
 
-```text
-Permission
- ↓
-Token registration
- ↓
-Backend device-token mapping
- ↓
-Notification send
- ↓
-Foreground/background/terminated handling
- ↓
-Deep link navigation
+```mermaid
+flowchart TD
+    A[Customer clicks Generate App] --> B[Check plan and authorization]
+    B --> C[Validate project and assets]
+    C --> D{Valid?}
+    D -- No --> E[Return actionable validation errors]
+    D -- Yes --> F[Create build job]
+    F --> G[Trusted build worker prepares config]
+    G --> H[Submit to EAS or managed builder]
+    H --> I[Track job status]
+    I --> J{Build succeeded?}
+    J -- Yes --> K[Store artifact metadata and result]
+    J -- No --> L[Record failure and allow safe retry]
 ```
-
-Also design token refresh and invalid-token cleanup.
-
----
 
-## Q155. How would you design an app that works with poor connectivity?
+### Build-job fields to consider
 
-Use:
+- `id`
+- `project_id`
+- `project_version_id`
+- `requested_by`
+- `platform` (Android/iOS)
+- `status` (queued/running/succeeded/failed/cancelled)
+- `provider_build_id`
+- `template_version`
+- `created_at`, `started_at`, `completed_at`
+- `error_code` and safe diagnostic summary
+- `artifact_location` or provider artifact metadata
+- usage/billing references
 
-```text
-Local cache
- ↓
-Network awareness
- ↓
-Optimistic UI where safe
- ↓
-Retry queue
- ↓
-Conflict resolution
-```
+### Operational considerations
 
-Do not blindly replay non-idempotent operations. Use server-supported idempotency keys where necessary.
+- Build creation must be authorized and entitlement-checked server-side.
+- Use idempotency or duplicate-request protection.
+- Add queueing and concurrency limits.
+- Retry only where safe and do not retry permanent validation failures indefinitely.
+- Separate user-facing errors from sensitive build logs.
+- Retain build outputs only as long as the product and terms require.
+- Account for costs, build-provider limits, and credential rotation.
 
 ---
-
-# Part 16 — Coding Questions
 
-## Coding 1. Reverse a string.
+## 16. Subscription and Revenue Model
 
-```js
-function reverse(str) {
-  return [...str].reverse().join('');
-}
-```
-
-### Follow-up
-
-Why use spread rather than `str.split('')`?
-
-A discussion can cover Unicode code points versus UTF-16 code units. For true user-perceived grapheme reversal, code points alone are still not always sufficient.
+Two kinds of revenue/payment must remain separate.
 
----
+### A. Platform subscription revenue
 
-## Coding 2. Remove duplicates.
+Customers pay the platform to use the builder.
 
-```js
-const unique = [...new Set(arr)];
-```
+Possible plan structure to test with real users:
 
-### Follow-up
+| Plan | Indicative early hypothesis | Possible entitlement |
+|---|---:|---|
+| Free | ₹0 | One project, preview, limited publishing, platform branding, limited usage |
+| Starter | ₹999/month as a test price | One published site, custom branding, basic forms, defined usage allowance |
+| Business | ₹2,499/month as a test price | More features/usage, custom domain, additional projects or team capabilities |
+| White-label / Pro | Quote or higher plan | Native build credits, branded mobile build, agency functionality, optional onboarding/support |
 
-If objects are involved, `Set` deduplicates object references, not objects by content. For value-based deduplication you need a key or normalization strategy.
+These prices are hypotheses, not researched final prices. Validate willingness to pay, compare competitors, calculate costs, and decide whether Indian-market pricing is appropriate before launch. Taxes, payment-provider fees, currency, and local legal obligations also need consideration.
 
----
+### Suggested entitlements to enforce
 
-## Coding 3. Group an array by property.
+- Number of workspaces/projects.
+- Number of published sites.
+- Custom-domain availability.
+- Available template/features.
+- Monthly build credits.
+- Storage and bandwidth limits.
+- Team member limits.
+- Support level.
+- White-label branding controls.
 
-```js
-const result = users.reduce((acc, user) => {
-  const key = user.role;
+Enforce paid entitlements on the server, not only through front-end conditions.
 
-  if (!acc[key]) {
-    acc[key] = [];
-  }
+### B. Customer business revenue
 
-  acc[key].push(user);
-  return acc;
-}, {});
-```
+Customers may make money from their businesses through bookings, leads, memberships, or product/service sales. These transactions are separate from the subscription paid to the platform.
 
-Possible follow-up:
+Avoid collecting all customer sales into the platform's account and building a payout system in the MVP. Prefer a model where each customer owns or connects their own appropriate merchant account, subject to provider support and applicable requirements.
 
-> How would you avoid prototype-key collisions?
+### Billing implementation principles
 
-Possible answer: use `Object.create(null)`, `Map`, or an explicitly validated key strategy depending on requirements.
+- Start with one provider that supports your business and target market.
+- Use server-side checkout/subscription creation.
+- Validate webhook signatures and make webhook processing idempotent.
+- Keep subscription entitlement state server-controlled.
+- Handle failed payments, cancellations, downgrades, and grace periods explicitly.
+- Never store raw payment card details yourself.
+- Keep a local record of provider IDs and status transitions for troubleshooting.
+- Review consumer, tax, privacy, and recurring-payment obligations with qualified resources when needed.
 
 ---
 
-## Coding 4. Implement debounce.
+## 17. Low-Cost Infrastructure Strategy
 
-```js
-function debounce(fn, delay) {
-  let timer;
+The first goal is to keep costs low during development, not to guarantee that a production SaaS can operate indefinitely for free.
 
-  return function (...args) {
-    clearTimeout(timer);
+### Initial development setup
 
-    timer = setTimeout(() => {
-      fn.apply(this, args);
-    }, delay);
-  };
-}
-```
-
-Understand:
+- VS Code or the selected AI coding environment.
+- Git and a private GitHub repository.
+- Supabase Free for the development database/auth/storage, subject to current terms and quotas.
+- Expo tooling and EAS free allowance for limited prototype builds, subject to current plan constraints.
+- A free development URL before purchasing a custom platform domain.
+- Local sample data and seed scripts for reproducible development.
 
-- closure
-- timer replacement
-- preserving `this`
-- forwarding arguments
-- cleanup/cancel support in more complete implementations
+### Before accepting paying customers
 
-### Senior follow-up
+Check that each vendor plan permits the intended commercial use. Review free-tier quotas, sleep/pausing rules, build limits, egress, backups, support, and overage behavior. Do not assume today's allowance will remain the same.
 
-How would you add:
+Production readiness may require:
 
-```text
-cancel()
-flush()
-leading execution
-trailing execution
-```
+- Paid or otherwise suitable commercial hosting.
+- Automated database backups and a tested restoration process.
+- Error monitoring and uptime checks.
+- Domain and TLS management.
+- A transactional email provider if required for dependable authentication/onboarding.
+- Build credits and a queueing strategy.
+- Security incident and customer-support procedures.
 
----
+### Measure costs by customer
 
-## Coding 5. Flatten an array.
+Track at least:
 
-Built-in:
+- Web hosting/compute.
+- Database size and query load.
+- Storage and image bandwidth.
+- Egress/network traffic.
+- Native build usage.
+- Email/SMS and other integrations.
+- Payment provider fees.
+- Support/onboarding time.
 
-```js
-const result = arr.flat(Infinity);
-```
+Do not offer unlimited mobile builds on a low-price plan before you understand actual costs. Set quotas and add paid build credits if appropriate.
 
-Manual recursive version:
-
-```js
-function flatten(arr) {
-  const result = [];
-
-  for (const item of arr) {
-    if (Array.isArray(item)) {
-      result.push(...flatten(item));
-    } else {
-      result.push(item);
-    }
-  }
-
-  return result;
-}
-```
+### Cost-driven upgrade triggers
 
-### Senior discussion
+Upgrade or redesign when:
 
-Be ready to discuss recursion depth, iterative implementations, time/space complexity, and whether sparse arrays/typed arrays need special handling.
+- Free-tier restrictions affect uptime or commercial terms.
+- Important customer data needs reliable backups and recovery.
+- Builds regularly hit quota or queue limits.
+- Response times degrade after query/index optimization.
+- Custom-domain or production security requirements cannot be met.
+- Support load requires better monitoring and automation.
 
 ---
-
-## Coding 6. Find the first non-repeating character.
 
-```js
-function firstUniqueChar(str) {
-  const counts = new Map();
+## 18. AI-Assisted Development Workflow
 
-  for (const char of str) {
-    counts.set(char, (counts.get(char) ?? 0) + 1);
-  }
+### Primary development agent
 
-  for (const char of str) {
-    if (counts.get(char) === 1) {
-      return char;
-    }
-  }
+Use the existing Google Antigravity Pro plan as the primary coding environment initially. Do not purchase Cursor and Claude Code at the same time just to compare them. Add another tool only if a concrete limitation appears, such as repeated difficulty with large refactors or a strong preference for a different editing workflow.
 
-  return null;
-}
-```
-
-Complexity is approximately:
+AI tools and plans change frequently. Reassess capability, quota, price, privacy terms, and workflow fit before adding another paid subscription.
 
-```text
-Time  → O(n)
-Space → O(k)
-```
+### Use an agent in controlled steps
 
-where `k` is the number of unique characters tracked.
+For every feature:
 
----
+1. State the user problem and acceptance criteria.
+2. Ask the agent to inspect the repository and summarize relevant existing code.
+3. Ask for a small implementation plan and files likely to change.
+4. Review the plan, especially its data model and security impact.
+5. Implement only the agreed scope.
+6. Run type checks, lint, tests, and relevant build commands.
+7. Ask the agent to report the exact checks run and any failures.
+8. Review the code diff yourself.
+9. Test the actual user workflow in browser/device/emulator as appropriate.
+10. Commit the working result and update relevant documentation.
 
-## Coding 7. Implement memoization.
+Do not ask the agent to build the entire SaaS in one large prompt. Work in small vertical slices that can be demonstrated and tested.
 
-```js
-function memoize(fn) {
-  const cache = new Map();
+### Repository instructions
 
-  return function (...args) {
-    const key = JSON.stringify(args);
+Create an `AGENTS.md` file at the repository root. Example starter rules:
 
-    if (cache.has(key)) {
-      return cache.get(key);
-    }
+```markdown
+# Development Rules
 
-    const result = fn.apply(this, args);
-    cache.set(key, result);
-    return result;
-  };
-}
+- Use TypeScript with strict type checking.
+- Read the relevant architecture document before proposing structural changes.
+- Do not add dependencies without explaining the need and alternatives.
+- Use database migrations for all schema changes.
+- Validate API inputs and persisted template configurations using shared schemas.
+- Enforce tenant authorization on the server and in Supabase RLS policies.
+- Never expose service-role keys, signing credentials, or payment secrets to clients.
+- Do not run or execute arbitrary customer-provided code.
+- Add tests for authorization, configuration validation, and publishing behavior.
+- Run relevant type checks, lint, and tests after changes; report exact results.
+- Do not silently change public configuration schemas or existing template behavior.
+- Keep changes scoped to the requested milestone.
+- Explain risky/destructive commands before executing them.
+- Update documentation when architecture or setup commands change.
 ```
-
-### Senior caveat
-
-`JSON.stringify(args)` is not a universal cache-key strategy. It can be expensive, order-sensitive for some objects, and unable to represent all values. A production implementation must choose a keying/equality strategy appropriate to the inputs.
-
----
-
-## Coding 8. Implement a promise concurrency limiter.
 
-A common 5+ year coding question is:
+Adapt the exact instruction file format to the capabilities supported by the selected coding environment.
 
-> Given 100 API tasks, run at most 5 at a time.
+### Git discipline
 
-Mental model:
-
-```text
-100 tasks
-   ↓
-5 active
-5 active
-5 active
-...
-```
+- Keep main branch stable.
+- Use a feature branch for a meaningful feature or risky refactor.
+- Commit after each working milestone.
+- Review `git diff` before committing.
+- Never commit `.env` files, keys, signing credentials, customer data, or build artifacts that contain secrets.
+- Use a safe backup/commit before allowing the agent to perform a significant structural refactor.
 
-You should be able to implement a worker-pool or queue-based solution and explain:
+### Safe parallelism
 
-- concurrency limit
-- result ordering
-- failure handling
-- cancellation
-- backpressure
+Do not let several agents independently rewrite shared architecture files at once. If parallel agents are used later, assign separate bounded tasks, such as tests, documentation, or an isolated component. Keep schema and shared-type ownership clear.
 
 ---
-
-## Coding 9. Implement retry with exponential backoff.
-
-Concept:
-
-```text
-Attempt 1 → immediate / small delay
-Attempt 2 → larger delay
-Attempt 3 → larger delay
-...
-```
-
-Typical formula:
-
-```js
-delay = baseDelay * 2 ** attempt;
-```
 
-Production concerns:
+## 19. Development Roadmap
 
-- maximum retries
-- maximum delay
-- jitter
-- only retry transient/idempotent failures
-- cancellation
-- authentication failures
-- server-provided retry hints
+The following is a planning sequence for a solo developer, not a delivery guarantee. The schedule will depend on available hours, chosen niche, customer feedback, and the complexity of publishing/build infrastructure.
 
----
+### Phase 0 — Product discovery and technical proof
 
-# Part 17 — Rapid-Fire Questions
+**Suggested window:** Before the main build
 
-## Q156. `null` vs `undefined`
+Tasks:
 
-`undefined` generally means a value is missing/unassigned, while `null` usually represents an intentional absence of a value.
+- Pick a candidate business niche.
+- Interview 5–10 potential customers.
+- Review relevant competing tools and pricing.
+- Sketch the dashboard, template editor, published website, and mobile experience.
+- Write a short product requirements document.
+- Validate that the desired hosting approach can support a multi-tenant Next.js runtime.
+- Decide the initial domain/subdomain approach.
 
----
+Deliverable:
 
-## Q157. `map` vs `forEach`
+- A specific customer problem, an initial feature set, and one template concept supported by actual feedback.
 
-```text
-map
-→ transforms and returns a new array
-
-forEach
-→ executes a callback for side effects and returns undefined
-```
+Exit criteria:
 
----
+- At least a few prospects agree to review a prototype; ideally, one or more commit to a pilot or paid test.
 
-## Q158. `filter` vs `find`
+### Phase 1 — Repository and platform foundation
 
-```text
-filter
-→ all matching elements
-
-find
-→ first matching element
-```
+Tasks:
 
----
+- Create the monorepo and choose the package manager.
+- Add the root README and repository agent instructions.
+- Set up linting, formatting, TypeScript strictness, and basic test commands.
+- Configure development and production environment variables safely.
+- Create a Supabase project for development.
+- Add migration-based schema setup.
+- Implement auth, profiles, workspaces, membership, and project creation.
+- Implement initial RLS policies and tenant-isolation tests.
 
-## Q159. `some` vs `every`
+Deliverable:
 
-```text
-some
-→ at least one item satisfies condition
-
-every
-→ all items satisfy condition
-```
+- A logged-in user can create a workspace and project, with data access enforced by ownership and membership.
 
----
+### Phase 2 — First configuration-driven template
 
-## Q160. Why is `NaN !== NaN`?
+Tasks:
 
-Because JavaScript defines `NaN` as not equal to itself under ordinary equality semantics.
+- Create the template registry.
+- Define the first template configuration schema with Zod.
+- Store template defaults and metadata in version-controlled code.
+- Build the first web renderer.
+- Seed sample project configuration.
+- Render the initial template without a visual editor first.
+- Add tests for valid and invalid configuration.
 
-Use:
+Deliverable:
 
-```js
-Number.isNaN(value)
-```
+- One project renders a functional website from saved structured configuration.
 
-for an explicit NaN check.
+### Phase 3 — Visual editor and draft/published state
 
----
+Tasks:
 
-## Q161. What is optional chaining?
+- Add editor layout: structure panel, preview area, properties panel.
+- Edit business name, headings, description, colors, and images.
+- Toggle supported sections and configure navigation.
+- Upload assets securely.
+- Save draft configuration.
+- Add validation errors and save status.
+- Add project versions and published version pointer.
+- Test rollback.
 
-```js
-user?.profile?.address?.city
-```
+Deliverable:
 
-It stops the property access chain when an intermediate value is `null` or `undefined` and returns `undefined` rather than throwing for that chain.
+- A non-technical user can customize and preview a template without modifying code.
 
----
+### Phase 4 — Website publishing
 
-## Q162. What is nullish coalescing?
+Tasks:
 
-```js
-value ?? defaultValue
-```
+- Implement platform-hosted subdomains.
+- Resolve the request hostname to an authorized published project.
+- Render only the published version publicly.
+- Add 404/unpublished states and error reporting.
+- Add basic SEO metadata and responsive checks.
+- Add publish history and rollback.
+- Verify commercial hosting terms and costs.
+- Add an initial backup/recovery plan before real paying customers depend on it.
 
-Uses the default only when the left side is `null` or `undefined`.
+Deliverable:
 
-Compare:
+- A customer can publish and share a live branded website.
 
-```js
-value || defaultValue
-```
+### Phase 5 — Pilot customers and paid launch readiness
 
-which also treats values such as `0`, `false`, and `''` as falsy.
+Tasks:
 
----
+- Onboard a few pilot customers manually.
+- Observe their setup process and areas of confusion.
+- Fix major template/editor issues.
+- Track usage and infrastructure cost.
+- Add plan entitlements and subscription integration when ready.
+- Add terms, privacy policy, support contact, and account/data deletion procedures as appropriate.
+- Confirm relevant legal, tax, privacy, and payment-provider obligations.
 
-## Q163. What is destructuring?
+Deliverable:
 
-```js
-const { name, age } = user;
-```
+- Real customer usage and evidence of willingness to pay.
 
-Array destructuring:
+### Phase 6 — Expo/mobile preview
 
-```js
-const [first, second] = items;
-```
+Tasks:
 
----
+- Implement the mobile template with corresponding component semantics.
+- Reuse shared types and Zod schemas where practical.
+- Fetch only data/configuration that the user is authorized to access.
+- Support loading/error/empty states and offline behavior where appropriate.
+- Test Android layout and navigation.
+- Confirm what must remain native versus remotely configurable.
 
-## Q164. What are default parameters?
+Deliverable:
 
-```js
-function greet(name = 'Guest') {}
-```
+- A mobile preview uses the same project configuration but a mobile-specific UI implementation.
 
-The default applies when the argument is `undefined`.
+### Phase 7 — Branded Android build pipeline
 
----
+Tasks:
 
-## Q165. What is currying?
+- Create one reusable Expo build template.
+- Define required app metadata and validation rules.
+- Enforce build plan entitlement and user authorization server-side.
+- Add a build-job model and asynchronous status tracking.
+- Integrate EAS Build or a suitable build service.
+- Generate a single branded Android test build end-to-end.
+- Protect credentials and limit build concurrency.
+- Track build usage and cost.
 
-Currying transforms a multi-argument function conceptually like:
+Deliverable:
 
-```js
-add(a, b)
-```
+- One eligible project can reliably request and receive an Android artifact with useful error reporting.
 
-into:
+### Phase 8 — Expand based on demand
 
-```js
-add(a)(b)
-```
+Possible additions:
 
-Example:
+- Custom domains.
+- Additional templates and verticals.
+- iOS builds.
+- Agency/white-label workspace features.
+- Team roles and collaboration.
+- Booking, payments, commerce, or integrations driven by customer demand.
+- Template marketplace or template authoring tools.
+- Better analytics and onboarding.
 
-```js
-const add = a => b => a + b;
-```
+Do not proceed with every item automatically. Prioritize based on customer demand, business value, security burden, and operating cost.
 
 ---
-
-## Q166. What is a pure function?
 
-A pure function:
+## 20. Testing and Quality Strategy
 
-- returns the same output for the same input
-- has no observable side effects
-- does not mutate external state
+### Unit tests
 
-Example:
+- Configuration schemas accept valid inputs and reject unsupported fields/types.
+- Template registry resolves correct template/version.
+- Feature entitlement rules return expected outcomes.
+- Domain normalization and project configuration transformations behave correctly.
+- Version migration functions preserve required values.
 
-```js
-const add = (a, b) => a + b;
-```
-
-Pure logic is easier to test, cache, and reason about.
-
----
+### Integration tests
 
-## Q167. What is referential equality?
+- User can create a workspace and project.
+- Unauthorized users cannot read or modify tenant-owned rows.
+- Asset policies prevent cross-tenant access.
+- Draft saving does not change the public site before publishing.
+- Publishing updates the published version pointer safely.
+- Rollback restores a previous version.
+- Subscription webhook replay does not duplicate entitlement changes.
+- Build requests cannot bypass usage and authorization checks.
 
-Two separate objects with the same content are still different references:
+### End-to-end browser tests
 
-```js
-{} === {}; // false
-```
-
-Reference identity is important for React memoization and many state-management optimizations.
+- Sign up / sign in.
+- Create workspace and project.
+- Select template.
+- Edit the logo, title, and theme.
+- Preview changes.
+- Publish the website.
+- Open the public URL in a clean browser context.
+- Confirm a draft is not exposed publicly.
 
----
+### Mobile tests
 
-## Q168. Why can `useSelector` cause rerenders?
+- Test on a real Android device where possible.
+- Test navigation and loading/error/empty states.
+- Test small and large screens.
+- Verify project identity and configuration are resolved correctly.
+- Test a complete development build before selling native build output.
 
-If the selected value changes according to the equality logic being used, the component can rerender.
+### Required automation
 
-A problematic selector may create a fresh object every time:
+Before merging a meaningful change, run the relevant subset of:
 
-```js
-const selected = useSelector(state => ({
-  user: state.user,
-  cart: state.cart,
-}));
-```
+- TypeScript type checks.
+- Linting and formatting checks.
+- Unit tests.
+- Integration tests.
+- Build checks.
+- End-to-end tests where practical.
 
-Depending on the selector/equality setup, this can cause unnecessary updates. Memoized selectors or selecting stable individual values can help.
+A test suite does not replace a human review of security-sensitive flows.
 
 ---
 
-# Part 18 — Senior-Level Discussion Questions
+## 21. Security and Privacy Checklist
 
-## Q169. Why use Redux?
+This list is a baseline, not a substitute for a professional security review.
 
-Weak answer:
+### Identity and access
 
-> Redux stores global state.
+- [ ] Supabase RLS enabled on exposed tenant-owned tables.
+- [ ] Policies reviewed for both read and write operations.
+- [ ] Workspace role checks are enforced server-side.
+- [ ] Admin/operational access is restricted and auditable.
+- [ ] Tenant isolation tested with multiple real test accounts.
 
-Strong answer:
+### Secrets and integrations
 
-> I introduce Redux when state is sufficiently shared or complex that centralized, predictable transitions and tooling provide value. I consider data ownership first and avoid putting transient component state or every server response into a global store.
+- [ ] Service-role and provider secret keys exist only in trusted server environments.
+- [ ] No secrets in client bundles or public environment variables.
+- [ ] Webhook signatures verified.
+- [ ] Secrets are not committed to Git or printed in logs.
+- [ ] Native signing/build credentials are appropriately restricted.
 
----
-
-## Q170. Why use `useMemo`?
+### User input and files
 
-Weak answer:
+- [ ] Project configuration validated at the server boundary.
+- [ ] No arbitrary customer JavaScript or build script execution.
+- [ ] Upload size/type constraints in place.
+- [ ] Asset access matches workspace/project permissions.
+- [ ] Forms are validated, rate-limited when exposed publicly, and protected from spam where needed.
+- [ ] Output is escaped/handled safely to prevent XSS in web renderers.
 
-> To improve performance.
+### Operations
 
-Strong answer:
+- [ ] Database backup and restore process documented and tested before relying on production data.
+- [ ] Error reporting does not leak secrets or sensitive customer data.
+- [ ] Build and publish actions are authorized and rate-limited.
+- [ ] Account deletion and data-retention behavior are documented.
+- [ ] Dependency updates and vulnerabilities are monitored.
+- [ ] Privacy policy, terms, and customer support details are prepared for public launch.
 
-> `useMemo` trades memoization overhead and dependency tracking for reusing a calculated value. I use it when the calculation is expensive or when stable reference identity is important to downstream rendering. I don't treat memoization as a blanket best practice.
-
 ---
-
-## Q171. Why use `useCallback`?
 
-Weak answer:
+## 22. Risks and Mitigations
 
-> It makes functions faster.
+| Risk | Why it matters | Mitigation |
+|---|---|---|
+| Building too much before validation | Months may be spent on features customers do not need | Interview prospects, launch one niche, and seek paid pilots early |
+| Template explosion | Every new niche increases test and support burden | Start with two templates in one vertical; reuse data structures where appropriate |
+| Cross-tenant data exposure | Could expose customer data and damage trust | RLS, server authorization, storage policies, and adversarial tests with multiple users |
+| Free plan restrictions | Service may pause, impose quotas, or prohibit commercial usage | Verify current terms before production; upgrade only when needed |
+| Native build cost and failures | Builds are slower and have provider limits | Queue jobs, cap plan usage, validate early, track cost and error rates |
+| App-store rejection | A successful build does not imply approval | Review current policies and avoid promising approval or automatic publication |
+| Dynamic configuration compatibility | Renderer changes may break old projects | Version configs/templates and test migrations and published fixtures |
+| AI-generated insecure code | Fast implementation may hide authorization flaws | Require tests, review diffs, validate RLS, and keep privileged operations server-side |
+| One-person operational overload | Support and infrastructure can overwhelm feature development | Narrow scope, use managed services, define support levels, and automate common issues |
+| Underpricing | Usage and support costs may exceed revenue | Measure cost per workspace/project/build before offering unlimited usage |
+| Platform dependency | Pricing or APIs may change | Keep boundaries modular, document assumptions, and avoid needless coupling |
 
-Strong answer:
-
-> It stabilizes a function reference across renders until dependencies change. That matters when referential identity influences memoized child components or dependency tracking. It does not inherently make the function execute faster.
-
 ---
-
-## Q172. Why use Expo?
-
-Weak answer:
 
-> Expo makes React Native easier.
+## 23. Metrics and Validation
 
-Strong answer:
+Measure whether the platform creates customer value before measuring vanity metrics like the number of templates or lines of code.
 
-> Expo provides standardized development tooling, native modules, builds, updates, and deployment workflows while still allowing native customization through development builds, prebuild, config plugins, and custom native modules.
+### Product metrics
 
----
-
-## Q173. Why might you choose React Native CLI-style native control instead of a highly managed Expo workflow?
+- Number of people who sign up.
+- Percentage who create a project.
+- Percentage who select a template.
+- Percentage who finish basic customization.
+- Percentage who publish a website.
+- Time from signup to first published site.
+- Number of published sites still receiving activity after 30 days.
+- Number of customers who ask to add a custom domain or mobile app.
 
-### Strong answer
+### Business metrics
 
-I would choose the workflow based on native requirements and operational constraints, not on whether one approach is inherently more professional. If the product depends on specialized native integrations, a tightly controlled native build environment, or existing native applications, more direct native control may be useful. If the product benefits from Expo's tooling and supported modules, Expo can reduce maintenance overhead.
+- Pilot-to-paid conversion rate.
+- Monthly recurring revenue (MRR).
+- Customer acquisition cost when paid acquisition begins.
+- Monthly churn and reasons for cancellation.
+- Revenue and gross margin per customer/plan.
+- Support time per customer.
+- Upgrade rate from website-only to native build plans.
 
----
+### Reliability and cost metrics
 
-## Q174. What is more important: code reuse or native performance?
+- Site availability and response latency.
+- Publish failure rate.
+- Build success rate and average build completion time.
+- Cost per active workspace.
+- Cost per published site.
+- Cost per native build.
+- Database/storage/egress usage.
+- Time to recover a broken publication or restore data.
 
-Neither is universally more important.
+### Early validation goals
 
-A strong answer is:
+Possible initial learning targets, not promises:
 
-> I optimize for product requirements. Shared business logic is valuable, but forcing every platform into identical UI or behavior can create unnecessary compromises. I prefer shared domain logic and components where the UX should be consistent, while allowing platform-specific implementations when they improve correctness or user experience.
+- Interview at least 5–10 target customers.
+- Test the first prototype with 3–5 pilot users.
+- Learn whether at least one customer will pay for the exact initial offer.
+- Observe whether users can publish without founder intervention.
+- Know the approximate monthly cost of serving one active customer.
 
 ---
-
-## Q175. How do you decide if a third-party library should be added?
-
-Evaluate:
-
-```text
-Maintenance activity
-Compatibility with current RN/Expo
-New Architecture support
-Bundle/native cost
-License
-Security history
-Issue quality
-API quality
-Community/adoption
-Ability to replace/remove later
-```
 
-A tiny package with poor maintenance can create larger costs than writing a small internal utility.
+## 24. Definition of Done
 
----
+### A feature is done when
 
-## Q176. When should business logic live on the backend rather than in the app?
+- Requirements and acceptance criteria are met.
+- Loading, empty, success, and error states are handled where relevant.
+- Input is validated at trusted boundaries.
+- Authorization is implemented where data or actions are protected.
+- Relevant automated tests pass.
+- Type checks and lint checks pass or existing failures are documented.
+- The user flow has been exercised manually or with an end-to-end test.
+- The code diff has been reviewed.
+- No secrets are exposed.
+- Documentation and environment setup are updated where necessary.
+- A Git commit exists for the working milestone.
 
-Keep security-sensitive and authoritative rules on the server.
+### MVP is ready for a controlled pilot when
 
-For example:
+- A user can sign up and create a project.
+- At least one complete template can be customized.
+- A published website is stable and shareable.
+- Draft content is not accidentally exposed.
+- Tenant-isolation tests pass.
+- Critical configuration can be rolled back.
+- Error and publishing status are visible to the operator.
+- Backup/recovery expectations are clear.
+- A real pilot customer can use the service without continuous developer intervention.
 
-```text
-Price authority
-Authorization
-Entitlement
-Payment finalization
-Fraud checks
-Sensitive business policy
-```
+### Native generation is ready for a paid beta when
 
-The client can provide UX validation and calculations, but the server should remain authoritative for security-sensitive decisions.
+- The build pipeline succeeds repeatedly for a supported test configuration.
+- Authorization, quotas, duplicate requests, failure, and retry paths are tested.
+- Credentials are protected.
+- Build artifacts and status are tracked.
+- Customer ownership and store-distribution expectations are documented.
+- Build cost and support overhead are known well enough to set a quota and price.
 
 ---
-
-## Q177. What is server state vs client state?
-
-### Client state
-
-Owned primarily by the application:
-
-```text
-modal visibility
-selected tab
-form draft
-local preferences
-UI state
-```
 
-### Server state
+## 25. Immediate Next Steps
 
-Owned by backend systems:
+Perform these in order rather than starting all workstreams at once.
 
-```text
-products
-orders
-profile data
-inventory
-notifications
-```
+1. **Choose a candidate niche.** Use customer conversations, not personal preference alone.
+2. **Write a one-page product requirements document.** Define the target customer, core problem, first template, and what “published” means.
+3. **Interview 5–10 potential users.** Confirm the need for a website and determine whether a branded native app is truly needed initially.
+4. **Sketch the initial interface.** Include dashboard, template selector, editor, preview, publishing status, and settings.
+5. **Create the repository and instructions.** Add `AGENTS.md`, basic quality checks, and architecture notes.
+6. **Create the Supabase schema and RLS tests.** Do this before adding customer content.
+7. **Build one configuration-driven template.** Make it render from stored data before building the full editor.
+8. **Implement customization and publishing.** Complete the smallest end-to-end customer workflow.
+9. **Run a pilot.** Observe the customer using it and prioritize issues based on evidence.
+10. **Only then design the native build service and paid mobile plan.**
 
-Server state has unique concerns:
+### Suggested first milestone
 
-```text
-cache
-freshness
-refetch
-staleness
-invalidation
-pagination
-synchronization
-```
+> A user can sign in, create a project, choose one template, customize its business name and primary color, save the configuration, preview the result, and publish a working website on a platform subdomain.
 
-This is why a dedicated data-fetching/cache layer can be preferable to treating every API response as ordinary global UI state.
+This is the first end-to-end proof of the product. It is a better initial target than trying to implement subscriptions, custom domains, mobile build generation, and app-store submission at the same time.
 
 ---
-
-## Q178. How would you design a reusable payment flow?
 
-Use a domain-level payment abstraction:
+## 26. Questions to Validate Before Building
 
-```text
-Checkout UI
-   ↓
-Checkout service
-   ↓
-Payment gateway interface
-   ↓
-Stripe / another provider
-```
+These questions should be resolved through research and small experiments, not by adding speculative features.
 
-The client should not be the authority for payment success. After the payment flow, the application should verify server-side order/payment state.
+### Product and market
 
-Also consider:
+- Which business niche should launch first?
+- Is the core buyer a small business owner, freelance developer, agency, or reseller?
+- Is the initial product primarily a website builder, or do customers truly need separate mobile apps?
+- What is the smallest outcome the customer is willing to pay for?
+- Which competitor or current manual workflow will customers replace?
 
-- duplicate taps
-- idempotency
-- timeout/retry
-- cancellation
-- app backgrounding
-- deep links
-- partial failures
-- analytics
+### Template and editing model
 
----
+- Are fixed section settings enough, or is drag-and-drop genuinely necessary?
+- Should customers edit multiple pages in the first release?
+- Which settings should be allowed per template?
+- How will old template versions remain compatible?
+- Are the web and native app expected to look identical, or optimized for each platform?
 
-## Q179. How would you debug a production issue you cannot reproduce locally?
+### Hosting and operations
 
-Use observability:
+- Which hosting setup is commercially permitted and supports the required Next.js routing model?
+- How will hostnames map to published projects?
+- When should database backups become mandatory?
+- How will rate limits, abuse reports, and compromised accounts be handled?
+- What is the expected cost per active customer and per native build?
 
-```text
-Crash report
- ↓
-Stack trace
- ↓
-Release/version/build
- ↓
-Device/OS
- ↓
-User/session context (privacy-safe)
- ↓
-API/network logs
- ↓
-Recent deployment/change
-```
+### Mobile publishing
 
-Then narrow the condition rather than guessing.
+- Does each customer actually need a separate app-store listing?
+- Who owns the Apple/Google developer accounts?
+- Who maintains store metadata, privacy disclosures, screenshots, and app updates?
+- Which customers are appropriate for a white-label branded build?
+- What app-store policies apply to the intended template-generated apps at launch time?
 
-A mature team should be able to correlate:
+### Business model
 
-```text
-app version
-build number
-environment
-release/OTA update
-backend version
-```
+- What do competitors charge for a similar outcome?
+- Which plan boundary reflects meaningful value?
+- Should custom domains be included in the starter plan or a higher plan?
+- How many build credits can a plan afford?
+- How much support will each customer need?
+- What refund, cancellation, data-export, and deletion policies are required?
 
 ---
-
-## Q180. How do you evaluate whether a performance optimization actually worked?
 
-Before optimization define a measurable metric.
+## 27. Prompt for an Independent ChatGPT Review
 
-Examples:
+Copy the following prompt along with this README into another ChatGPT conversation to get an independent assessment.
 
 ```text
-startup time
-screen transition time
-JS frame workload
-UI frame drops
-render count
-memory baseline
-API latency
-list scroll stability
-```
-
-Then compare the same workload before and after the change.
+Act as a critical SaaS product strategist, senior full-stack architect, DevOps engineer, and security reviewer. I am a solo developer planning the SaaS platform described in the attached README.md.
 
-A performance change that “feels faster” but cannot be measured is less convincing in a senior review.
+My background: I am familiar with React, React Native, Expo, TypeScript, and JavaScript. I want to use AI coding agents, especially Google Antigravity Pro, to accelerate development. I prefer Supabase for the initial backend and want to start with free or low-cost resources, upgrade only when usage or customer demand justifies it, and validate the business before overbuilding.
 
----
-
-# Final Revision Checklist
-
-## JavaScript
-
-- [ ] Scope
-- [ ] Hoisting
-- [ ] Temporal Dead Zone
-- [ ] Closures
-- [ ] Stale closures
-- [ ] `this`
-- [ ] `call`, `apply`, `bind`
-- [ ] Prototype chain
-- [ ] Classes
-- [ ] Shallow/deep copy
-- [ ] Immutability
-- [ ] Equality
-- [ ] Call stack
-- [ ] Event loop
-- [ ] Microtasks/tasks
-- [ ] Promises
-- [ ] `async/await`
-- [ ] Debounce/throttle
-- [ ] Garbage collection
-- [ ] Memory leaks
-
-## React
-
-- [ ] Components
-- [ ] Props/state
-- [ ] Render purity
-- [ ] Render phase / commit phase
-- [ ] Reconciliation
-- [ ] Keys
-- [ ] State batching
-- [ ] Functional updates
-- [ ] `useState`
-- [ ] `useEffect`
-- [ ] Effect dependencies
-- [ ] Effect cleanup
-- [ ] `useMemo`
-- [ ] `useCallback`
-- [ ] `React.memo`
-- [ ] `useRef`
-- [ ] Context
-- [ ] Custom hooks
-- [ ] Rules of Hooks
-- [ ] Strict Mode
-- [ ] Suspense/lazy loading
-- [ ] Error boundaries
-
-## React Native
-
-- [ ] RN architecture
-- [ ] Legacy Bridge
-- [ ] JSI
-- [ ] Fabric
-- [ ] TurboModules
-- [ ] Hermes
-- [ ] JS/UI/native execution concepts
-- [ ] FlatList
-- [ ] SectionList
-- [ ] VirtualizedList
-- [ ] `getItemLayout`
-- [ ] list optimization
-- [ ] images
-- [ ] startup
-- [ ] animations
-- [ ] gestures
-- [ ] native modules
-- [ ] autolinking
-
-## Expo
-
-- [ ] Expo Go
-- [ ] Development builds
-- [ ] Prebuild
-- [ ] Config plugins
-- [ ] EAS Build
-- [ ] EAS Submit
-- [ ] EAS Update
-- [ ] Build profiles
-- [ ] Runtime version compatibility
-- [ ] Environment variables
-- [ ] Expo Router
-- [ ] Deep linking
-- [ ] Branding/build-time configuration
-
-## State management
-
-- [ ] Context
-- [ ] Redux Toolkit
-- [ ] Immer
-- [ ] Middleware
-- [ ] Selectors
-- [ ] Memoized selectors
-- [ ] RTK Query
-- [ ] Client state vs server state
-- [ ] Persistence
-
-## Networking
-
-- [ ] API layer
-- [ ] Axios/fetch abstraction
-- [ ] Interceptors
-- [ ] Access token
-- [ ] Refresh token
-- [ ] Refresh race conditions
-- [ ] Cancellation
-- [ ] Retry/backoff
-- [ ] Pagination
-- [ ] Caching
-- [ ] Error states
-
-## Native / production
-
-- [ ] Gradle
-- [ ] AGP
-- [ ] Kotlin/Java
-- [ ] NDK/CMake basics
-- [ ] CocoaPods
-- [ ] Xcode
-- [ ] Permissions
-- [ ] Release configuration
-- [ ] CI/CD
-- [ ] Crash reporting
-- [ ] OTA/runtime compatibility
-- [ ] Store release lifecycle
-
-## Senior scenarios
-
-- [ ] API called twice
-- [ ] FlatList lag
-- [ ] app freeze
-- [ ] startup slowdown
-- [ ] production-only crash
-- [ ] Expo Go vs dev build mismatch
-- [ ] incompatible third-party library
-- [ ] authentication race
-- [ ] offline support
-- [ ] feature flags
-- [ ] backend-driven UI
-- [ ] white-label SaaS architecture
-- [ ] payment architecture
-- [ ] observability
-
----
+Do not simply praise the plan. Challenge the assumptions and identify risks, missing requirements, and simpler alternatives. Browse current official documentation when facts about pricing, free-tier limits, hosting, Expo builds, payment providers, security, or app-store policies may have changed. Clearly distinguish verified facts from estimates and assumptions.
 
-# Recommended 5+ Years Mock Interview Sequence
-
-Use this order for repeated practice:
-
-```text
-Round 1 — JavaScript fundamentals
-        ↓
-Round 2 — React rendering + hooks
-        ↓
-Round 3 — React Native architecture
-        ↓
-Round 4 — Expo + EAS
-        ↓
-Round 5 — Performance/debugging
-        ↓
-Round 6 — State/networking/auth
-        ↓
-Round 7 — Native Android/iOS
-        ↓
-Round 8 — Architecture/system design
-        ↓
-Round 9 — Coding round
-        ↓
-Round 10 — Project deep dive
-```
+Please produce:
 
-For every round, practice answering each question in:
+1. Executive assessment: is this product viable as scoped, and what is the riskiest assumption?
+2. Recommended initial customer niche and validation strategy, including alternatives and why one is preferable.
+3. A smaller MVP scope that one developer can realistically complete, with explicit features to remove or postpone.
+4. A recommended architecture and stack, explaining whether Next.js + Expo + Supabase is sufficient and whether Django REST Framework should be deferred.
+5. A review of the multi-tenant data model, RLS policies, asset access, authentication, and privileged server operations.
+6. A review of configuration-driven templates versus per-customer source-code generation.
+7. A realistic website publishing approach for multiple customer subdomains and later custom domains.
+8. A feasibility and policy review of separately branded Expo apps and app-store distribution.
+9. A phased implementation roadmap with dependencies, acceptance criteria, and test requirements—not just a feature list.
+10. A lean business model, plan limits, key cost drivers, and which prices should be validated with customers.
+11. An initial monthly cost estimate for development and for a small commercial pilot. Use current pricing sources where possible; call out usage assumptions and unknowns instead of inventing precise costs.
+12. A security checklist and a list of production blockers that must be resolved before accepting paying customers.
+13. A development workflow for using Antigravity Pro safely, including AGENTS.md guidelines, Git habits, tests, and how to scope agent tasks.
+14. A prioritized backlog with Must / Should / Could / Won't categories.
+15. The first ten implementation tasks, ordered by dependency and with measurable acceptance criteria.
 
-```text
-20–30 seconds → concise interview answer
-60–90 seconds → detailed explanation
-3–5 minutes   → architecture/troubleshooting discussion
+Be direct and specific. Where there are competing approaches, compare trade-offs and recommend one. Do not assume that every feature in the README should be built. Do not recommend paid tools unless the benefit is clear and the cost is justified.
 ```
-
----
-
-# Project Deep-Dive Questions You Should Prepare
-
-Interviewers often move from theory into your actual experience. Prepare strong, truthful answers for:
-
-1. Walk me through your most complex React Native application.
-2. Why did you choose React Native/Expo?
-3. Why did you choose your state-management approach?
-4. How did you handle authentication?
-5. How did you solve token refresh?
-6. How did you optimize a slow FlatList?
-7. What was your toughest Android build issue?
-8. What was your toughest iOS issue?
-9. Did you work with native modules?
-10. How did you manage environments?
-11. How did you release builds?
-12. How did you troubleshoot a production crash?
-13. What architecture did you use and why?
-14. How did you prevent duplicate API requests?
-15. How did you handle offline/error states?
-16. How did you implement payments?
-17. How did you handle push notifications?
-18. What was your biggest performance problem?
-19. What technical decision would you change if rebuilding the project?
-20. Tell me about a production incident and how you fixed it.
-
-**Important:** only claim technologies, scale, architecture decisions, performance improvements, native work, or production ownership that you can actually explain in depth.
 
 ---
 
-# How to Sound Like a 5+ Years Candidate
-
-Avoid absolute statements such as:
-
-```text
-“Redux is always better.”
-“useMemo should always be used.”
-“Expo cannot use native code.”
-“await blocks JavaScript.”
-“FlatList makes everything fast.”
-“AsyncStorage is secure.”
-“Memoization prevents rerenders.”
-```
+## 28. External Resources to Verify
 
-Prefer contextual answers:
+Vendor features, pricing, quotas, and terms can change. Re-check current official documentation before committing architecture decisions or accepting paid customers.
 
-```text
-“It depends on the ownership and update frequency of the state.”
-“I would measure before optimizing.”
-“For native customization, I would use a development build/prebuild/config plugin or native project code.”
-“await suspends the async function's continuation rather than blocking the entire runtime.”
-“FlatList provides virtualization, but row complexity and JS/UI workload still matter.”
-“For sensitive data I would use platform-backed secure storage.”
-“Memoization can skip work when references/values are stable; it is not a universal rerender switch.”
-```
+- **Supabase documentation:** https://supabase.com/docs
+- **Supabase pricing:** https://supabase.com/pricing
+- **Supabase Row Level Security:** https://supabase.com/docs/guides/database/postgres/row-level-security
+- **Supabase Storage access control:** https://supabase.com/docs/guides/storage/security/access-control
+- **Expo documentation:** https://docs.expo.dev/
+- **EAS Build:** https://docs.expo.dev/build/introduction/
+- **Expo app configuration:** https://docs.expo.dev/workflow/configuration/
+- **Expo Updates:** https://docs.expo.dev/eas-update/introduction/
+- **Next.js documentation:** https://nextjs.org/docs
+- **Next.js deployment:** https://nextjs.org/docs/app/getting-started/deploying
+- **Vercel plans and terms:** https://vercel.com/pricing and https://vercel.com/legal/terms
+- **Cloudflare Workers:** https://developers.cloudflare.com/workers/
+- **Razorpay Subscriptions:** https://razorpay.com/docs/payments/subscriptions/
+- **Stripe availability:** https://stripe.com/global
+- **Google Play Console:** https://play.google.com/console/about/
+- **Apple Developer Program:** https://developer.apple.com/programs/
+- **Apple App Review Guidelines:** https://developer.apple.com/app-store/review/guidelines/
+- **Google Play policies:** https://support.google.com/googleplay/android-developer/topic/9858052
+- **Google Antigravity:** Check the current official product documentation and account plan details.
+- **GitHub:** https://docs.github.com/
 
-That style communicates engineering judgment rather than memorization.
+These are starting points, not a claim that every feature or plan described above is currently available in every region or account type.
 
 ---
-
-# Current Official References
-
-For current React Native/Expo interview preparation, prioritize official documentation because architecture and tooling evolve.
 
-- React Native 0.82 / New Architecture: https://reactnative.dev/blog/2025/10/08/react-native-0.82
-- Expo New Architecture guide: https://docs.expo.dev/guides/new-architecture/
-- Expo development builds: https://docs.expo.dev/develop/development-builds/introduction/
-- Expo prebuild / CNG: https://docs.expo.dev/workflow/prebuild/
-- Expo Config Plugins: https://docs.expo.dev/config-plugins/introduction/
-- EAS Build: https://docs.expo.dev/build/introduction/
-- EAS Update / runtime compatibility: https://docs.expo.dev/build/updates/
-- Expo Router: https://docs.expo.dev/router/introduction/
-- React Native performance overview: https://reactnative.dev/docs/performance
-- React Native FlatList: https://reactnative.dev/docs/flatlist
-- React Native VirtualizedList: https://reactnative.dev/docs/virtualizedlist
+## Final Recommendation
 
-> **Current-tooling note:** React Native and Expo release frequently. Before an interview, verify the latest versions and official compatibility guidance for the exact stack the company uses.
+Build the project as a **configuration-driven website builder first**, focused on one customer niche. Use Next.js for the dashboard and published website runtime, Expo for the mobile runtime, and Supabase for authentication, database, and storage. Maintain templates and renderer code in Git; store each customer's validated configuration and content in the database.
 
----
-
-# End Goal
+Use Google Antigravity Pro as the main coding agent initially, but keep architecture decisions, Git history, tests, and security reviews under your control. Validate the core workflow with real users before investing in automated native builds, complex editor features, or additional paid services.
 
-By the time you finish this guide, you should be able to move naturally through:
-
-```text
-JavaScript
-   ↓
-React
-   ↓
-React Native
-   ↓
-Expo
-   ↓
-Performance
-   ↓
-Architecture
-   ↓
-Native debugging
-   ↓
-Production systems
-```
+The near-term target is not a massive platform. It is one reliable customer journey:
 
-The target is not to memorize 180 answers. The target is to build a mental model strong enough that you can explain **why** the code works, **when** to use a technology, **what trade-offs** it introduces, and **how you would debug it in production**.
+**Sign up → choose template → customize → preview → publish → receive feedback → validate willingness to pay.**
