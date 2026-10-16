@@ -1,4713 +1,1411 @@
-# React Native / React Native Expo — 5+ Years Interview Preparation
+# React Native / React / TypeScript — Coding Interview Questions & Answers (5+ Years)
 
-> Comprehensive interview Q&A covering JavaScript, React, React Native, Expo, navigation, state management, networking, storage, performance, native development, testing, architecture, security, production, and scenario-based questions.
->
-> **Target:** React Native / React Native Expo interviews at 5+ years level.
->
-> **Recommended answer pattern:** Direct answer → internal behavior → practical usage → trade-off → failure mode / follow-up.
+A practical coding-preparation companion for senior React Native and Expo interviews. Each question includes a problem, reference solution, explanation, complexity where it makes sense, and follow-up points an interviewer may explore.
 
----
+> **How to practice:** First solve each problem without looking at the answer. Explain your assumptions, edge cases, complexity, and tests aloud. In a senior interview, a correct solution is only part of the answer; clarity, robustness, and trade-offs matter too.
 
-## Table of Contents
+## Contents
 
-1. [How to Use This Guide](#how-to-use-this-guide)
-2. [JavaScript Fundamentals](#part-1--javascript-fundamentals)
-3. [React Fundamentals](#part-2--react-fundamentals)
-4. [React Native Fundamentals](#part-3--react-native-fundamentals)
-5. [Navigation](#part-4--navigation)
-6. [Expo and EAS](#part-5--expo-and-eas)
-7. [State Management](#part-6--state-management)
-8. [Networking and API Architecture](#part-7--networking-and-api-architecture)
-9. [Storage and Offline Data](#part-8--storage-and-offline-data)
-10. [Performance](#part-9--performance)
-11. [Android, iOS, and Native Integration](#part-10--android-ios-and-native-integration)
-12. [Testing](#part-11--testing)
-13. [Architecture and Code Organization](#part-12--architecture-and-code-organization)
-14. [Authentication and Security](#part-13--authentication-and-security)
-15. [Production, Release, CI/CD, and OTA](#part-14--production-release-cicd-and-ota)
-16. [Scenario-Based 5+ Years Questions](#part-15--scenario-based-5-years-questions)
-17. [Coding Questions](#part-16--coding-questions)
-18. [Rapid-Fire Questions](#part-17--rapid-fire-questions)
-19. [Senior-Level Discussion Questions](#part-18--senior-level-discussion-questions)
-20. [Final Revision Checklist](#final-revision-checklist)
-21. [Current Official References](#current-official-references)
+1. JavaScript fundamentals and array/string problems
+2. Algorithms and data transformations
+3. Closures, functions, and asynchronous JavaScript
+4. TypeScript coding questions
+5. React hooks and component exercises
+6. React Native and Expo scenarios
+7. Senior-level discussion checklist
 
 ---
 
-# How to Use This Guide
+# 1. JavaScript Fundamentals and Array/String Problems
 
-A 5+ years interviewer is unlikely to judge you only on whether you can define a hook or a component. The panel usually looks for four additional things:
+## Q1. Reverse a string
 
-- Whether you understand **why** a technology behaves the way it does.
-- Whether you can discuss **trade-offs** instead of presenting one tool as universally correct.
-- Whether you can **debug production problems systematically**.
-- Whether you can make reasonable **architecture decisions** for a growing application.
+**Problem:** Write a function that reverses a string.
 
-For most questions, use this answer format:
-
-> **1. Definition:** What is it?
->
-> **2. Internals:** How does it work?
->
-> **3. Practical usage:** Where would you use it in a real project?
->
-> **4. Trade-off:** What are its limitations?
->
-> **5. Scenario:** What can go wrong and how would you debug it?
-
-Do not memorize the exact wording. Learn the underlying model and then explain it naturally.
-
----
-
-# Part 1 — JavaScript Fundamentals
-
-## Q1. What is the difference between `var`, `let`, and `const`?
-
-### Interview answer
-
-`var` is function-scoped, while `let` and `const` are block-scoped. `var` declarations are hoisted and initialized with `undefined`. `let` and `const` are also hoisted in the language's execution model, but they remain uninitialized and are inaccessible during the Temporal Dead Zone. `const` prevents reassignment of the binding, but it does not make referenced objects immutable.
-
-```js
-var a = 10;
-let b = 20;
-const c = 30;
-```
-
-```js
-{
-  var x = 10;
-  let y = 20;
+```ts
+function reverseString(value: string): string {
+  return [...value].reverse().join("");
 }
 
-console.log(x); // 10
-console.log(y); // ReferenceError
+console.log(reverseString("hello")); // "olleh"
 ```
 
-### Important follow-up
+**Explanation:** Convert the string into an array of Unicode code points, reverse it, then join it.
 
-```js
-const user = {
-  name: 'Surendra',
-};
+**Complexity:** `O(n)` time and `O(n)` extra space.
 
-user.name = 'Kumar'; // allowed
+**Senior follow-up:** `[...value]` handles many Unicode code points better than `value.split("")`, but it does not correctly preserve every user-perceived character made from multiple code points (for example, some emoji and combining characters). For grapheme-aware reversal, use `Intl.Segmenter` where supported or a suitable Unicode library.
 
-// user = {}; // TypeError
-```
+## Q2. Check whether a string is a palindrome
 
-The binding is constant; the object it references is not automatically frozen.
+**Problem:** Ignore case, spaces, and punctuation.
 
----
-
-## Q2. What is hoisting?
-
-### Interview answer
-
-Hoisting is the behavior produced by JavaScript's declaration processing before code execution within a scope. Function declarations can be called before their source position. `var` declarations are initialized to `undefined`. `let` and `const` declarations exist in the scope but cannot be accessed before initialization because of the Temporal Dead Zone.
-
-```js
-console.log(a);
-var a = 10;
-// undefined
-```
-
-```js
-sayHello();
-
-function sayHello() {
-  console.log('Hello');
-}
-```
-
-### Senior follow-up
-
-Do not say that `let` and `const` are “not hoisted.” A better explanation is:
-
-> They are hoisted in the sense that their bindings are created during scope setup, but they are not initialized before execution reaches their declaration.
-
----
-
-## Q3. What is the Temporal Dead Zone (TDZ)?
-
-### Interview answer
-
-The Temporal Dead Zone is the time between entering a scope and the point where a `let`, `const`, or `class` declaration is initialized. Accessing the binding during that interval throws a `ReferenceError`.
-
-```js
-console.log(name); // ReferenceError
-let name = 'Surendra';
-```
-
-The TDZ helps catch accidental access-before-initialization bugs.
-
----
-
-## Q4. Explain JavaScript execution context.
-
-### Interview answer
-
-An execution context is the environment in which JavaScript code executes. At a high level, JavaScript starts with a global execution context and creates additional function execution contexts when functions are called.
-
-Conceptually each context contains information about the currently executing code, its variables and lexical environment, and execution state.
-
-```text
-Global Execution Context
-        |
-        v
-Function Execution Context
-        |
-        v
-Nested Function Context
-```
-
-You should understand the conceptual phases:
-
-```text
-Creation / setup
-      ↓
-Execution
-```
-
-Avoid presenting this as a literal two-step algorithm with every engine implementation detail fixed; the model is primarily useful for reasoning about scope, hoisting, and function execution.
-
----
-
-## Q5. What is the call stack?
-
-### Interview answer
-
-The call stack tracks active JavaScript execution frames. When a function is called, a frame is pushed onto the stack. When it returns, that frame is removed.
-
-```js
-function first() {
-  second();
+```ts
+function isPalindrome(value: string): boolean {
+  const normalized = value.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+  return normalized === [...normalized].reverse().join("");
 }
 
-function second() {
-  console.log('Hello');
-}
-
-first();
-```
-
-Conceptually:
-
-```text
-second()
-first()
-global()
-```
-
-Then the frames unwind.
-
-### Why is it important in React Native?
-
-A long-running synchronous calculation on the JS thread can prevent other JavaScript work from running promptly, which can contribute to interaction and rendering problems.
-
----
-
-## Q6. What is a closure?
-
-### Interview answer
-
-A closure occurs when a function retains access to variables from its lexical scope even after the outer function has returned.
-
-```js
-function counter() {
-  let count = 0;
-
-  return function increment() {
-    count += 1;
-    return count;
-  };
-}
-
-const increment = counter();
-
-console.log(increment()); // 1
-console.log(increment()); // 2
-```
-
-`increment` closes over `count`.
-
-### React Native relevance
-
-Closures appear in:
-
-- event handlers
-- `useEffect`
-- `useCallback`
-- timers
-- promise callbacks
-- custom hooks
-- state updater functions
-
-Understanding closures is essential for debugging **stale state**.
-
----
-
-## Q7. What is a stale closure in React?
-
-### Interview answer
-
-A stale closure happens when a callback retains values from an older render and later executes with those captured values instead of the latest state or props.
-
-```js
-function Screen() {
-  const [count, setCount] = useState(0);
-
-  const handleClick = () => {
-    setTimeout(() => {
-      console.log(count);
-    }, 3000);
-  };
-
-  // ...
-}
-```
-
-The timeout callback captures `count` from the render where that callback was created.
-
-### How do you handle it?
-
-Use the right strategy for the problem.
-
-When calculating new state from previous state:
-
-```js
-setCount(prev => prev + 1);
-```
-
-When an imperative callback genuinely needs a mutable reference to the latest value:
-
-```js
-const countRef = useRef(count);
-countRef.current = count;
-```
-
-### Senior point
-
-Do not use refs automatically to fix every stale closure. First determine whether the code should instead have correct dependencies or use a functional state update.
-
----
-
-## Q8. Explain `this` in JavaScript.
-
-### Interview answer
-
-For normal functions, the value of `this` is primarily determined by how the function is called.
-
-```js
-const user = {
-  name: 'Surendra',
-  greet() {
-    console.log(this.name);
-  },
-};
-
-user.greet(); // this -> user
-```
-
-If the method is extracted, the receiver can be lost:
-
-```js
-const greet = user.greet;
-greet();
-```
-
-Arrow functions behave differently: they do not create their own `this`; they use the lexical `this` from the surrounding scope.
-
-### Senior follow-up
-
-Know the common call patterns:
-
-```text
-obj.method()       → this is obj
-func.call(obj)     → explicit this
-func.apply(obj)    → explicit this
-func.bind(obj)     → returns bound function
-new Func()         → this refers to created instance
-arrow function     → lexical this
-```
-
----
-
-## Q9. What is the difference between `call`, `apply`, and `bind`?
-
-### Interview answer
-
-All three can control `this` for normal functions.
-
-```js
-function greet(city) {
-  console.log(this.name, city);
-}
-
-const user = { name: 'Surendra' };
-
-greet.call(user, 'Coimbatore');
-greet.apply(user, ['Coimbatore']);
-
-const bound = greet.bind(user);
-bound('Coimbatore');
-```
-
-- `call` invokes immediately with arguments separately.
-- `apply` invokes immediately with arguments as an array-like collection.
-- `bind` returns a new function with `this` and optional leading arguments bound.
-
----
-
-## Q10. What is the prototype chain?
-
-### Interview answer
-
-JavaScript uses prototype-based inheritance. If a property is not found directly on an object, the runtime looks up the object's prototype and continues through the prototype chain until it finds the property or reaches `null`.
-
-```text
-object
-  ↓
-prototype
-  ↓
-prototype
-  ↓
-Object.prototype
-  ↓
-null
-```
-
-Methods such as `toString` are typically found through this chain rather than being duplicated on every object instance.
-
----
-
-## Q11. Are JavaScript classes actually classical inheritance?
-
-### Interview answer
-
-JavaScript provides `class` syntax and inheritance constructs, but the language itself remains prototype-based. Classes provide a more familiar syntax over prototype mechanisms rather than replacing them with a purely classical object model.
-
-```js
-class Animal {
-  speak() {
-    console.log('sound');
-  }
-}
-
-class Dog extends Animal {
-  bark() {
-    console.log('bark');
-  }
-}
-```
-
-A senior interviewer may ask what `extends` ultimately establishes: it sets up a prototype relationship between the child and parent constructor/prototype objects.
-
----
-
-## Q12. Shallow copy vs deep copy.
-
-### Shallow copy
-
-```js
-const user = {
-  name: 'A',
-  address: {
-    city: 'Chennai',
-  },
-};
-
-const copy = { ...user };
-```
-
-`copy.address` still references the same nested object.
-
-### Deep copy
-
-For cloneable data, modern JavaScript provides:
-
-```js
-const cloned = structuredClone(user);
-```
-
-Other strategies or libraries may be appropriate for special object types.
-
-### React relevance
-
-For nested state updates, copy each changed level:
-
-```js
-setUser(prev => ({
-  ...prev,
-  address: {
-    ...prev.address,
-    city: 'Coimbatore',
-  },
-}));
-```
-
----
-
-## Q13. What is immutability and why is it important in React?
-
-### Interview answer
-
-Immutability means you avoid changing an existing state value in place and instead produce a new value representing the next state. React and many state libraries rely on reference identity for efficient change detection and memoization.
-
-Bad:
-
-```js
-user.name = 'Kumar';
-setUser(user);
-```
-
-Better:
-
-```js
-setUser(prev => ({
-  ...prev,
-  name: 'Kumar',
-}));
-```
-
-### Important nuance
-
-Immutability is not the same as deep-freezing every object. The practical goal is predictable state transitions and stable identity semantics.
-
----
-
-## Q14. Difference between `==` and `===`.
-
-```js
-5 == '5';  // true
-5 === '5'; // false
-```
-
-### Interview answer
-
-`==` performs type coercion as part of comparison. `===` compares without the usual coercive conversion of `==`. In application code, `===` is generally preferred because its behavior is more predictable.
-
-Know a few edge cases, but don't fill an interview with coercion trivia unless asked.
-
----
-
-## Q15. Explain the JavaScript event loop.
-
-### Interview answer
-
-Synchronous JavaScript executes on the call stack. Asynchronous operations are coordinated by the runtime. When asynchronous work is ready, its continuation is queued, and the event loop decides when queued work can run after the current execution stack is clear.
-
-Conceptually:
-
-```text
-                JavaScript
-                    |
-               Call Stack
-                    |
-        -------------------------
-        |                       |
-   Microtask Queue          Task Queue
-        |                       |
-        -------- Event Loop -----
-```
-
-Example:
-
-```js
-console.log('A');
-
-setTimeout(() => {
-  console.log('B');
-}, 0);
-
-Promise.resolve().then(() => {
-  console.log('C');
-});
-
-console.log('D');
-```
-
-Typical order in environments with standard promise microtask scheduling:
-
-```text
-A
-D
-C
-B
-```
-
-The exact task scheduling model depends on the JavaScript host, but the core interview concept is that Promise reactions run as microtasks and timers are handled as tasks.
-
----
-
-## Q16. What is the difference between microtasks and macrotasks/tasks?
-
-Examples commonly treated as microtasks:
-
-```text
-Promise.then / catch / finally
-queueMicrotask
-```
-
-Examples of tasks/macrotask-style APIs:
-
-```text
-setTimeout
-setInterval
-message events and other host tasks
-```
-
-General mental model:
-
-```text
-Current synchronous work
-        ↓
-Microtasks
-        ↓
-Next scheduled task
-```
-
-### Interview trap
-
-`setTimeout(fn, 0)` does not mean “run immediately.” It means the callback becomes eligible to run after the current work and according to the host's scheduling rules.
-
----
-
-## Q17. Explain Promise states.
-
-A Promise is initially:
-
-```text
-pending
-```
-
-It eventually becomes one of:
-
-```text
-fulfilled
-rejected
-```
-
-Once settled, it cannot transition to the other final state.
-
-```text
-pending
-  |
-  +---- fulfilled
-  |
-  +---- rejected
-```
-
----
-
-## Q18. Difference between `Promise.all`, `Promise.allSettled`, `Promise.race`, and `Promise.any`.
-
-### `Promise.all`
-
-Waits for all inputs. Rejects when one rejects.
-
-```js
-await Promise.all([
-  fetchUser(),
-  fetchProducts(),
-  fetchOrders(),
-]);
-```
-
-Use when all operations are required for success.
-
-### `Promise.allSettled`
-
-Waits for every Promise and provides each result status. Useful when partial success matters.
-
-### `Promise.race`
-
-Settles when the first input settles, whether fulfilled or rejected.
-
-### `Promise.any`
-
-Fulfills as soon as the first input fulfills. It rejects only if all inputs reject.
-
-### Interview follow-up
-
-Ask yourself whether the API design really requires serial execution or whether independent requests can be parallelized safely.
-
----
-
-## Q19. What does `async/await` actually do?
-
-### Interview answer
-
-`async/await` is syntax built around Promise-based asynchronous programming. An `async` function always returns a Promise. `await` suspends the continuation of that async function until the awaited Promise settles; it does not block the whole JavaScript runtime in the same way a synchronous blocking operation would.
-
-```js
-async function getData() {
-  const response = await fetch(url);
-  return response.json();
-}
-```
-
-### Senior follow-up
-
-Know when to parallelize:
-
-```js
-const [user, products] = await Promise.all([
-  getUser(),
-  getProducts(),
-]);
-```
-
-instead of unnecessarily doing:
-
-```js
-const user = await getUser();
-const products = await getProducts();
-```
-
-when the operations are independent.
-
----
-
-## Q20. Is `await` blocking?
-
-### Interview answer
-
-It suspends the current async function's continuation. It does not block unrelated JavaScript execution in the general sense, and it is not equivalent to a thread-blocking synchronization primitive.
-
-A stronger answer than “`await` blocks JavaScript” is:
-
-> `await` pauses that function's async continuation while control returns to the runtime until the Promise settles.
-
----
-
-## Q21. What is debouncing?
-
-Debouncing delays execution until a period of inactivity has passed.
-
-Search example:
-
-```text
-R
-Re
-Rea
-React
-   ↓
-(wait)
-   ↓
-API call
-```
-
-Typical use cases:
-
-- search boxes
-- validation
-- window resizing
-- autosave triggers
-
----
-
-## Q22. What is throttling?
-
-Throttling limits how often a function can execute within a time window.
-
-Typical use cases:
-
-- scroll events
-- gesture-related work
-- analytics sampling
-- frequent sensor/location updates
-
-Difference:
-
-```text
-Debounce → wait until activity settles
-Throttle → execute at controlled intervals
-```
-
----
-
-## Q23. How does garbage collection work?
-
-### Interview answer
-
-JavaScript runtimes automatically reclaim memory that is no longer reachable. Modern engines use garbage-collection strategies to identify objects that are no longer needed and reclaim their memory.
-
-For React Native, resource cleanup still matters even if JavaScript memory is garbage-collected. Native handles, listeners, timers, subscriptions, sockets, and other resources may require explicit cleanup.
-
-Example:
-
-```js
-useEffect(() => {
-  const subscription = subscribe();
-
-  return () => {
-    subscription.remove();
-  };
-}, []);
-```
-
----
-
-## Q24. What causes memory leaks in React Native?
-
-Common causes include:
-
-- timers that are never cleared
-- event listeners/subscriptions that are never removed
-- WebSockets that remain open
-- callbacks that retain unexpectedly large object graphs
-- large image/data caches
-- native resources that aren't released correctly
-- long-lived stores holding unnecessary data
-
-A practical debugging strategy is to reproduce the screen transition repeatedly and inspect whether memory or active resources continuously grow.
-
----
-
-# Part 2 — React Fundamentals
-
-## Q25. What is React?
-
-### Interview answer
-
-React is a library for building user interfaces with a declarative component model. You describe the UI for a given state, and React coordinates the process of producing the next rendered tree when state or props change.
-
-For React Native:
-
-```text
-React components
-      ↓
-React Native renderer
-      ↓
-Native platform UI
-```
-
----
-
-## Q26. What is the Virtual DOM?
-
-### Interview answer
-
-The Virtual DOM is a conceptual representation of the UI tree used by React's rendering model. When a component renders again, React produces a new element tree and determines what must change relative to the previous tree before committing updates.
-
-Avoid saying:
-
-> React rebuilds and compares the entire real DOM every time.
-
-That oversimplifies React's reconciliation process.
-
-In React Native there is no browser DOM equivalent; the same React rendering model is paired with native renderers.
-
----
-
-## Q27. What is reconciliation?
-
-### Interview answer
-
-Reconciliation is the process by which React determines how a new rendered element tree relates to the previous tree and which component identities and updates should be preserved, replaced, or changed.
-
-Key concepts include:
-
-- element/component type
-- stable keys in lists
-- component identity
-- tree structure
-- props and state changes
-
----
-
-## Q28. What is the difference between render phase and commit phase?
-
-### Render phase
-
-React computes what the next UI should look like.
-
-### Commit phase
-
-React applies the necessary updates to the host environment.
-
-Conceptually:
-
-```text
-State update
-    ↓
-Render
-    ↓
-Reconciliation
-    ↓
-Commit
-    ↓
-Host UI update
-```
-
-### Senior point
-
-Render work should be treated as pure. Do not trigger network requests, subscriptions, or other imperative side effects from the component render function.
-
----
-
-## Q29. Why should side effects not happen during render?
-
-Because a render is supposed to be a pure calculation of UI. React may render more than once, restart work, or abandon a render before it commits.
-
-Bad:
-
-```js
-function UserScreen() {
-  fetchUser();
-  return <View />;
-}
-```
-
-Better:
-
-```js
-useEffect(() => {
-  fetchUser();
-}, [userId]);
-```
-
-Depending on the operation, an event handler or data-fetching abstraction can be even more appropriate than an effect.
-
----
-
-## Q30. What is a React component?
-
-### Interview answer
-
-A component is a reusable UI unit that accepts inputs such as props and returns a description of what should be rendered.
-
-```jsx
-function UserCard({ user }) {
-  return (
-    <View>
-      <Text>{user.name}</Text>
-    </View>
-  );
-}
-```
-
-A component can own local state and coordinate hooks, but it should avoid becoming an unstructured container for every business rule in the application.
-
----
-
-## Q31. Props vs state.
-
-| Props | State |
-|---|---|
-| Inputs from a parent/owner | Data owned by a component or state system |
-| Read-only from the receiving component's perspective | Changes over time |
-| Used to configure/render a child | Represents dynamic application/UI state |
-
-Example prop:
-
-```jsx
-<UserCard user={user} />
-```
-
-Example state:
-
-```js
-const [loading, setLoading] = useState(false);
-```
-
----
-
-## Q32. What happens when `setState` is called?
-
-### Interview answer
-
-A state update schedules React to process an update. React may batch updates, compute the next state, render affected components, and commit the resulting changes.
-
-For state derived from previous state, use a functional updater:
-
-```js
-setCount(prev => prev + 1);
-setCount(prev => prev + 1);
-```
-
-This lets each updater receive the current queued state value rather than relying on a captured variable from the surrounding render.
-
----
-
-## Q33. Why use functional state updates?
-
-When the next value depends on the previous value:
-
-```js
-setCount(prev => prev + 1);
-```
-
-It is especially useful for:
-
-- multiple updates
-- batched updates
-- timers
-- asynchronous callbacks
-- event handlers that may run after the current render
-
----
-
-## Q34. Explain `useEffect`.
-
-### Interview answer
-
-`useEffect` is used to synchronize a component with external systems or imperative resources that are not part of rendering itself. Examples include subscriptions, timers, network synchronization, event listeners, and other APIs.
-
-```js
-useEffect(() => {
-  const subscription = subscribe();
-
-  return () => {
-    subscription.remove();
-  };
-}, []);
-```
-
-### Senior point
-
-Not every piece of logic belongs in an effect. Derived values should usually be calculated during render, while user-triggered actions often belong in event handlers.
-
----
-
-## Q35. What does the dependency array mean?
-
-```js
-useEffect(() => {
-  fetchUser(userId);
-}, [userId]);
-```
-
-The effect reads `userId`, so changes to that reactive value are relevant to the effect. React compares dependency values between renders and reruns the effect when they have changed.
-
-A dependency array is **not** an arbitrary “when I want this effect to run” list. It should represent the reactive values the effect depends on, with deliberate exceptions when using established patterns.
-
----
-
-## Q36. What is wrong with this?
-
-```js
-useEffect(() => {
-  fetchUser(userId);
-}, []);
-```
-
-If `userId` can change, the effect may keep using the value captured from the initial render.
-
-A good interview answer:
-
-> I would check whether `userId` is actually stable. If it is reactive, it should normally be represented in the dependencies or the logic should be refactored so that the effect's dependencies accurately describe what it synchronizes with.
-
----
-
-## Q37. What does `useEffect` cleanup do?
-
-```js
-useEffect(() => {
-  const listener = addListener();
-
-  return () => {
-    listener.remove();
-  };
-}, []);
-```
-
-Cleanup runs before a subsequent execution of the same effect when dependencies change and when the effect is removed/unmounted according to React's lifecycle semantics.
-
-Use cleanup for:
-
-- event listeners
-- timers
-- subscriptions
-- WebSockets
-- native observers
-- request cancellation where appropriate
-
----
-
-## Q38. Explain `useMemo`.
-
-### Interview answer
-
-`useMemo` caches the result of a calculation between renders until its dependencies change.
-
-```js
-const filteredProducts = useMemo(() => {
-  return products.filter(product =>
-    product.name.includes(search)
-  );
-}, [products, search]);
-```
-
-Use it when:
-
-- a calculation is meaningfully expensive, or
-- stable reference identity is valuable for downstream optimization.
-
-Do not use it as a blanket rule for every variable. Memoization itself has cost and complexity.
-
----
-
-## Q39. Explain `useCallback`.
-
-### Interview answer
-
-`useCallback` returns the same function reference between renders until one of its dependencies changes.
-
-```js
-const handlePress = useCallback(() => {
-  navigation.navigate('Details');
-}, [navigation]);
-```
-
-It is most useful when reference stability matters, for example:
-
-- passing a callback to a memoized child
-- using a callback in dependency tracking
-- avoiding needless downstream prop changes in an expensive subtree
-
-It does not make the underlying function intrinsically faster.
-
----
-
-## Q40. `useMemo` vs `useCallback`.
-
-```text
-useMemo
-→ memoizes a calculated value
-
-useCallback
-→ memoizes a function reference
-```
-
-Conceptually:
-
-```js
-useCallback(fn, deps)
-```
-
-is closely related to:
-
-```js
-useMemo(() => fn, deps)
-```
-
-but the semantic intent is clearer with `useCallback` when the thing being memoized is a function.
-
----
-
-## Q41. What is `React.memo`?
-
-### Interview answer
-
-`React.memo` creates a memoized component that can skip a re-render when its props compare as unchanged.
-
-```js
-const UserCard = React.memo(function UserCard({ user }) {
-  return <Text>{user.name}</Text>;
-});
-```
-
-However, this can be undermined by unstable props:
-
-```jsx
-<UserCard
-  user={user}
-  onPress={() => handlePress(user)}
-/>
-```
-
-The callback is a new function on each parent render.
-
----
-
-## Q42. Does `React.memo` guarantee no re-render?
-
-No.
-
-### Interview answer
-
-`React.memo` is a performance optimization, not a semantic guarantee. A component can still render because its own state changes, consumed context changes, props change, or React otherwise needs to render it.
-
-Also, preventing every render is not inherently the goal. The goal is to prevent unnecessary expensive work.
-
----
-
-## Q43. What is the Context API?
-
-### Interview answer
-
-Context allows a value to be provided to a subtree without explicitly passing it through every intermediate component as a prop.
-
-Common uses:
-
-- theme
-- localization
-- authentication dependencies
-- application configuration
-- relatively stable cross-cutting data
-
-```jsx
-<AuthProvider>
-  <App />
-</AuthProvider>
-```
-
----
-
-## Q44. Should Context replace Redux?
-
-Not automatically.
-
-A strong distinction is:
-
-```text
-Context
-→ dependency propagation / shared values
-
-Redux
-→ centralized application state and predictable state transitions
-```
-
-Context is excellent for relatively stable cross-cutting dependencies. Redux or another store can be more appropriate when state is large, frequently updated, shared across many features, or benefits from centralized transitions, middleware, persistence, or debugging tooling.
-
----
-
-## Q45. What causes Context performance problems?
-
-Consider:
-
-```jsx
-<AuthContext.Provider value={{ user, login }}>
-  {children}
-</AuthContext.Provider>
-```
-
-If the provider renders and creates a fresh object, consumers may observe a new context value.
-
-Possible mitigation:
-
-```js
-const value = useMemo(
-  () => ({ user, login }),
-  [user, login]
-);
-```
-
-However, the bigger architectural consideration is provider scope. Avoid putting high-frequency changing values into very broad contexts when more localized state would be better.
-
----
-
-## Q46. What is `useRef`?
-
-### Interview answer
-
-`useRef` stores a mutable value that persists across renders without causing a re-render when the `.current` value changes.
-
-Example:
-
-```js
-const inputRef = useRef(null);
-
-inputRef.current?.focus();
-```
-
-It can also hold:
-
-- timer IDs
-- previous values
-- imperative handles
-- mutable instance-like state
-- latest values for carefully designed callbacks
-
----
-
-## Q47. `useState` vs `useRef`.
-
-| `useState` | `useRef` |
-|---|---|
-| Updating state schedules rendering | Changing `.current` does not schedule rendering |
-| Represents UI/application state | Represents a persistent mutable cell |
-| State transitions are part of React's update model | Mutations are imperative and not themselves rendered |
-
-Use a ref when rendering should **not** be triggered by the value changing.
-
----
-
-## Q48. What are the Rules of Hooks?
-
-The core rules are:
-
-1. Call hooks only at the top level of a React function component or custom hook.
-2. Call hooks only from React components or custom hooks.
-
-Bad:
-
-```js
-if (isLoggedIn) {
-  useEffect(() => {}, []);
-}
-```
-
-Hook order must remain consistent across renders so React can correctly associate hook state with hook calls.
-
----
-
-## Q49. What is a custom hook?
-
-### Interview answer
-
-A custom hook is a reusable function beginning with `use` that can compose React hooks and encapsulate reusable stateful behavior.
-
-```js
-function useAuth() {
-  const [user, setUser] = useState(null);
-
-  const login = async credentials => {
-    // login logic
-  };
-
-  return { user, login };
-}
-```
-
-The goal is to separate reusable behavior from UI composition.
-
----
-
-## Q50. Why are keys important in React lists?
-
-Keys give elements stable identity so React can reason about inserted, removed, or reordered items.
-
-```jsx
-products.map(product => (
-  <ProductCard
-    key={product.id}
-    product={product}
-  />
-));
-```
-
-Use stable IDs whenever possible.
-
----
-
-## Q51. Why can using array index as a key cause bugs?
-
-Imagine:
-
-```text
-A
-B
-C
-```
-
-Then insert `X` at the top:
-
-```text
-X
-A
-B
-C
-```
-
-Indexes shift. React may associate an existing component instance with different data than before.
-
-This can lead to:
-
-- wrong local input state
-- mismatched component state
-- unexpected animations
-- confusing list updates
-
-Index keys are not inherently forbidden; they are risky when items can be reordered, inserted, removed, or otherwise change identity.
-
----
-
-## Q52. What is Strict Mode?
-
-### Interview answer
-
-React Strict Mode enables additional development-time checks intended to surface unsafe patterns. In development, some behavior can be repeated or simulated to expose missing cleanup and side-effect bugs. This should not be interpreted as a promise that production executes the exact same development checks.
-
-When an API appears to run twice in development, inspect:
-
-- Strict Mode behavior
-- effect dependencies
-- mount/unmount behavior
-- cleanup
-- duplicate invocation from app code
-
----
-
-## Q53. What is lazy loading?
-
-```js
-const Profile = lazy(() => import('./Profile'));
-```
-
-Combined with:
-
-```jsx
-<Suspense fallback={<Loader />}>
-  <Profile />
-</Suspense>
-```
-
-The module is loaded when React needs it according to the surrounding code-splitting/runtime model.
-
-For mobile, evaluate whether code splitting materially improves startup and whether the resulting loading behavior is appropriate for the product.
-
----
-
-## Q54. What is an Error Boundary?
-
-### Interview answer
-
-An Error Boundary is a component that catches errors during rendering and lifecycle behavior in descendant components and shows fallback UI instead of allowing the affected subtree to fail unhandled.
-
-An error boundary is not a general-purpose asynchronous exception handler. Network errors, promise rejections, timers, and event callback failures often require their own handling patterns.
-
----
-
-# Part 3 — React Native Fundamentals
-
-## Q55. What is React Native?
-
-### Interview answer
-
-React Native is a framework for building native mobile applications using React and JavaScript/TypeScript. React supplies the declarative component model, while React Native provides host components, a renderer, and APIs for interacting with Android and iOS capabilities.
-
-Example:
-
-```jsx
-<View>
-  <Text>Hello</Text>
-</View>
-```
-
-These are React Native components, not HTML DOM elements.
-
----
-
-## Q56. React vs React Native.
-
-| React (web) | React Native |
-|---|---|
-| Browser UI | Native mobile UI |
-| DOM host environment | Native host environment |
-| `div` | `View` |
-| `button` | `Pressable` / platform controls |
-| Browser CSS | React Native style system + Yoga layout |
-| Browser APIs | Native/mobile APIs |
-
-The programming model is React, but the host renderer and platform capabilities are different.
-
----
-
-## Q57. Explain React Native architecture.
-
-You should understand both the historical architecture and the modern New Architecture.
-
-### Legacy architecture
-
-A simplified mental model is:
-
-```text
-JavaScript
-    |
-    | serialized async Bridge communication
-    ↓
-Native
-```
-
-### New Architecture
-
-A simplified mental model:
-
-```text
-React
-  ↓
-Fabric renderer
-  ↓
-Native rendering
-
-JavaScript
-  ↓
-JSI
-  ↓
-TurboModules / native capabilities
-  ↓
-Native
-```
-
-Important New Architecture concepts:
-
-- Fabric
-- TurboModules
-- JSI
-- concurrent React capabilities / improved scheduling integration
-- code generation and typed native interfaces in the wider architecture ecosystem
-
-Do not describe the New Architecture as “just replacing the bridge with JSI.” It is a broader redesign of the rendering and native module systems.
-
----
-
-## Q58. What is the React Native Bridge?
-
-### Interview answer
-
-In the legacy React Native architecture, the Bridge was a communication mechanism between JavaScript and native code. Communication commonly involved batching/serialization and asynchronous transfer across the boundary.
-
-This could become expensive for very high-frequency communication such as:
-
-- gesture updates
-- animation values
-- large event streams
-- frequent native callbacks
-
-The New Architecture moves away from this legacy communication model and uses JSI-based mechanisms plus modern rendering/native module systems.
-
----
-
-## Q59. What is JSI?
-
-### Interview answer
-
-JSI, the JavaScript Interface, is a C++ interface that allows JavaScript engines and native/C++ code to interact more directly than the old serialized Bridge model.
-
-Conceptually:
-
-```text
-Old
-JS → Bridge → Native
-
-Modern
-JS ↔ JSI ↔ C++ / Native infrastructure
-```
-
-JSI enables libraries and React Native internals to implement lower-overhead interactions, including synchronous/native-adjacent patterns where appropriate.
-
----
-
-## Q60. What are TurboModules?
-
-### Interview answer
-
-TurboModules are part of React Native's New Architecture for integrating native modules with JavaScript. They support a more modern module-loading and interoperability model, including JSI-based communication patterns and lazy loading.
-
-Examples of native capabilities that may be exposed as modules include:
-
-- camera
-- biometrics
-- Bluetooth
-- device sensors
-- secure storage
-- payments
-
----
-
-## Q61. What is Fabric?
-
-### Interview answer
-
-Fabric is React Native's modern rendering system. It is part of the New Architecture and is designed to improve how React's rendering model integrates with native views and modern React capabilities.
-
-Conceptually:
-
-```text
-React tree
-   ↓
-Fabric renderer
-   ↓
-Native host views
-```
-
-When discussing Fabric, focus on its role as the renderer rather than describing it simply as a performance toggle.
-
----
-
-## Q62. What is Hermes?
-
-### Interview answer
-
-Hermes is a JavaScript engine optimized for React Native workloads, with a focus on mobile constraints such as startup performance and memory usage.
-
-A useful mental model is:
-
-```text
-React Native application
-      ↓
-JS bundle
-      ↓
-JavaScript engine (commonly Hermes)
-      ↓
-React Native runtime / renderer
-```
-
-Know how Hermes can affect debugging, stack traces, startup characteristics, and runtime behavior in production.
-
----
-
-## Q63. What are the JavaScript thread and UI/main thread?
-
-A simplified model is:
-
-```text
-JS thread / runtime
-  ├─ React/business logic
-  ├─ state processing
-  ├─ API callbacks
-  └─ JavaScript computations
-
-UI/Main thread
-  ├─ native UI work
-  ├─ layout and drawing
-  └─ user interaction handling
-```
-
-A long-running synchronous JavaScript computation can delay JS-side work and make the app feel unresponsive.
-
-Do not present this model as if React Native has only exactly two threads. Modern RN apps can involve multiple runtime/native threads. The model is useful for identifying whether work is JS-bound or native/UI-bound.
-
----
-
-## Q64. How would you debug UI lag in React Native?
-
-### Strong 5+ years answer
-
-First determine the bottleneck instead of applying random optimizations. I would establish whether the issue is:
-
-- JavaScript execution
-- UI/native work
-- excessive renders
-- expensive component work
-- list virtualization
-- image decoding
-- animation/gesture processing
-- networking/data transformation
-- memory pressure
-
-Then profile the interaction and compare before/after changes.
-
-A good diagnostic flow is:
-
-```text
-Reproduce
-  ↓
-Profile
-  ↓
-Identify bottleneck
-  ↓
-Target optimization
-  ↓
-Measure again
-```
-
----
-
-## Q65. Why is `FlatList` preferred over `ScrollView` for large lists?
-
-### Interview answer
-
-`ScrollView` generally renders all of its children, whereas `FlatList` uses virtualization to render a window of items around the visible area and manage item recycling/rendering more efficiently.
-
-For large datasets, use:
-
-```jsx
-<FlatList
-  data={products}
-  renderItem={renderItem}
-  keyExtractor={item => String(item.id)}
-/>
-```
-
-rather than rendering a very large array directly inside a `ScrollView`.
-
----
-
-## Q66. Important `FlatList` optimization techniques.
-
-Know these and, more importantly, know when to use them:
-
-- stable `keyExtractor`
-- lightweight row components
-- `React.memo` for expensive rows when appropriate
-- stable `renderItem` references when it matters
-- `getItemLayout` for fixed-size items
-- pagination/infinite loading
-- sensible `initialNumToRender`
-- `maxToRenderPerBatch`
-- `windowSize`
-- careful use of `removeClippedSubviews`
-- image sizing/caching
-- avoid large derived calculations in every row
-- avoid passing constantly changing objects/functions unnecessarily
-
-Do not present these as a magic checklist. Profiling is more important than changing ten props at once.
-
----
-
-## Q67. What is `getItemLayout`?
-
-For fixed or predictable row dimensions, `getItemLayout` lets the list calculate item positions without dynamically measuring every item.
-
-```js
-getItemLayout={(data, index) => ({
-  length: ITEM_HEIGHT,
-  offset: ITEM_HEIGHT * index,
-  index,
-})}
-```
-
-This can improve operations such as jumping to an item by index and reduce measurement work.
-
----
-
-## Q68. `FlatList` vs `SectionList`.
-
-### `FlatList`
-
-For a single flat sequence:
-
-```text
-Products
-Users
-Messages
-```
-
-### `SectionList`
-
-For grouped/sectioned data:
-
-```text
-A
-  Apple
-  Amazon
-
-B
-  BMW
-  Boeing
-```
-
----
-
-## Q69. What is `VirtualizedList`?
-
-### Interview answer
-
-`VirtualizedList` is the lower-level virtualization primitive used by `FlatList` and `SectionList`. It provides more direct control for advanced cases where data access or list behavior differs from the standard array-based components.
-
----
-
-## Q70. How can you prevent unnecessary React Native renders?
-
-Start with architecture before micro-optimizations:
-
-1. Keep state as local as practical.
-2. Create useful component boundaries.
-3. Avoid recreating expensive data structures unnecessarily.
-4. Use `React.memo` when it meaningfully reduces expensive child work.
-5. Use `useCallback` when function identity matters.
-6. Use `useMemo` for expensive calculations or important stable references.
-7. Avoid expensive work during render.
-8. Virtualize large collections.
-9. Avoid broad context updates for high-frequency state.
-10. Optimize selectors and derived data when using state libraries.
-
----
-
-## Q71. LayoutAnimation / Animated vs Reanimated.
-
-The exact APIs differ by version, but the conceptual distinction is important.
-
-React Native provides animation primitives, while Reanimated is designed for advanced, highly interactive animations and gestures where running work closer to the UI/native execution side can reduce JS-thread pressure.
-
-Typical Reanimated use cases:
-
-- gesture-driven interactions
-- shared values
-- complex transitions
-- high-frequency visual updates
-- UI-thread-oriented animation work
-
-The senior-level point is:
-
-> High-frequency visual work should not unnecessarily depend on a busy JavaScript thread.
-
----
-
-## Q72. Why avoid expensive calculations inside render?
-
-Consider:
-
-```jsx
-function ProductList({ products }) {
-  const result = hugeCalculation(products);
-  return <FlatList data={result} />;
-}
-```
-
-If the component renders frequently, the calculation repeats.
-
-A potential optimization is:
-
-```js
-const result = useMemo(
-  () => hugeCalculation(products),
-  [products]
-);
-```
-
-Only use this if the calculation is meaningful enough to justify memoization.
-
----
-
-## Q73. What is `Pressable` and why might you prefer it over older touchables?
-
-### Interview answer
-
-`Pressable` is a React Native core component designed around press interaction states and gives more control over pressed behavior.
-
-It is useful for reusable interaction components because you can derive styling from pressed state.
-
-```jsx
-<Pressable
-  onPress={handlePress}
-  style={({ pressed }) => [
-    styles.button,
-    pressed && styles.pressed,
-  ]}
->
-  <Text>Submit</Text>
-</Pressable>
-```
-
-The main interview point is to understand touch interaction, accessibility, hit areas, and platform behavior rather than memorizing a component name.
-
----
-
-# Part 4 — Navigation
-
-## Q74. React Navigation vs Expo Router.
-
-### Interview answer
-
-React Navigation provides navigation primitives and configuration patterns for React Native. Expo Router adds file-based routing and deep integration with the Expo toolchain.
-
-Expo Router conventionally maps filesystem structure to routes:
-
-```text
-app/
-├── index.tsx
-├── login.tsx
-├── profile.tsx
-└── products/
-    └── [id].tsx
-```
-
-The right choice depends on the project's routing conventions, web support needs, team preferences, and existing architecture.
-
----
-
-## Q75. How would you implement authentication navigation?
-
-Typical model:
-
-```text
-                    Root
-                      |
-             Authenticated?
-              /           \
-            No             Yes
-            |                |
-         AuthStack        AppStack
-            |                |
-          Login          Home/Profile
-```
-
-The key is that access control should be driven by actual authentication/session state, not simply by visually hiding screens.
-
-With Expo Router, this commonly maps to public/authenticated route groups and an auth-aware root layout.
-
----
-
-## Q76. How do deep links work?
-
-Example:
-
-```text
-myapp://products/123
-```
-
-or web-based app links/universal links:
-
-```text
-https://example.com/products/123
-```
-
-The application maps:
-
-```text
-URL
- ↓
-route
- ↓
-screen
- ↓
-parameters
-```
-
-Production concerns include:
-
-- cold start vs warm start
-- authentication state
-- expired or invalid links
-- nested navigation
-- Android App Links
-- iOS Universal Links
-- navigation state restoration
-
----
-
-# Part 5 — Expo and EAS
-
-## Q77. What is Expo?
-
-### Interview answer
-
-Expo is a framework and ecosystem around React Native that provides standardized tooling for app development, native capabilities, builds, updates, and deployment workflows. Expo projects can also use custom native modules and native configuration through development builds, prebuild/config plugins, and native project code when necessary.
-
-A good modern interview answer avoids describing Expo as a “beginner-only wrapper.”
-
----
-
-## Q78. What is Expo Go?
-
-### Interview answer
-
-Expo Go is a prebuilt development client containing a predefined set of Expo capabilities. It is convenient for learning and projects that fit within its supported native surface, but it is not a substitute for a project-specific development build when custom native modules or native configuration are required.
-
----
-
-## Q79. Expo Go vs Development Build.
-
-| Expo Go | Development Build |
-|---|---|
-| Prebuilt client | Project-specific native client |
-| Limited to included native capabilities | Can include custom native modules |
-| Very quick to start | More closely matches your native app |
-| Excellent for learning/prototyping | Better for serious native customization |
-
-A development build is an installable debug-oriented application binary tailored to your project.
-
----
-
-## Q80. What is `expo prebuild`?
-
-### Interview answer
-
-`expo prebuild` generates native Android and iOS projects from the Expo configuration and the project's native module requirements.
-
-Conceptually:
-
-```text
-app.json / app.config.js
-       +
-Expo/native packages
-       ↓
-expo prebuild
-       ↓
-android/ + ios/
-```
-
-It is particularly relevant when native project configuration is needed while keeping configuration-driven reproducibility.
-
----
-
-## Q81. What are Expo config plugins?
-
-### Interview answer
-
-Config plugins allow packages or app configuration to modify native project settings during prebuild instead of requiring every native modification to be done manually in generated files.
-
-Conceptually:
-
-```text
-Expo config
-   ↓
-Config plugin
-   ↓
-Native project modifications
-   ├─ AndroidManifest
-   ├─ Gradle settings
-   ├─ Info.plist
-   └─ Xcode project configuration
-```
-
-They are important for reproducible native configuration.
-
----
-
-## Q82. What is EAS Build?
-
-### Interview answer
-
-EAS Build is Expo's hosted build service for creating Android and iOS application binaries. It supports build profiles, signing credentials, internal distribution, and automated workflows.
-
-Example:
-
-```bash
-eas build --platform all
-```
-
-In an interview, mention that build profiles let teams separate development, preview/QA, and production behavior.
-
----
-
-## Q83. What is EAS Update?
-
-### Interview answer
-
-EAS Update allows compatible JavaScript and asset changes to be delivered to existing application binaries without producing a new native binary for every JS/assets-only change.
-
-Conceptually:
-
-```text
-Existing binary
-    |
-    +── Native runtime
-    +── JS/assets
-          ↑
-       EAS Update
-```
-
-The update still must be compatible with the binary's native runtime. `runtimeVersion` is part of the compatibility model.
-
----
-
-## Q84. Can EAS Update replace Play Store/App Store releases?
-
-No.
-
-### Interview answer
-
-OTA updates are not a replacement for native releases. If you change native code, native dependencies, native configuration, or anything that changes the runtime contract, a new application binary is generally required.
-
-For compatible JS/assets changes, an OTA update can avoid a full store release.
-
----
-
-## Q85. What are EAS build profiles?
-
-Example:
-
-```json
-{
-  "build": {
-    "development": {},
-    "preview": {},
-    "production": {}
-  }
-}
-```
-
-Typical roles:
-
-```text
-development
-→ developer iteration / development client
-
-preview
-→ QA / internal distribution
-
-production
-→ store/release binaries
-```
-
-Profiles can also control environment variables, distribution mode, channel, simulator/device settings, and other build behavior.
-
----
-
-## Q86. How would you manage app icons, names, bundle IDs, and other app branding in Expo?
-
-For a configurable multi-brand application, define branding as build-time configuration rather than runtime secret logic.
-
-Conceptually:
-
-```text
-Brand configuration
-      ↓
-Expo app config
-      ↓
-EAS build profile / environment
-      ↓
-app name, icons, package/bundle ID
-      ↓
-separate native binary
-```
-
-The runtime can also receive API-driven content, but native app identity elements such as the launcher icon and bundle identifier are generally build-time concerns, not values that can be safely changed inside an already-installed binary by downloading JSON.
-
----
-
-# Part 6 — State Management
-
-## Q87. When would you use Redux?
-
-### Interview answer
-
-I use Redux when shared application state becomes complex enough that centralized predictable updates, middleware, persistence, debugging, cross-feature coordination, or explicit state transitions provide real value.
-
-Examples:
-
-- authentication/session state
-- cart
-- favorites
-- user preferences
-- feature flags
-- complex multi-screen workflows
-
-I would not introduce Redux simply because an app has more than one component.
-
----
-
-## Q88. Redux Toolkit vs legacy Redux.
-
-Redux Toolkit is the recommended approach for modern Redux applications. It reduces boilerplate and standardizes patterns with utilities such as:
-
-- `configureStore`
-- `createSlice`
-- `createAsyncThunk`
-- RTK Query
-
-Example:
-
-```js
-const cartSlice = createSlice({
-  name: 'cart',
-  initialState: { items: [] },
-  reducers: {
-    addItem(state, action) {
-      state.items.push(action.payload);
-    },
-  },
-});
-```
-
-The mutation-style code is translated into immutable updates by Immer.
-
----
-
-## Q89. Is Redux Toolkit actually mutating state?
-
-### Interview answer
-
-The reducer code can look mutative because Redux Toolkit uses Immer. Immer tracks the changes and produces an immutable next state.
-
-So:
-
-```js
-state.items.push(item);
-```
-
-is mutation-like reducer syntax, but the resulting Redux state update remains immutable from the store's perspective.
-
----
-
-## Q90. Context vs Redux.
-
-A useful interview distinction:
-
-```text
-Context
-→ dependency propagation
-
-Redux
-→ centralized application state
-```
-
-Context is good for relatively stable cross-cutting dependencies. Redux is useful when complex shared state needs a predictable update model, middleware, persistence, or debugging.
-
----
-
-## Q91. What is Redux middleware?
-
-### Interview answer
-
-Middleware runs between dispatch and reducer processing.
-
-```text
-dispatch(action)
-       ↓
-middleware
-       ↓
-reducer
-       ↓
-store update
-       ↓
-UI
-```
-
-Use cases include:
-
-- async workflows
-- analytics
-- logging
-- error reporting
-- side effects
-- conditional dispatching
-
----
-
-## Q92. What is RTK Query?
-
-### Interview answer
-
-RTK Query is Redux Toolkit's data-fetching and caching solution. It addresses server-state concerns such as request lifecycle, caching, deduplication, invalidation, refetching, and derived loading/error status.
-
-A useful conceptual distinction is:
-
-```text
-Client/application state
-→ Redux slices
-
-Server/API state
-→ RTK Query or another server-state cache
-```
-
----
-
-## Q93. Should all API data be stored in Redux?
-
-No.
-
-### Interview answer
-
-The right home for data depends on its lifecycle. Server state often belongs in a dedicated caching/data-fetching layer such as RTK Query. Local UI state can stay in a component. Cross-feature client state may belong in Redux. Storing every response in a global store can create unnecessary complexity and duplication.
-
----
-
-## Q94. What are selectors and why are they important?
-
-Selectors read data from state and can centralize derived-state logic.
-
-Example:
-
-```js
-const selectCartTotal = state =>
-  state.cart.items.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
-```
-
-For complex derived data, memoized selectors can prevent unnecessary recalculation and help control rerenders.
-
----
-
-# Part 7 — Networking and API Architecture
-
-## Q95. How do you structure API calls in a large React Native application?
-
-Avoid scattering raw HTTP calls throughout every screen.
-
-Prefer layers such as:
-
-```text
-Screen
-  ↓
-Hook / state abstraction
-  ↓
-Service / repository
-  ↓
-API client
-  ↓
-Backend
-```
-
-Typical folders:
-
-```text
-src/
-├── api/
-├── services/
-├── hooks/
-├── store/
-└── features/
-```
-
-The exact naming is less important than separation of concerns.
-
----
-
-## Q96. How would you implement access-token refresh?
-
-Typical flow:
-
-```text
-API request
-    ↓
-401 Unauthorized
-    ↓
-Access token expired?
-    ↓
-Refresh token
-    ↓
-New access token
-    ↓
-Retry original request
-```
-
-Production concerns:
-
-- refresh request must not recursively trigger itself
-- multiple failing requests must not start multiple refresh flows unnecessarily
-- queued requests should be resolved/rejected correctly
-- refresh-token expiry must lead to logout/session reset
-- retries need a hard upper bound
-- race conditions must be handled
-
-A useful pattern is a shared “refresh in progress” Promise so concurrent requests can await the same refresh operation.
-
-```text
-Request A ─┐
-Request B ─┼──→ one refresh operation
-Request C ─┘
-              ↓
-           new token
-              ↓
-       retry queued requests
+console.log(isPalindrome("A man, a plan, a canal: Panama!")); // true
+console.log(isPalindrome("React Native")); // false
 ```
 
----
+**Explanation:** Normalize the string before comparing it with its reverse. Unicode property escapes (`\p{L}` and `\p{N}`) retain letters and numbers across many writing systems in modern JavaScript runtimes.
 
-## Q97. How do you avoid refresh-token race conditions?
+**Complexity:** `O(n)` time and space.
 
-Maintain one refresh operation at a time.
+**Follow-up:** Clarify whether accents should be treated as equivalent, whether whitespace matters, and which Unicode behavior the product requires.
 
-Conceptually:
+## Q3. Count character frequency
 
-```js
-let refreshPromise = null;
+```ts
+function characterFrequency(value: string): Map<string, number> {
+  const frequency = new Map<string, number>();
 
-async function getFreshToken() {
-  if (!refreshPromise) {
-    refreshPromise = refreshAccessToken()
-      .finally(() => {
-        refreshPromise = null;
-      });
+  for (const character of value) {
+    frequency.set(character, (frequency.get(character) ?? 0) + 1);
   }
 
-  return refreshPromise;
+  return frequency;
 }
+
+console.log([...characterFrequency("banana")]);
+// [["b", 1], ["a", 3], ["n", 2]]
 ```
 
-Every 401 handler can await the same Promise. Production implementations need additional handling for failure, logout, request cancellation, and request retry limits.
+**Complexity:** `O(n)` time; `O(k)` space for `k` distinct characters.
 
----
+**Follow-up:** Decide whether matching is case-sensitive and whether spaces/punctuation should be counted.
 
-## Q98. How do you cancel API requests?
+## Q4. Find the first non-repeating character
 
-Where the HTTP API supports it, use `AbortController`.
+```ts
+function firstUniqueCharacter(value: string): string | null {
+  const counts = new Map<string, number>();
 
-```js
-const controller = new AbortController();
-
-fetch(url, {
-  signal: controller.signal,
-});
-
-controller.abort();
-```
-
-Useful for:
-
-- search-as-you-type
-- abandoning obsolete requests
-- screen-specific requests
-- avoiding wasted work after navigation
-
----
-
-## Q99. How do you handle loading, success, empty, and error states?
-
-Do not model everything as one `loading` boolean.
-
-A more explicit state model is:
-
-```text
-idle
-loading
-success + data
-success + empty
-error + previous data (if applicable)
-```
-
-With server-state libraries, these states may be represented separately as fetching/loading/error flags plus cached data.
-
-The UI should distinguish:
-
-```text
-first load
-background refetch
-empty result
-network error
-permission error
-server error
-```
-
----
-
-## Q100. What if the API responds slowly?
-
-Analyze the entire path:
-
-```text
-DNS/network
-  ↓
-server processing
-  ↓
-response payload
-  ↓
-transport
-  ↓
-JSON parsing/data normalization
-  ↓
-React state update
-  ↓
-rendering
-```
-
-Possible improvements:
-
-- pagination
-- smaller payloads
-- response compression
-- parallel independent requests
-- caching
-- stale-while-revalidate patterns
-- prefetching
-- deferred non-critical calls
-
-Do not blame the mobile UI automatically.
-
----
-
-## Q101. How would you structure an Axios API client?
-
-A typical abstraction:
-
-```js
-const api = axios.create({
-  baseURL: BASE_URL,
-  timeout: 15000,
-});
-
-api.interceptors.request.use(config => {
-  // attach access token / request metadata
-  return config;
-});
-
-api.interceptors.response.use(
-  response => response,
-  async error => {
-    // classify errors / refresh / retry as appropriate
-    throw error;
-  }
-);
-```
-
-A production-quality client should also consider:
-
-- retry policy
-- idempotency
-- cancellation
-- token refresh recursion
-- request correlation IDs
-- structured errors
-- logging redaction
-- environment configuration
-
----
-
-# Part 8 — Storage and Offline Data
-
-## Q102. AsyncStorage vs SecureStore.
-
-### AsyncStorage
-
-Good for ordinary persistent application data such as:
-
-- preferences
-- flags
-- simple cache values
-- non-sensitive local state
-
-### SecureStore / platform-secure storage
-
-Better for sensitive credentials and secrets that require platform-backed secure storage.
-
-Do not describe generic persistent key-value storage as a secure vault simply because it is inside the app sandbox.
-
----
-
-## Q103. Where should access tokens be stored?
-
-### Interview answer
-
-Sensitive session credentials should use an appropriate platform-backed secure storage strategy when feasible. The exact approach depends on the token model, threat model, expiry policy, backend capabilities, and whether refresh tokens are used.
-
-Also say:
-
-> The security of a mobile application cannot depend on a secret embedded in the application bundle. Anything shipped to the client should be considered potentially discoverable.
-
----
-
-## Q104. How would you implement offline support?
-
-Separate:
-
-```text
-UI state
-Server state
-Local persisted state
-Sync queue
-```
-
-Possible architecture:
-
-```text
-UI
- ↓
-Local data/cache
- ↓
-Sync engine
- ↓
-API
-```
-
-Important design decisions:
-
-- source of truth
-- conflict resolution
-- queued writes
-- retries
-- idempotency
-- timestamps/versioning
-- cache invalidation
-- partial connectivity
-
-For complex offline-first apps, a local database can be more appropriate than a simple key-value store.
-
----
-
-# Part 9 — Performance
-
-## Q105. A `FlatList` screen is lagging. What do you check?
-
-### Strong answer
-
-I would profile rather than blindly modify props.
-
-Check:
-
-1. Row complexity.
-2. Number of rows re-rendering.
-3. Unstable callbacks/objects.
-4. Large images.
-5. Expensive selectors/derived calculations.
-6. JS thread workload.
-7. UI/native work.
-8. Nested lists.
-9. Excessively frequent state updates.
-10. Animation/gesture workloads.
-
-Then optimize one bottleneck at a time.
-
----
-
-## Q106. What is a major mistake in React Native performance work?
-
-Premature optimization.
-
-Bad approach:
-
-```text
-useMemo everywhere
-useCallback everywhere
-React.memo everywhere
-random FlatList tuning
-```
-
-Better:
-
-```text
-Measure
- ↓
-Identify bottleneck
- ↓
-Optimize
- ↓
-Measure again
-```
-
----
-
-## Q107. How do images affect performance?
-
-Large images can consume:
-
-- network bandwidth
-- memory
-- decode time
-- GPU resources
-- cache space
-
-If a screen displays a 100×100 image but downloads a huge original image, the app can waste resources before the image is displayed.
-
-Use:
-
-- appropriately sized images
-- thumbnails
-- responsive CDN transformations
-- caching
-- suitable formats
-- lazy loading where appropriate
-
----
-
-## Q108. How do you optimize application startup?
-
-Think about the complete critical path:
-
-```text
-Native initialization
-       ↓
-JS engine/runtime
-       ↓
-Bundle loading
-       ↓
-Root initialization
-       ↓
-Critical data
-       ↓
-First meaningful UI
-```
-
-Possible improvements:
-
-- reduce startup JS work
-- defer non-critical initialization
-- avoid unnecessary synchronous work
-- reduce dependency/bundle costs
-- optimize assets
-- cache or precompute critical configuration
-- avoid serializing independent initialization requests
-- delay secondary analytics/feature initialization
-
-Measure startup rather than guessing.
-
----
-
-## Q109. How would you improve a slow application launch caused by many API requests?
-
-First classify which requests are truly blocking.
-
-Example:
-
-```text
-Critical
-→ auth/session restoration
-→ minimum home content
-
-Non-critical
-→ analytics
-→ recommendations
-→ secondary widgets
-```
-
-Then:
-
-```text
-critical calls
-   ↓
-first meaningful UI
-   ↓
-background requests
-```
-
-Parallelize independent requests and use caching where appropriate.
-
----
-
-## Q110. How do you diagnose memory pressure?
-
-Look for:
-
-- large image allocations
-- retained screen data
-- unbounded arrays/caches
-- listeners/subscriptions
-- native view retention
-- repeated screen mount cycles
-- large global store objects
-
-Use profiling tools available for the platform and compare memory after repeated navigation cycles.
-
-A useful test is:
-
-```text
-Open screen
-→ leave screen
-→ reopen repeatedly
-→ compare memory baseline
-```
-
-If the baseline continuously increases without returning near the expected range, investigate retained resources.
-
----
-
-# Part 10 — Android, iOS, and Native Integration
-
-## Q111. Why do React Native projects contain Android and iOS folders?
-
-Because the delivered application is a native Android/iOS application. JavaScript is one part of the application runtime.
-
-Android includes things such as:
-
-```text
-Gradle
-Kotlin/Java
-AndroidManifest
-Resources
-```
-
-iOS includes:
-
-```text
-Xcode project/workspace
-Swift/Objective-C
-Info.plist
-CocoaPods/native packages
-```
-
----
-
-## Q112. What is Gradle?
-
-### Interview answer
-
-Gradle is the build system used by Android projects. In React Native it handles compilation, dependency resolution, plugins, build variants, signing integration, generated code, and the overall Android build lifecycle.
-
-You should recognize:
-
-```text
-Debug
-Release
-Product Flavors
-Build Types
-```
-
-and understand that React Native package compatibility can depend on Gradle/AGP/JDK/Kotlin/NDK combinations.
-
----
-
-## Q113. What is Android Gradle Plugin (AGP)?
-
-### Interview answer
-
-The Android Gradle Plugin integrates Android-specific build logic into Gradle. It controls Android compilation, packaging, resource processing, manifest merging, variant configuration, and other platform-specific build behavior.
-
-In React Native projects, compatibility matters between:
-
-```text
-React Native
-AGP
-Gradle
-JDK
-Kotlin
-NDK
-Android SDK
-```
-
----
-
-## Q114. What is CocoaPods?
-
-CocoaPods is a dependency management system commonly used by iOS projects to integrate native libraries.
-
-Typical command:
-
-```bash
-cd ios
-pod install
-```
-
-You should know the difference between changing JavaScript dependencies and integrating native iOS dependencies.
-
----
-
-## Q115. Why can `pod install` fail after adding a package?
-
-Possible reasons:
-
-- incompatible native dependency versions
-- deployment target mismatch
-- Xcode incompatibility
-- Ruby/CocoaPods environment issues
-- framework/static library settings
-- architecture problems
-- package-specific post-install requirements
-- stale Pod state
-
-Do not give “delete Pods and reinstall” as your entire answer. First identify the actual failing dependency or build phase.
-
----
-
-## Q116. How do you troubleshoot a React Native Android build failure?
-
-### Strong sequence
-
-```text
-1. Read the first meaningful error.
-2. Identify the failing Gradle task.
-3. Classify the problem:
-   JS / Gradle / Kotlin / Java / C++ / CMake / NDK / manifest / dependency.
-4. Check version compatibility.
-5. Inspect package-specific native setup.
-6. Reproduce with the smallest relevant command.
-7. Clean only the affected build state.
-8. Rebuild and verify.
-```
-
-Avoid blindly deleting all caches. Destructive cleanup is a troubleshooting tool, not a diagnosis.
-
----
-
-## Q117. Why can a React Native library work on one RN version and fail on another?
-
-Native packages can depend on:
-
-- React Native APIs
-- New Architecture support
-- JSI
-- Fabric
-- TurboModules
-- Gradle/AGP
-- Kotlin
-- NDK/CMake
-- Android SDK
-- iOS deployment targets
-- Xcode/Swift
-- autolinking
-
-Version compatibility is effectively a matrix.
-
-```text
-RN version
-   ×
-package version
-   ×
-platform tooling
-   ×
-architecture mode
-```
-
----
-
-## Q118. What is autolinking?
-
-### Interview answer
-
-Autolinking allows React Native projects to automatically discover and integrate many native packages according to their package metadata/configuration instead of requiring developers to manually register every dependency.
-
-When autolinking fails, investigate:
-
-- package metadata
-- native project configuration
-- unsupported platform
-- New Architecture integration
-- manual linking leftovers
-- build/cache state
-
----
-
-## Q119. What are Android build variants and iOS schemes/configurations?
-
-A production app often needs more than one environment.
-
-Android commonly uses build types/flavors:
-
-```text
-Debug
-Release
-QA
-Production
-```
-
-Organizations may combine flavors and build types.
-
-iOS uses schemes/configurations to select environment and build settings.
-
-A strong setup keeps environment-specific values explicit and repeatable rather than hidden in source code.
-
----
-
-## Q120. How do you handle Android and iOS permissions?
-
-Use the platform's permission model and request permissions as close as possible to the feature that needs them.
-
-Consider:
-
-```text
-permission rationale
-least privilege
-first-use timing
-permanently denied state
-settings fallback
-platform differences
-privacy requirements
-```
-
-Examples include camera, microphone, location, notifications, and photo/media access.
-
----
-
-# Part 11 — Testing
-
-## Q121. What should you test in a React Native application?
-
-Prioritize observable behavior and business risk.
-
-Test:
-
-- core business logic
-- component behavior
-- user interactions
-- navigation flows
-- API states
-- authentication
-- payment-critical flows
-- edge cases
-- important accessibility behavior
-
-Do not equate a large number of snapshot files with strong test coverage.
-
----
-
-## Q122. Jest vs React Native Testing Library.
-
-### Jest
-
-Useful for:
-
-- unit tests
-- mocking
-- assertions
-- pure functions
-- state logic
-
-### React Native Testing Library
-
-Useful for:
-
-- component behavior
-- screen-level interactions
-- querying rendered output
-- simulating user actions
-
-Preferred mindset:
-
-> Test what the user can observe and do rather than overfitting tests to component implementation details.
-
----
-
-## Q123. What is snapshot testing?
-
-Snapshot testing stores a serialized representation of output and compares future output to that snapshot.
-
-It can help with stable UI structures but becomes noisy when overused. A failing snapshot should lead to a meaningful review rather than an automatic “update snapshot” action.
-
----
-
-## Q124. What should you mock?
-
-Mock external boundaries when necessary:
-
-- HTTP APIs
-- native device services
-- storage
-- analytics
-- time
-- navigation boundaries
-- platform-specific modules
-
-Avoid mocking every internal function just to make a test green. The more internal implementation you mock, the more fragile your tests can become.
-
----
-
-## Q125. Unit vs integration vs E2E.
-
-```text
-Unit
-→ isolated logic
-
-Integration
-→ multiple pieces working together
-
-E2E
-→ real user flow through the application
-```
-
-A healthy suite commonly has many fast unit/component tests, fewer integration tests, and a smaller set of high-value E2E scenarios.
-
----
-
-# Part 12 — Architecture and Code Organization
-
-## Q126. How would you structure a large React Native application?
-
-One scalable option is feature-oriented organization:
-
-```text
-src/
-├── app/
-│   ├── navigation/
-│   ├── providers/
-│   └── config/
-│
-├── features/
-│   ├── auth/
-│   │   ├── screens/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── services/
-│   │   ├── store/
-│   │   └── types/
-│   ├── products/
-│   ├── cart/
-│   └── profile/
-│
-├── components/
-│   ├── Button/
-│   ├── Input/
-│   └── Modal/
-│
-├── services/
-│   ├── api/
-│   ├── storage/
-│   ├── analytics/
-│   └── notifications/
-│
-├── utils/
-├── constants/
-├── types/
-└── assets/
-```
-
-The exact tree is less important than:
-
-- feature ownership
-- dependency direction
-- testability
-- reusable primitives
-- clear boundaries
-- minimal coupling
-
----
-
-## Q127. What is a good component architecture?
-
-Avoid giant screen components.
-
-Bad:
-
-```text
-ProductScreen.tsx
-  → 1000+ lines
-  → API calls
-  → form validation
-  → payment logic
-  → store updates
-  → analytics
-  → JSX
-```
-
-Prefer:
-
-```text
-ProductScreen
- ├── ProductHeader
- ├── ProductGallery
- ├── ProductInfo
- ├── ProductVariants
- ├── ProductPrice
- ├── AddToCart
- └── RecommendationList
-```
-
-Business logic can move into hooks/services/selectors while the screen coordinates presentation and interaction.
-
----
-
-## Q128. How do you decide whether something should be a component, hook, utility, or service?
-
-### Component
-
-UI responsibility:
-
-```text
-Button
-Card
-Header
-ProductRow
-```
-
-### Hook
-
-Reusable React-aware stateful logic:
-
-```text
-useAuth()
-useProducts()
-useNetworkStatus()
-```
-
-### Utility
-
-Pure, generic logic:
-
-```text
-formatCurrency()
-validateEmail()
-calculateTotal()
-```
-
-### Service
-
-External/system interaction:
-
-```text
-API
-storage
-analytics
-payments
-notifications
-```
-
----
-
-## Q129. What is separation of concerns?
-
-The idea is to avoid making one module responsible for unrelated jobs.
-
-Instead of:
-
-```text
-Screen
-├─ API
-├─ validation
-├─ payment
-├─ persistence
-├─ analytics
-├─ business rules
-└─ 700 lines of JSX
-```
-
-Prefer:
-
-```text
-Screen
-   ↓
-Hook / ViewModel
-   ↓
-Domain/service logic
-   ↓
-API / Store / Persistence
-```
-
-The separation should make testing, reuse, and debugging easier—not simply create dozens of tiny files with no real boundaries.
-
----
-
-## Q130. What is dependency inversion in a mobile application?
-
-### Interview answer
-
-High-level business logic should depend on abstractions rather than directly on platform/network implementations where practical.
-
-For example:
-
-```text
-CheckoutService
-      ↓
-PaymentGateway interface
-      ↓
-StripePaymentGateway
-```
-
-Testing can inject:
-
-```text
-FakePaymentGateway
-```
-
-This is useful in apps with multiple backend/payment providers, platform-specific implementations, or heavy testing requirements.
-
----
-
-## Q131. How do you prevent a project from becoming a “god screen” architecture?
-
-Use clear boundaries:
-
-- screen coordinates UI
-- hooks manage reusable interaction/state logic
-- domain services own business operations
-- selectors derive state
-- API layer handles transport concerns
-- components remain focused
-
-Also set team conventions early and enforce them with review, linting, and architecture documentation.
-
----
-
-# Part 13 — Authentication and Security
-
-## Q132. How would you design authentication?
-
-Typical structure:
-
-```text
-Login
- ↓
-Access Token + Refresh Token
- ↓
-Secure Storage
- ↓
-API Client
- ↓
-401?
- ↓
-Refresh
- ↓
-Retry
-```
-
-Also consider:
-
-- app startup session restoration
-- token expiration
-- logout
-- refresh failure
-- multi-device sessions
-- session revocation
-- biometric re-authentication where required
-- secure storage
-- server-side authorization
-
----
-
-## Q133. What happens when the refresh token expires?
-
-Do not keep retrying forever.
-
-```text
-API
- ↓
-401
- ↓
-refresh attempt
- ↓
-refresh fails
- ↓
-clear session
- ↓
-redirect to login
-```
-
-Notify the UI appropriately and prevent multiple screens from independently showing conflicting auth states.
-
----
-
-## Q134. How do you secure API communication?
-
-At minimum:
-
-- use HTTPS
-- validate server certificates according to platform/runtime standards
-- avoid logging secrets/tokens
-- use secure credential storage
-- enforce server-side authorization
-- minimize sensitive data in the client
-- avoid shipping private keys in the app bundle
-
-For higher-risk apps, security requirements may include certificate pinning, device integrity controls, jailbreak/root detection, or other measures depending on the threat model.
-
-Do not overpromise that any mobile client can be made completely secret or tamper-proof.
-
----
-
-## Q135. Can you hide an API secret inside the React Native bundle?
-
-No, not reliably.
-
-### Interview answer
-
-Any secret shipped to a client can potentially be extracted by someone who controls the device or analyzes the application package. Sensitive secrets should remain on trusted backend infrastructure.
-
-Public application configuration can be bundled. Private server credentials cannot be made secure simply by obfuscating them.
-
----
-
-# Part 14 — Production, Release, CI/CD, and OTA
-
-## Q136. How would you create Dev / QA / Production environments?
-
-A clean model is:
-
-```text
-                         App
-                          |
-                  Environment Config
-              /            |            \
-            DEV            QA            PROD
-             |              |              |
-           API-A          API-B          API-C
-```
-
-Typical controls:
-
-- environment variables
-- Expo app config
-- EAS build profiles
-- separate bundle/application identifiers where needed
-- separate Firebase projects if required
-- separate API endpoints
-- environment-specific analytics
-- distinct update channels/streams
-
-Avoid scattering hardcoded production URLs across the codebase.
-
----
-
-## Q137. How do you handle secrets in CI/CD?
-
-Store secrets in the CI provider or secure build service's secret management system, not in Git.
-
-Examples:
-
-```text
-API private key
-signing credentials
-service-account credentials
-third-party secrets
-```
-
-Even environment variables in a client build can become public if they are bundled into the application. CI secrecy only helps for credentials that remain on the server/build side.
-
----
-
-## Q138. Production crash only; development is fine. What do you investigate?
-
-Check:
-
-```text
-release-only code paths
-minification
-Hermes/runtime differences
-native release settings
-R8/ProGuard rules
-permissions
-configuration/environment variables
-missing assets
-native package compatibility
-EAS build profile
-OTA update/runtime compatibility
-crash logs
-```
-
-The first step should be obtaining a real crash stack/diagnostic signal rather than guessing.
-
----
-
-## Q139. The app works in Expo Go but fails in a development build. Why?
-
-Potential causes:
-
-- a custom native dependency
-- missing config-plugin changes
-- native permission/configuration mismatch
-- Android/iOS project configuration
-- a package that is included in one client but not another
-- native initialization code
-
-Remember:
-
-```text
-Expo Go
-≠
-your project's custom native binary
-```
-
----
-
-## Q140. How do you manage release versions?
-
-At minimum, distinguish:
-
-```text
-Human-facing version
-→ 1.8.0
-
-Platform build/version code
-→ incrementing build identifier
-```
-
-A mature release process should define when each changes, how it is generated, and how CI validates that versions are unique and consistent.
-
----
-
-## Q141. What is CI/CD for React Native?
-
-### CI
-
-Automatically validate changes:
-
-```text
-install
-→ lint
-→ typecheck
-→ unit tests
-→ build/test checks
-```
-
-### CD
-
-Automate release steps:
-
-```text
-build
-→ sign
-→ distribute
-→ publish/update
-→ monitor
-```
-
-Common release gates include tests, environment validation, changelog/version checks, and manual approval for production.
-
----
-
-## Q142. How would you implement phased rollout?
-
-A strong mobile release strategy can use:
-
-```text
-Internal testing
- ↓
-Small percentage
- ↓
-Monitoring
- ↓
-Expanded rollout
- ↓
-100%
-```
-
-Monitor crash rate, ANR rate, API errors, startup metrics, and business-critical flows.
-
----
-
-# Part 15 — Scenario-Based 5+ Years Questions
-
-## Q143. Your screen makes an API call twice. What do you check?
-
-### Strong answer
-
-I would investigate systematically:
-
-1. Is development Strict Mode contributing to repeated effect behavior?
-2. Is the effect dependency array correct?
-3. Is the screen mounting/unmounting unexpectedly because of navigation?
-4. Is there another API invocation path?
-5. Does a state update trigger an effect that calls the API again?
-6. Is a parent remounting the component?
-7. Is a data-fetching library already doing its own refetch?
-8. Is an interceptor retrying the request?
-
-Example loop:
-
-```js
-useEffect(() => {
-  fetchData();
-}, [data]);
-```
-
-If `fetchData()` updates `data`, this can create repeated requests.
-
----
-
-## Q144. The app freezes when opening a screen. What do you check?
-
-First determine whether the freeze is caused by synchronous JavaScript work, navigation/rendering, native initialization, or a network wait that is incorrectly blocking UI logic.
-
-Look for:
-
-- large loops
-- heavy JSON transformations
-- synchronous storage operations
-- expensive render calculations
-- huge lists
-- expensive image decoding
-- native module initialization
-- repeated state updates
-
-Never use a loader to hide a synchronous block of the main/JS execution path; remove or defer the blocking work.
-
----
-
-## Q145. FlatList freezes while scrolling. What do you do?
-
-Check:
-
-```text
-Row complexity
-Image sizes
-Row rerenders
-Unstable props
-Selectors
-Nested lists
-JS-thread work
-Animation/gesture work
-Virtualization configuration
-```
-
-Then profile and optimize the specific hotspot.
-
----
-
-## Q146. API request takes 8 seconds. How do you optimize it?
-
-First determine whether the 8 seconds are:
-
-```text
-client wait
-network latency
-server processing
-payload transfer
-client parsing
-rendering
-```
-
-Then, depending on the cause:
-
-- optimize backend queries
-- paginate
-- reduce payload
-- compress responses
-- cache
-- parallelize independent calls
-- prefetch
-- render partial UI early
-- defer non-critical work
-
----
-
-## Q147. App crashes only after navigating back and forth many times. What do you suspect?
-
-Potentially:
-
-- leaked listeners
-- timers
-- subscriptions
-- retained screen state
-- WebSockets
-- native resources
-- accumulating caches
-- repeated event handlers
-
-Reproduce the navigation loop and inspect resource/memory growth.
-
----
-
-## Q148. A third-party library breaks after a React Native upgrade. What is your process?
-
-```text
-1. Check React Native release notes.
-2. Check library compatibility matrix/changelog.
-3. Check New Architecture support.
-4. Check native build tool versions.
-5. Inspect the native compilation/runtime error.
-6. Reproduce in a minimal example if necessary.
-7. Upgrade/downgrade compatible versions.
-8. Replace the library if it is unmaintained or incompatible.
-```
-
-Don't blindly force incompatible versions through Gradle or CocoaPods without understanding the native ABI/API implications.
-
----
-
-## Q149. A library supports React Native but crashes on the New Architecture. What do you do?
-
-Check:
-
-- RN version
-- library version
-- New Architecture support status
-- Fabric compatibility if it is a UI library
-- TurboModule/JSI requirements if it is a native module
-- codegen requirements
-- Android/iOS native setup
-
-Then reproduce with the smallest possible example and select a compatible release or alternative.
-
----
-
-## Q150. How would you implement backend-driven UI?
-
-Suppose the backend returns:
-
-```json
-{
-  "home": {
-    "title": "Welcome",
-    "showBanner": true,
-    "sections": [
-      {
-        "type": "banner",
-        "image": "https://cdn.example.com/banner.png"
-      },
-      {
-        "type": "productCarousel",
-        "categoryId": "123"
-      }
-    ]
-  }
-}
-```
-
-A safe architecture is:
-
-```text
-Backend configuration
-        ↓
-Schema validation
-        ↓
-Normalization
-        ↓
-Component registry
-        ↓
-UI renderer
-```
-
-Example:
-
-```js
-const componentRegistry = {
-  banner: Banner,
-  productCarousel: ProductCarousel,
-  categoryGrid: CategoryGrid,
-};
-```
-
-The backend chooses among **known, validated component types**.
-
-### Critical security point
-
-Do not allow the backend to download and execute arbitrary JavaScript as part of normal content configuration. Prefer a declarative schema and a controlled registry.
-
----
-
-## Q151. How would you build a React Native app as a SaaS white-label platform?
-
-Use three levels of configuration.
-
-### 1. Runtime configuration
-
-```text
-colors
-text
-features
-API content
-ordering
-visibility
-```
-
-Fetched from APIs.
-
-### 2. Build-time branding
-
-```text
-app display name
-launcher icon
-bundle identifier
-package identifier
-native splash assets
-```
-
-Produced by the build pipeline.
-
-### 3. Tenant/backend configuration
-
-```text
-tenant ID
-feature flags
-content schema
-branding settings
-API endpoints
-permissions
-```
-
-Conceptually:
-
-```text
-                 SaaS Platform
-                      |
-          ---------------------------
-          |            |            |
-       Tenant A     Tenant B     Tenant C
-          |            |            |
-      Config API    Config API    Config API
-          |            |            |
-       RN App      RN App        RN App
-          |            |            |
-      EAS Builds / Releases / Updates
-```
-
-For a true white-label product, the pipeline may need a separate native binary per tenant or per branding configuration, especially when icons, names, package IDs, signing credentials, or store listings differ.
-
----
-
-## Q152. How would you implement feature flags?
-
-Feature flags should be typed, centrally evaluated, and have safe defaults.
-
-Example:
-
-```js
-const flags = {
-  newCheckout: false,
-  enableWallet: true,
-};
-```
-
-Important concerns:
-
-- default behavior when the flag service is unavailable
-- caching
-- rollout percentage
-- tenant/user targeting
-- auditability
-- stale flags
-- cleanup of old flags
-
-Avoid allowing arbitrary remote flags to bypass authorization or security controls.
-
----
-
-## Q153. How would you implement analytics without slowing the app?
-
-Treat analytics as non-critical background work where possible.
-
-Design:
-
-```text
-UI event
-  ↓
-Analytics abstraction
-  ↓
-queue/buffer
-  ↓
-batch/send
-```
-
-Consider:
-
-- batching
-- deduplication
-- event sampling
-- offline queue
-- sensitive data filtering
-- avoiding blocking the UI
-
-Keep analytics calls out of core business logic where possible through an abstraction.
-
----
-
-## Q154. How would you design push notifications?
-
-Break the problem into:
-
-```text
-Permission
- ↓
-Token registration
- ↓
-Backend device-token mapping
- ↓
-Notification send
- ↓
-Foreground/background/terminated handling
- ↓
-Deep link navigation
-```
-
-Also design token refresh and invalid-token cleanup.
-
----
-
-## Q155. How would you design an app that works with poor connectivity?
-
-Use:
-
-```text
-Local cache
- ↓
-Network awareness
- ↓
-Optimistic UI where safe
- ↓
-Retry queue
- ↓
-Conflict resolution
-```
-
-Do not blindly replay non-idempotent operations. Use server-supported idempotency keys where necessary.
-
----
-
-# Part 16 — Coding Questions
-
-## Coding 1. Reverse a string.
-
-```js
-function reverse(str) {
-  return [...str].reverse().join('');
-}
-```
-
-### Follow-up
-
-Why use spread rather than `str.split('')`?
-
-A discussion can cover Unicode code points versus UTF-16 code units. For true user-perceived grapheme reversal, code points alone are still not always sufficient.
-
----
-
-## Coding 2. Remove duplicates.
-
-```js
-const unique = [...new Set(arr)];
-```
-
-### Follow-up
-
-If objects are involved, `Set` deduplicates object references, not objects by content. For value-based deduplication you need a key or normalization strategy.
-
----
-
-## Coding 3. Group an array by property.
-
-```js
-const result = users.reduce((acc, user) => {
-  const key = user.role;
-
-  if (!acc[key]) {
-    acc[key] = [];
+  for (const character of value) {
+    counts.set(character, (counts.get(character) ?? 0) + 1);
   }
 
-  acc[key].push(user);
-  return acc;
-}, {});
+  for (const character of value) {
+    if (counts.get(character) === 1) return character;
+  }
+
+  return null;
+}
+
+console.log(firstUniqueCharacter("swiss")); // "w"
+console.log(firstUniqueCharacter("aabb")); // null
 ```
 
-Possible follow-up:
+**Why two passes?** The first establishes frequencies; the second preserves original order to find the first unique character.
 
-> How would you avoid prototype-key collisions?
+**Complexity:** `O(n)` time and `O(k)` space.
 
-Possible answer: use `Object.create(null)`, `Map`, or an explicitly validated key strategy depending on requirements.
+## Q5. Check whether two strings are anagrams
 
----
+```ts
+function areAnagrams(left: string, right: string): boolean {
+  const normalize = (value: string) =>
+    value.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
 
-## Coding 4. Implement debounce.
+  const a = normalize(left);
+  const b = normalize(right);
+  if (a.length !== b.length) return false;
 
-```js
-function debounce(fn, delay) {
-  let timer;
+  const counts = new Map<string, number>();
 
-  return function (...args) {
-    clearTimeout(timer);
+  for (const character of a) {
+    counts.set(character, (counts.get(character) ?? 0) + 1);
+  }
 
-    timer = setTimeout(() => {
-      fn.apply(this, args);
-    }, delay);
-  };
+  for (const character of b) {
+    const count = counts.get(character);
+    if (!count) return false;
+    if (count === 1) counts.delete(character);
+    else counts.set(character, count - 1);
+  }
+
+  return counts.size === 0;
+}
+
+console.log(areAnagrams("Dormitory", "Dirty room!!")); // true
+```
+
+**Complexity:** `O(n + m)` time and `O(k)` space.
+
+**Follow-up:** Explain whether normalization, accents, whitespace, and case should affect the result.
+
+## Q6. Remove duplicates from an array while preserving order
+
+```ts
+function unique<T>(items: readonly T[]): T[] {
+  return [...new Set(items)];
+}
+
+console.log(unique([1, 2, 2, 3, 1])); // [1, 2, 3]
+```
+
+**Complexity:** Expected `O(n)` time and `O(n)` space.
+
+**Important:** `Set` compares objects by reference, not by deep structural equality. Two separate `{ id: 1 }` objects are not duplicates unless they are the same object reference.
+
+**Follow-up — deduplicate objects by ID:**
+
+```ts
+type Identified = { id: string | number };
+
+function uniqueById<T extends Identified>(items: readonly T[]): T[] {
+  const seen = new Set<T["id"]>();
+  return items.filter(item => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
 }
 ```
 
-Understand:
+## Q7. Find the second-largest distinct number
 
-- closure
-- timer replacement
-- preserving `this`
-- forwarding arguments
-- cleanup/cancel support in more complete implementations
+```ts
+function secondLargest(values: readonly number[]): number | null {
+  let largest = -Infinity;
+  let second = -Infinity;
 
-### Senior follow-up
+  for (const value of values) {
+    if (!Number.isFinite(value)) continue;
 
-How would you add:
-
-```text
-cancel()
-flush()
-leading execution
-trailing execution
-```
-
----
-
-## Coding 5. Flatten an array.
-
-Built-in:
-
-```js
-const result = arr.flat(Infinity);
-```
-
-Manual recursive version:
-
-```js
-function flatten(arr) {
-  const result = [];
-
-  for (const item of arr) {
-    if (Array.isArray(item)) {
-      result.push(...flatten(item));
-    } else {
-      result.push(item);
+    if (value > largest) {
+      second = largest;
+      largest = value;
+    } else if (value < largest && value > second) {
+      second = value;
     }
+  }
+
+  return second === -Infinity ? null : second;
+}
+
+console.log(secondLargest([7, 3, 7, 2, 5])); // 5
+console.log(secondLargest([4, 4])); // null
+```
+
+**Complexity:** `O(n)` time and `O(1)` extra space.
+
+**Follow-up:** State whether “second largest” means second-largest distinct value; clarify how `NaN`, infinities, and empty arrays should be handled.
+
+## Q8. FizzBuzz
+
+```ts
+function fizzBuzz(limit: number): string[] {
+  const result: string[] = [];
+
+  for (let value = 1; value <= limit; value++) {
+    if (value % 15 === 0) result.push("FizzBuzz");
+    else if (value % 3 === 0) result.push("Fizz");
+    else if (value % 5 === 0) result.push("Buzz");
+    else result.push(String(value));
   }
 
   return result;
 }
 ```
 
-### Senior discussion
+**Complexity:** `O(n)` time and `O(n)` output space.
 
-Be ready to discuss recursion depth, iterative implementations, time/space complexity, and whether sparse arrays/typed arrays need special handling.
+**Follow-up:** Explain why checking divisibility by 15 first avoids the combined case being consumed by the 3 or 5 conditions.
 
----
+## Q9. Flatten a nested array
 
-## Coding 6. Find the first non-repeating character.
+```ts
+type NestedArray<T> = Array<T | NestedArray<T>>;
 
-```js
-function firstUniqueChar(str) {
-  const counts = new Map();
+function flatten<T>(values: NestedArray<T>): T[] {
+  const result: T[] = [];
 
-  for (const char of str) {
-    counts.set(char, (counts.get(char) ?? 0) + 1);
-  }
-
-  for (const char of str) {
-    if (counts.get(char) === 1) {
-      return char;
+  for (const value of values) {
+    if (Array.isArray(value)) {
+      result.push(...flatten(value as NestedArray<T>));
+    } else {
+      result.push(value as T);
     }
   }
 
-  return null;
+  return result;
+}
+
+console.log(flatten([1, [2, [3, 4]], 5])); // [1, 2, 3, 4, 5]
+```
+
+**Alternative:** `array.flat(Infinity)` is concise when the runtime and input types allow it.
+
+**Complexity:** `O(n)` time for `n` total elements; recursion uses stack space proportional to nesting depth, plus the output array.
+
+**Follow-up:** Discuss stack overflow for extremely deep input and an iterative stack-based approach.
+
+## Q10. Split an array into chunks
+
+```ts
+function chunk<T>(values: readonly T[], size: number): T[][] {
+  if (!Number.isInteger(size) || size <= 0) {
+    throw new RangeError("size must be a positive integer");
+  }
+
+  const result: T[][] = [];
+  for (let index = 0; index < values.length; index += size) {
+    result.push(values.slice(index, index + size));
+  }
+  return result;
+}
+
+console.log(chunk([1, 2, 3, 4, 5], 2)); // [[1, 2], [3, 4], [5]]
+```
+
+**Use cases:** API batching, upload batches, or controlled work scheduling.
+
+**Complexity:** `O(n)` time and `O(n)` space for the result.
+
+---
+
+# 2. Algorithms and Data Transformations
+
+## Q11. Group objects by a property
+
+```ts
+function groupBy<T, K extends PropertyKey>(
+  items: readonly T[],
+  getKey: (item: T) => K
+): Partial<Record<K, T[]>> {
+  return items.reduce<Partial<Record<K, T[]>>>((groups, item) => {
+    const key = getKey(item);
+    (groups[key] ??= []).push(item);
+    return groups;
+  }, {});
+}
+
+const users = [
+  { name: "Asha", role: "admin" },
+  { name: "Ben", role: "user" },
+  { name: "Chen", role: "admin" }
+];
+
+const grouped = groupBy(users, user => user.role);
+// admin -> Asha, Chen; user -> Ben
+```
+
+**Complexity:** `O(n)` time and `O(n)` space.
+
+**Follow-up:** Why accept a `getKey` callback instead of a property name? It works for derived keys and avoids complex generic constraints on arbitrary property paths.
+
+## Q12. Merge two arrays of records by ID
+
+**Problem:** The second array should override the first array's item when IDs match.
+
+```ts
+type RecordWithId = { id: string };
+
+function mergeById<T extends RecordWithId>(
+  first: readonly T[],
+  second: readonly T[]
+): T[] {
+  const byId = new Map<string, T>();
+  for (const item of first) byId.set(item.id, item);
+  for (const item of second) byId.set(item.id, item);
+  return [...byId.values()];
 }
 ```
 
-Complexity is approximately:
+**Behavior:** Existing IDs keep their map position while later values replace their contents; new IDs are appended in encounter order.
 
-```text
-Time  → O(n)
-Space → O(k)
+**Complexity:** Expected `O(n + m)` time and `O(n + m)` space.
+
+**Follow-up:** Discuss whether a matching record should be replaced or shallow-merged field by field.
+
+## Q13. Sort products by price without mutating input
+
+```ts
+type Product = { id: string; name: string; price: number };
+
+function sortByPrice(products: readonly Product[]): Product[] {
+  return [...products].sort((a, b) => a.price - b.price);
+}
 ```
 
-where `k` is the number of unique characters tracked.
+**Why copy first?** `sort()` mutates the array. Directly sorting a prop or Redux-derived array can violate immutability expectations.
+
+**Complexity:** Usually `O(n log n)` time and `O(n)` for the copied array.
+
+## Q14. Implement a safe nested-property getter
+
+```ts
+function getPath(source: unknown, path: readonly (string | number)[]): unknown {
+  let current: unknown = source;
+
+  for (const key of path) {
+    if (current === null || typeof current !== "object") return undefined;
+    current = (current as Record<string | number, unknown>)[key];
+  }
+
+  return current;
+}
+
+const data = { account: { profile: { name: "Surendra" } } };
+console.log(getPath(data, ["account", "profile", "name"])); // "Surendra"
+console.log(getPath(data, ["account", "missing", "name"])); // undefined
+```
+
+**Why does it return `unknown`?** Arbitrary paths cannot safely guarantee the resulting type. Callers must validate/narrow the result before using it.
+
+## Q15. Calculate cart totals
+
+```ts
+type CartItem = {
+  productId: string;
+  unitPrice: number;
+  quantity: number;
+};
+
+type CartTotals = { subtotal: number; itemCount: number };
+
+function calculateCartTotals(items: readonly CartItem[]): CartTotals {
+  return items.reduce<CartTotals>(
+    (totals, item) => ({
+      subtotal: totals.subtotal + item.unitPrice * item.quantity,
+      itemCount: totals.itemCount + item.quantity
+    }),
+    { subtotal: 0, itemCount: 0 }
+  );
+}
+```
+
+**Complexity:** `O(n)` time and `O(1)` auxiliary space, excluding the new accumulator objects created by `reduce`.
+
+**Production follow-ups:** Validate non-negative quantities and prices; account for currency precision (integer minor units or a decimal library); distinguish subtotal, tax, shipping, discounts, and final total.
+
+## Q16. Find the intersection of two arrays
+
+```ts
+function intersection<T>(left: readonly T[], right: readonly T[]): T[] {
+  const rightSet = new Set(right);
+  const emitted = new Set<T>();
+  const result: T[] = [];
+
+  for (const item of left) {
+    if (rightSet.has(item) && !emitted.has(item)) {
+      emitted.add(item);
+      result.push(item);
+    }
+  }
+  return result;
+}
+
+console.log(intersection([1, 2, 2, 3], [2, 3, 4])); // [2, 3]
+```
+
+**Complexity:** Expected `O(n + m)` time and `O(m + n)` space.
+
+**Follow-up:** Clarify whether duplicates should be preserved and how object equality should work.
+
+## Q17. Implement binary search
+
+**Assumption:** Input is sorted in ascending order.
+
+```ts
+function binarySearch(values: readonly number[], target: number): number {
+  let low = 0;
+  let high = values.length - 1;
+
+  while (low <= high) {
+    const middle = low + Math.floor((high - low) / 2);
+    const value = values[middle];
+
+    if (value === target) return middle;
+    if (value < target) low = middle + 1;
+    else high = middle - 1;
+  }
+
+  return -1;
+}
+```
+
+**Complexity:** `O(log n)` time and `O(1)` space.
+
+**Follow-up:** What if duplicates exist? Specify whether any matching index, first occurrence, or insertion position is required.
 
 ---
 
-## Coding 7. Implement memoization.
+# 3. Closures, Functions, and Asynchronous JavaScript
 
-```js
-function memoize(fn) {
-  const cache = new Map();
+## Q18. Implement debounce
 
-  return function (...args) {
-    const key = JSON.stringify(args);
+**Problem:** Only invoke the callback after calls stop for the specified delay.
 
-    if (cache.has(key)) {
-      return cache.get(key);
-    }
+```ts
+function debounce<TArgs extends unknown[]>(
+  callback: (...args: TArgs) => void,
+  delayMs: number
+): (...args: TArgs) => void {
+  let timer: ReturnType<typeof setTimeout> | undefined;
 
-    const result = fn.apply(this, args);
-    cache.set(key, result);
-    return result;
+  return (...args: TArgs) => {
+    if (timer !== undefined) clearTimeout(timer);
+    timer = setTimeout(() => callback(...args), delayMs);
   };
 }
 ```
 
-### Senior caveat
+**Use cases:** Search input, validation, saving drafts after typing.
 
-`JSON.stringify(args)` is not a universal cache-key strategy. It can be expensive, order-sensitive for some objects, and unable to represent all values. A production implementation must choose a keying/equality strategy appropriate to the inputs.
+**Complexity:** `O(1)` work per call, excluding the callback.
+
+**Senior follow-ups:** How would you add `cancel()` and `flush()`? How would you preserve `this`? Should the callback fire on the leading edge, trailing edge, or both? In React, who clears the timer on unmount?
+
+## Q19. Implement a cancellable debounce
+
+```ts
+type Debounced<TArgs extends unknown[]> = ((...args: TArgs) => void) & {
+  cancel: () => void;
+};
+
+function debounceWithCancel<TArgs extends unknown[]>(
+  callback: (...args: TArgs) => void,
+  delayMs: number
+): Debounced<TArgs> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  const debounced = ((...args: TArgs) => {
+    if (timer !== undefined) clearTimeout(timer);
+    timer = setTimeout(() => {
+      timer = undefined;
+      callback(...args);
+    }, delayMs);
+  }) as Debounced<TArgs>;
+
+  debounced.cancel = () => {
+    if (timer !== undefined) clearTimeout(timer);
+    timer = undefined;
+  };
+
+  return debounced;
+}
+```
+
+**React reminder:** A debounced function often needs stable identity (`useMemo` or a ref) and cleanup in an effect. Also ensure the callback sees the intended/latest values.
+
+## Q20. Implement throttle
+
+**Problem:** Allow a callback to run at most once per time window.
+
+```ts
+function throttle<TArgs extends unknown[]>(
+  callback: (...args: TArgs) => void,
+  intervalMs: number
+): (...args: TArgs) => void {
+  let lastRun = 0;
+
+  return (...args: TArgs) => {
+    const now = Date.now();
+    if (now - lastRun < intervalMs) return;
+    lastRun = now;
+    callback(...args);
+  };
+}
+```
+
+This is a **leading-edge throttle**; calls that occur during the interval are dropped.
+
+**Follow-up:** Implement trailing-edge behavior if the last call in the window must eventually run. Use a monotonic clock where available if clock adjustments matter.
+
+## Q21. Implement memoization for a single primitive argument
+
+```ts
+function memoizeNumberResult(
+  callback: (value: number) => number
+): (value: number) => number {
+  const cache = new Map<number, number>();
+
+  return value => {
+    if (cache.has(value)) return cache.get(value)!;
+    const result = callback(value);
+    cache.set(value, result);
+    return result;
+  };
+}
+
+const square = memoizeNumberResult(value => value * value);
+square(4); // computes and caches 16
+square(4); // returns cached 16
+```
+
+**Important limitations:** This example only handles a numeric argument and numeric result. Real memoization needs a key strategy, cache size/eviction policy, and clarity about side effects. Do not memoize impure functions blindly.
+
+## Q22. Implement currying
+
+```ts
+const add = (a: number) => (b: number) => a + b;
+
+const addFive = add(5);
+console.log(addFive(3)); // 8
+```
+
+**Interview explanation:** Currying transforms a function that accepts multiple arguments into a chain of functions, each accepting one argument. It is useful for partial application and reusable configuration.
+
+## Q23. Compose functions from right to left
+
+```ts
+type Unary<T> = (value: T) => T;
+
+function compose<T>(...functions: Unary<T>[]): Unary<T> {
+  return (initialValue: T) =>
+    functions.reduceRight((value, fn) => fn(value), initialValue);
+}
+
+const double = (n: number) => n * 2;
+const increment = (n: number) => n + 1;
+const composed = compose(double, increment);
+console.log(composed(3)); // 8: double(increment(3))
+```
+
+**Follow-up:** This simplified version assumes every function uses the same input/output type. A fully generic composition type is more involved.
+
+## Q24. Retry a failed asynchronous operation
+
+```ts
+async function retry<T>(
+  operation: () => Promise<T>,
+  attempts: number,
+  delayMs = 0
+): Promise<T> {
+  if (!Number.isInteger(attempts) || attempts < 1) {
+    throw new RangeError("attempts must be at least 1");
+  }
+
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts && delayMs > 0) {
+        await new Promise<void>(resolve => setTimeout(resolve, delayMs));
+      }
+    }
+  }
+
+  throw lastError;
+}
+```
+
+**Senior follow-ups:** Use exponential backoff and jitter for distributed systems; honor cancellation; retry only transient failures; avoid retrying non-idempotent operations without an idempotency strategy.
+
+## Q25. Execute async tasks with limited concurrency
+
+```ts
+async function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  concurrency: number,
+  mapper: (item: T, index: number) => Promise<R>
+): Promise<R[]> {
+  if (!Number.isInteger(concurrency) || concurrency < 1) {
+    throw new RangeError("concurrency must be a positive integer");
+  }
+
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+
+  async function worker(): Promise<void> {
+    while (true) {
+      const index = nextIndex++;
+      if (index >= items.length) return;
+      results[index] = await mapper(items[index]!, index);
+    }
+  }
+
+  const workerCount = Math.min(concurrency, items.length);
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  return results;
+}
+```
+
+**Behavior:** Runs up to `concurrency` operations at once and preserves result order by writing to the original index.
+
+**Complexity:** Total work depends on the mapper; orchestration memory is `O(n)` for output.
+
+**Follow-up:** Decide how errors behave. As written, a worker rejection rejects `Promise.all`; other already-running tasks may still continue. Production variants may support cancellation and settled results.
+
+## Q26. Run tasks sequentially vs concurrently
+
+**Sequential:** Use when each operation depends on the previous result or ordering matters.
+
+```ts
+async function sequential<T>(tasks: readonly (() => Promise<T>)[]): Promise<T[]> {
+  const results: T[] = [];
+  for (const task of tasks) results.push(await task());
+  return results;
+}
+```
+
+**Concurrent:** Use when tasks are independent and resource usage is acceptable.
+
+```ts
+async function concurrent<T>(tasks: readonly (() => Promise<T>)[]): Promise<T[]> {
+  return Promise.all(tasks.map(task => task()));
+}
+```
+
+**Senior answer:** Concurrency is not always better. Consider rate limits, backend capacity, memory, ordering, partial failure, and cancellation.
+
+## Q27. Build a timeout wrapper for a promise
+
+```ts
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error(`Operation timed out after ${timeoutMs}ms`)),
+      timeoutMs
+    );
+
+    promise.then(
+      value => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      error => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
+}
+```
+
+**Important:** This rejects the wrapper but does not automatically cancel the underlying operation. If cancellation is required, pass an `AbortSignal` to an API that supports it.
+
+## Q28. Fetch JSON safely using `unknown`
+
+```ts
+async function fetchJson(url: string): Promise<unknown> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return response.json() as Promise<unknown>;
+}
+```
+
+**Why `unknown` instead of `any`?** The caller must validate the response shape before trusting it.
+
+```ts
+type User = { id: string; name: string };
+
+function isUser(value: unknown): value is User {
+  if (value === null || typeof value !== "object") return false;
+  const candidate = value as Record<string, unknown>;
+  return typeof candidate.id === "string" && typeof candidate.name === "string";
+}
+```
+
+**Follow-up:** In production, use a schema validator (for example, Zod) when richer validation, useful error messages, and nested schemas are required.
 
 ---
 
-## Coding 8. Implement a promise concurrency limiter.
+# 4. TypeScript Coding Questions
 
-A common 5+ year coding question is:
+## Q29. Write a generic function to get the first array item
 
-> Given 100 API tasks, run at most 5 at a time.
+```ts
+function first<T>(items: readonly T[]): T | undefined {
+  return items[0];
+}
 
-Mental model:
-
-```text
-100 tasks
-   ↓
-5 active
-5 active
-5 active
-...
+const firstNumber = first([10, 20, 30]); // number | undefined
+const firstName = first(["Asha", "Ben"]); // string | undefined
 ```
 
-You should be able to implement a worker-pool or queue-based solution and explain:
+**Key point:** The generic preserves the input element type instead of returning `any`.
 
-- concurrency limit
-- result ordering
-- failure handling
-- cancellation
-- backpressure
+## Q30. Use `keyof` to safely read a property
+
+```ts
+function getProperty<T, K extends keyof T>(object: T, key: K): T[K] {
+  return object[key];
+}
+
+const user = { id: 1, name: "Asha", active: true };
+const name = getProperty(user, "name"); // string
+const active = getProperty(user, "active"); // boolean
+// getProperty(user, "email"); // compile-time error
+```
+
+**What interviewer is checking:** Generic constraints, `keyof`, and indexed access types.
+
+## Q31. Make selected properties optional with a mapped type
+
+```ts
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+type Profile = {
+  id: string;
+  name: string;
+  avatarUrl: string;
+};
+
+type ProfileUpdate = PartialBy<Profile, "avatarUrl">;
+// id and name required; avatarUrl optional
+```
+
+**Follow-up:** Explain the roles of `Omit`, `Pick`, `Partial`, and the intersection (`&`).
+
+## Q32. Model request status with a discriminated union
+
+```ts
+type RequestState<T> =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "success"; data: T }
+  | { status: "error"; error: Error };
+
+function describeRequest<T>(state: RequestState<T>): string {
+  switch (state.status) {
+    case "idle": return "Not started";
+    case "loading": return "Loading";
+    case "success": return "Loaded";
+    case "error": return state.error.message;
+  }
+}
+```
+
+**Why it is better than several booleans:** It prevents contradictory states such as `isLoading === true` and `isSuccess === true`, and TypeScript narrows the fields based on `status`.
+
+## Q33. Create a typed `Result` helper
+
+```ts
+type Result<T, E = Error> =
+  | { ok: true; value: T }
+  | { ok: false; error: E };
+
+async function safeCall<T>(operation: () => Promise<T>): Promise<Result<T>> {
+  try {
+    return { ok: true, value: await operation() };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error : new Error("Unknown error")
+    };
+  }
+}
+```
+
+**Follow-up:** Why not catch and ignore the exception? Returning a typed result forces the caller to handle success and failure deliberately. Choose one error-handling convention consistently in the codebase.
+
+## Q34. Type a reusable button component
+
+```tsx
+import type { ReactNode } from "react";
+import { Pressable, Text, type PressableProps } from "react-native";
+
+type AppButtonProps = Omit<PressableProps, "children"> & {
+  title: string;
+  icon?: ReactNode;
+};
+
+export function AppButton({ title, icon, ...pressableProps }: AppButtonProps) {
+  return (
+    <Pressable accessibilityRole="button" {...pressableProps}>
+      {icon}
+      <Text>{title}</Text>
+    </Pressable>
+  );
+}
+```
+
+**What this demonstrates:** Reuse platform props, remove `children` from the inherited prop contract because the component controls its own content, and type custom props explicitly.
+
+**Follow-up:** In a production design system, include disabled/loading states, accessibility labels, variants, sizing, and theme tokens.
+
+## Q35. Type an API response and avoid trusting raw JSON
+
+```ts
+type ProductDto = {
+  id: string;
+  title: string;
+  price: number;
+};
+
+function isProductDto(value: unknown): value is ProductDto {
+  if (value === null || typeof value !== "object") return false;
+  const record = value as Record<string, unknown>;
+  return typeof record.id === "string"
+    && typeof record.title === "string"
+    && typeof record.price === "number";
+}
+
+async function loadProduct(url: string): Promise<ProductDto> {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+  const payload: unknown = await response.json();
+  if (!isProductDto(payload)) throw new Error("Invalid product response");
+  return payload;
+}
+```
+
+**Senior follow-up:** Keep transport DTOs separate from domain models when backend representation and UI/domain needs differ. Validation at runtime is still necessary because TypeScript types are erased at runtime.
+
+## Q36. Type a `groupBy` utility
+
+See Q11 for the implementation. Be prepared to explain:
+
+- `T` represents each item type.
+- `K extends PropertyKey` limits keys to strings, numbers, or symbols.
+- `getKey: (item: T) => K` derives the grouping key safely.
+- `Partial<Record<K, T[]>>` expresses that not every possible key must exist.
+
+## Q37. Use `satisfies` for configuration validation
+
+```ts
+type Environment = "development" | "qa" | "production";
+type Config = { apiUrl: string; enableAnalytics: boolean };
+
+const config = {
+  development: { apiUrl: "http://localhost:3000", enableAnalytics: false },
+  qa: { apiUrl: "https://qa-api.example.com", enableAnalytics: true },
+  production: { apiUrl: "https://api.example.com", enableAnalytics: true }
+} satisfies Record<Environment, Config>;
+```
+
+**Why `satisfies`?** It checks that the object conforms to the required shape while retaining more specific inferred types than a broad annotation may retain. These URLs are illustrative placeholders; never put private credentials in client-side config.
+
+## Q38. Type navigation route parameters
+
+For React Navigation, route types are commonly represented with a param list:
+
+```ts
+type RootStackParamList = {
+  Home: undefined;
+  ProductDetails: { productId: string };
+  Search: { query?: string };
+};
+```
+
+A `ProductDetails` route requires a `productId`; `Home` accepts no parameters. Wire this param list to the navigator and screen props using the types for the React Navigation version in the project.
+
+**Senior follow-up:** Handle deep links and untrusted external parameters by validating inputs at runtime rather than assuming static route types validate an incoming URL.
 
 ---
 
-## Coding 9. Implement retry with exponential backoff.
+# 5. React Hooks and Component Exercises
 
-Concept:
+## Q39. Create a `usePrevious` hook
 
-```text
-Attempt 1 → immediate / small delay
-Attempt 2 → larger delay
-Attempt 3 → larger delay
-...
+```tsx
+import { useEffect, useRef } from "react";
+
+function usePrevious<T>(value: T): T | undefined {
+  const ref = useRef<T | undefined>(undefined);
+
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+
+  return ref.current;
+}
 ```
 
-Typical formula:
+**Behavior:** During a render, it returns the value saved by the previous effect, so it is useful for comparing render-to-render values.
 
-```js
-delay = baseDelay * 2 ** attempt;
-```
+**Follow-up:** Explain that refs persist across renders but changing `ref.current` does not itself cause a render. Be aware of effect timing when using the hook for layout-sensitive logic.
 
-Production concerns:
+## Q40. Create a debounced-value hook
 
-- maximum retries
-- maximum delay
-- jitter
-- only retry transient/idempotent failures
-- cancellation
-- authentication failures
-- server-provided retry hints
+```tsx
+import { useEffect, useState } from "react";
 
----
+function useDebouncedValue<T>(value: T, delayMs: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value);
 
-# Part 17 — Rapid-Fire Questions
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delayMs);
+    return () => clearTimeout(timer);
+  }, [value, delayMs]);
 
-## Q156. `null` vs `undefined`
-
-`undefined` generally means a value is missing/unassigned, while `null` usually represents an intentional absence of a value.
-
----
-
-## Q157. `map` vs `forEach`
-
-```text
-map
-→ transforms and returns a new array
-
-forEach
-→ executes a callback for side effects and returns undefined
-```
-
----
-
-## Q158. `filter` vs `find`
-
-```text
-filter
-→ all matching elements
-
-find
-→ first matching element
-```
-
----
-
-## Q159. `some` vs `every`
-
-```text
-some
-→ at least one item satisfies condition
-
-every
-→ all items satisfy condition
-```
-
----
-
-## Q160. Why is `NaN !== NaN`?
-
-Because JavaScript defines `NaN` as not equal to itself under ordinary equality semantics.
-
-Use:
-
-```js
-Number.isNaN(value)
-```
-
-for an explicit NaN check.
-
----
-
-## Q161. What is optional chaining?
-
-```js
-user?.profile?.address?.city
-```
-
-It stops the property access chain when an intermediate value is `null` or `undefined` and returns `undefined` rather than throwing for that chain.
-
----
-
-## Q162. What is nullish coalescing?
-
-```js
-value ?? defaultValue
-```
-
-Uses the default only when the left side is `null` or `undefined`.
-
-Compare:
-
-```js
-value || defaultValue
-```
-
-which also treats values such as `0`, `false`, and `''` as falsy.
-
----
-
-## Q163. What is destructuring?
-
-```js
-const { name, age } = user;
-```
-
-Array destructuring:
-
-```js
-const [first, second] = items;
-```
-
----
-
-## Q164. What are default parameters?
-
-```js
-function greet(name = 'Guest') {}
-```
-
-The default applies when the argument is `undefined`.
-
----
-
-## Q165. What is currying?
-
-Currying transforms a multi-argument function conceptually like:
-
-```js
-add(a, b)
-```
-
-into:
-
-```js
-add(a)(b)
+  return debouncedValue;
+}
 ```
 
 Example:
 
-```js
-const add = a => b => a + b;
+```tsx
+const [query, setQuery] = useState("");
+const debouncedQuery = useDebouncedValue(query, 300);
+
+useEffect(() => {
+  if (debouncedQuery.trim()) {
+    // Start search for debouncedQuery.
+  }
+}, [debouncedQuery]);
 ```
 
----
+**Important:** Debouncing reduces the frequency of work; it does not cancel an API request that has already started. Add request cancellation or stale-response protection when needed.
 
-## Q166. What is a pure function?
+## Q41. Fetch data with cleanup and stale-response protection
 
-A pure function:
+```tsx
+import { useEffect, useState } from "react";
 
-- returns the same output for the same input
-- has no observable side effects
-- does not mutate external state
+type User = { id: number; name: string };
 
-Example:
+type State =
+  | { status: "loading" }
+  | { status: "success"; user: User }
+  | { status: "error"; message: string };
 
-```js
-const add = (a, b) => a + b;
+function useUser(userId: number): State {
+  const [state, setState] = useState<State>({ status: "loading" });
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let active = true;
+    setState({ status: "loading" });
+
+    async function load() {
+      try {
+        const response = await fetch(`https://example.com/users/${userId}`, {
+          signal: controller.signal
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const user = (await response.json()) as User;
+        if (active) setState({ status: "success", user });
+      } catch (error) {
+        if (!active || controller.signal.aborted) return;
+        setState({
+          status: "error",
+          message: error instanceof Error ? error.message : "Unknown error"
+        });
+      }
+    }
+
+    void load();
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [userId]);
+
+  return state;
+}
 ```
 
-Pure logic is easier to test, cache, and reason about.
+**Important limitation:** This example assumes the response matches `User`; production code should validate runtime data as in Q35. Replace the example URL with your API endpoint.
 
----
+**Follow-up:** For larger applications, prefer a server-state library such as RTK Query or another established query/cache layer instead of reimplementing caching, deduplication, refetching, and invalidation for every endpoint.
 
-## Q167. What is referential equality?
+## Q42. Implement a search filter without mutating data
 
-Two separate objects with the same content are still different references:
+```tsx
+import { useMemo, useState } from "react";
+import { FlatList, Text, TextInput, View } from "react-native";
 
-```js
-{} === {}; // false
+type Item = { id: string; name: string };
+
+function SearchableList({ items }: { items: readonly Item[] }) {
+  const [query, setQuery] = useState("");
+
+  const filteredItems = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) return items;
+    return items.filter(item => item.name.toLowerCase().includes(normalizedQuery));
+  }, [items, query]);
+
+  return (
+    <View>
+      <TextInput value={query} onChangeText={setQuery} placeholder="Search" />
+      <FlatList
+        data={filteredItems}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => <Text>{item.name}</Text>}
+      />
+    </View>
+  );
+}
 ```
 
-Reference identity is important for React memoization and many state-management optimizations.
+**Follow-up:** `useMemo` is useful only if the calculation/reference behavior warrants it. For remote search, debounce requests and cancel or ignore stale responses.
 
----
+## Q43. Implement load-more pagination safely
 
-## Q168. Why can `useSelector` cause rerenders?
+A simplified pattern:
 
-If the selected value changes according to the equality logic being used, the component can rerender.
+```tsx
+import { useCallback, useRef, useState } from "react";
 
-A problematic selector may create a fresh object every time:
+type Page<T> = { items: T[]; nextPage: number | null };
 
-```js
-const selected = useSelector(state => ({
-  user: state.user,
-  cart: state.cart,
-}));
+function usePaginatedItems<T>(fetchPage: (page: number) => Promise<Page<T>>) {
+  const [items, setItems] = useState<T[]>([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const inFlight = useRef(false);
+
+  const loadMore = useCallback(async () => {
+    if (inFlight.current || !hasMore) return;
+    inFlight.current = true;
+    setLoading(true);
+
+    try {
+      const result = await fetchPage(page);
+      setItems(previous => [...previous, ...result.items]);
+      setPage(result.nextPage ?? page + 1);
+      setHasMore(result.nextPage !== null);
+    } finally {
+      inFlight.current = false;
+      setLoading(false);
+    }
+  }, [fetchPage, hasMore, page]);
+
+  return { items, loading, hasMore, loadMore };
+}
 ```
 
-Depending on the selector/equality setup, this can cause unnecessary updates. Memoized selectors or selecting stable individual values can help.
+**Important:** Adapt the meaning of `nextPage` to the API contract. This sample assumes `null` means no next page and that `fetchPage` identity is stable. Consider error state, retry behavior, duplicate-page prevention, refresh/reset behavior, and cancellation in production. Many query libraries already support infinite queries.
 
----
+## Q44. Avoid rerendering every row in a product list
 
-# Part 18 — Senior-Level Discussion Questions
+```tsx
+import { memo, useCallback } from "react";
+import { FlatList, Pressable, Text } from "react-native";
 
-## Q169. Why use Redux?
+type Product = { id: string; name: string; price: number };
 
-Weak answer:
+const ProductRow = memo(function ProductRow({
+  item,
+  onPress
+}: {
+  item: Product;
+  onPress: (id: string) => void;
+}) {
+  return (
+    <Pressable onPress={() => onPress(item.id)}>
+      <Text>{item.name}</Text>
+      <Text>{item.price.toFixed(2)}</Text>
+    </Pressable>
+  );
+});
 
-> Redux stores global state.
+function ProductList({ products, openProduct }: {
+  products: Product[];
+  openProduct: (id: string) => void;
+}) {
+  const renderItem = useCallback(
+    ({ item }: { item: Product }) => <ProductRow item={item} onPress={openProduct} />,
+    [openProduct]
+  );
 
-Strong answer:
-
-> I introduce Redux when state is sufficiently shared or complex that centralized, predictable transitions and tooling provide value. I consider data ownership first and avoid putting transient component state or every server response into a global store.
-
----
-
-## Q170. Why use `useMemo`?
-
-Weak answer:
-
-> To improve performance.
-
-Strong answer:
-
-> `useMemo` trades memoization overhead and dependency tracking for reusing a calculated value. I use it when the calculation is expensive or when stable reference identity is important to downstream rendering. I don't treat memoization as a blanket best practice.
-
----
-
-## Q171. Why use `useCallback`?
-
-Weak answer:
-
-> It makes functions faster.
-
-Strong answer:
-
-> It stabilizes a function reference across renders until dependencies change. That matters when referential identity influences memoized child components or dependency tracking. It does not inherently make the function execute faster.
-
----
-
-## Q172. Why use Expo?
-
-Weak answer:
-
-> Expo makes React Native easier.
-
-Strong answer:
-
-> Expo provides standardized development tooling, native modules, builds, updates, and deployment workflows while still allowing native customization through development builds, prebuild, config plugins, and custom native modules.
-
----
-
-## Q173. Why might you choose React Native CLI-style native control instead of a highly managed Expo workflow?
-
-### Strong answer
-
-I would choose the workflow based on native requirements and operational constraints, not on whether one approach is inherently more professional. If the product depends on specialized native integrations, a tightly controlled native build environment, or existing native applications, more direct native control may be useful. If the product benefits from Expo's tooling and supported modules, Expo can reduce maintenance overhead.
-
----
-
-## Q174. What is more important: code reuse or native performance?
-
-Neither is universally more important.
-
-A strong answer is:
-
-> I optimize for product requirements. Shared business logic is valuable, but forcing every platform into identical UI or behavior can create unnecessary compromises. I prefer shared domain logic and components where the UX should be consistent, while allowing platform-specific implementations when they improve correctness or user experience.
-
----
-
-## Q175. How do you decide if a third-party library should be added?
-
-Evaluate:
-
-```text
-Maintenance activity
-Compatibility with current RN/Expo
-New Architecture support
-Bundle/native cost
-License
-Security history
-Issue quality
-API quality
-Community/adoption
-Ability to replace/remove later
+  return (
+    <FlatList
+      data={products}
+      renderItem={renderItem}
+      keyExtractor={item => item.id}
+    />
+  );
+}
 ```
 
-A tiny package with poor maintenance can create larger costs than writing a small internal utility.
+**Why this may help:** `ProductRow` can skip a render when its `item` and `onPress` references are unchanged. It is not a guarantee: if each item object is recreated, the row props may still differ.
+
+**Senior follow-up:** Profile first; keep row components light; avoid mutating item objects; use stable IDs; consider `getItemLayout` for fixed row sizes; optimize images and selectors; tune list virtualization only based on evidence.
+
+## Q45. Create a typed cart reducer
+
+```ts
+type CartItem = { productId: string; title: string; price: number; quantity: number };
+
+type CartAction =
+  | { type: "add"; item: Omit<CartItem, "quantity"> }
+  | { type: "remove"; productId: string }
+  | { type: "setQuantity"; productId: string; quantity: number }
+  | { type: "clear" };
+
+function cartReducer(state: CartItem[], action: CartAction): CartItem[] {
+  switch (action.type) {
+    case "add": {
+      const existing = state.find(item => item.productId === action.item.productId);
+      if (existing) {
+        return state.map(item => item.productId === action.item.productId
+          ? { ...item, quantity: item.quantity + 1 }
+          : item);
+      }
+      return [...state, { ...action.item, quantity: 1 }];
+    }
+    case "remove":
+      return state.filter(item => item.productId !== action.productId);
+    case "setQuantity":
+      if (!Number.isInteger(action.quantity) || action.quantity < 1) {
+        return state.filter(item => item.productId !== action.productId);
+      }
+      return state.map(item => item.productId === action.productId
+        ? { ...item, quantity: action.quantity }
+        : item);
+    case "clear":
+      return [];
+  }
+}
+```
+
+**What to discuss:** Immutability, union action types, quantity validation, inventory limits, persistence, derived totals, and whether Redux Toolkit is warranted. In Redux Toolkit reducers, mutation-style syntax is safe inside `createSlice` because Immer manages immutable updates.
+
+## Q46. Build an accessible loading/error/content UI
+
+```tsx
+import { ActivityIndicator, Text, View } from "react-native";
+import type { ReactNode } from "react";
+
+type ScreenState<T> =
+  | { status: "loading" }
+  | { status: "error"; message: string }
+  | { status: "success"; data: T };
+
+function ContentState<T>({
+  state,
+  renderData
+}: {
+  state: ScreenState<T>;
+  renderData: (data: T) => ReactNode;
+}) {
+  switch (state.status) {
+    case "loading":
+      return <ActivityIndicator accessibilityLabel="Loading" />;
+    case "error":
+      return <Text accessibilityRole="alert">{state.message}</Text>;
+    case "success":
+      return <View>{renderData(state.data)}</View>;
+  }
+}
+```
+
+**Interview note:** This uses a discriminated union to make UI states explicit. Add retry actions, empty states, skeletons, and accessibility semantics according to the screen's requirements.
 
 ---
 
-## Q176. When should business logic live on the backend rather than in the app?
+# 6. React Native and Expo Scenario Coding Questions
 
-Keep security-sensitive and authoritative rules on the server.
+## Q47. Prevent a search screen from showing an older response
 
-For example:
+**Problem:** The user searches for `ca`, then `cat`; the slower `ca` response arrives last and incorrectly overwrites `cat` results.
 
-```text
-Price authority
-Authorization
-Entitlement
-Payment finalization
-Fraud checks
-Sensitive business policy
+**Approach A — Abort the old request:** Use an `AbortController` where the HTTP client supports it, abort the previous request when the query changes, and ignore abort errors.
+
+**Approach B — Request sequence number:**
+
+```ts
+let latestRequestId = 0;
+
+async function search(query: string) {
+  const requestId = ++latestRequestId;
+  const results = await fetchSearchResults(query);
+  if (requestId !== latestRequestId) return; // ignore stale result
+  showResults(results);
+}
 ```
 
-The client can provide UX validation and calculations, but the server should remain authoritative for security-sensitive decisions.
+`fetchSearchResults` and `showResults` are application functions to implement.
+
+**Senior follow-up:** Also consider caching by query, debounce, empty queries, network errors, cancellation on unmount, and whether the data-fetching layer already handles stale requests.
+
+## Q48. Calculate a safe responsive width
+
+```tsx
+import { useWindowDimensions } from "react-native";
+
+function useContentWidth(horizontalPadding = 16) {
+  const { width } = useWindowDimensions();
+  return Math.max(0, width - horizontalPadding * 2);
+}
+```
+
+**Why `useWindowDimensions`?** It updates when the window dimensions or font scale changes, making it more appropriate than reading window dimensions once at module initialization for responsive UI.
+
+**Follow-up:** Consider split-screen, rotation, tablets, safe areas, and accessibility font scaling.
+
+## Q49. Convert an API error into a user-safe message
+
+```ts
+function getUserFacingError(error: unknown): string {
+  if (error instanceof Error) {
+    if (error.name === "AbortError") return "Request cancelled.";
+    return "Something went wrong. Please try again.";
+  }
+  return "An unexpected error occurred.";
+}
+```
+
+**Important:** Log technical diagnostics through an approved logging/crash-reporting system, but do not expose tokens, private server messages, or sensitive data in user-facing errors.
+
+## Q50. Prevent duplicate submit actions
+
+```tsx
+import { useState } from "react";
+import { Button, View } from "react-native";
+
+function SaveButton({ save }: { save: () => Promise<void> }) {
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await save();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <View>
+      <Button title={saving ? "Saving…" : "Save"} disabled={saving} onPress={() => void handleSave()} />
+    </View>
+  );
+}
+```
+
+**Senior caveat:** UI-level disabling reduces accidental duplicates, but it does not guarantee exactly-once backend processing. For payments/orders, use server-side idempotency keys and authoritative backend validation.
+
+## Q51. Build a safe app configuration resolver
+
+```ts
+type AppAction = "OPEN_PRODUCTS" | "OPEN_PROFILE";
+
+type HomeBlock =
+  | { type: "banner"; title: string; imageUrl: string; action: AppAction }
+  | { type: "productCarousel"; title: string; productIds: string[] }
+  | { type: "categoryGrid"; categoryIds: string[] };
+
+function isAppAction(value: unknown): value is AppAction {
+  return value === "OPEN_PRODUCTS" || value === "OPEN_PROFILE";
+}
+```
+
+**Architecture:** Validate remote configuration at runtime, map known `type` values to an allowlisted component registry, and map known actions to internal navigation behavior. Never evaluate arbitrary JavaScript received from a server.
+
+**Senior follow-up:** Version the schema, define defaults/fallbacks, handle unknown block types, validate URLs, control rollout with feature flags, and track config failures.
+
+## Q52. Write a test for a pure utility
+
+Example utility:
+
+```ts
+export function formatPrice(amount: number, currency = "USD"): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency
+  }).format(amount);
+}
+```
+
+Example Jest tests:
+
+```ts
+import { formatPrice } from "./formatPrice";
+
+describe("formatPrice", () => {
+  it("formats USD amounts", () => {
+    expect(formatPrice(12)).toBe("$12.00");
+  });
+
+  it("supports another currency", () => {
+    expect(formatPrice(12, "EUR")).toContain("12.00");
+  });
+});
+```
+
+**Note:** Currency formatting can vary by runtime/locale data. Prefer stable locale configuration and assertions aligned to the project's supported environments.
+
+## Q53. What is the difference between a unit test and a component behavior test?
+
+**Unit test:** Verifies a small isolated function or module, for example `calculateCartTotals`.
+
+**Component behavior test:** Renders a component, interacts with it, and asserts visible behavior, for example entering a search query and seeing matching products.
+
+**Senior answer:** Prefer tests that verify public behavior. Mock external boundaries such as network, storage, and native device capabilities, but avoid mocking so much internal implementation that the test cannot catch real regressions.
 
 ---
 
-## Q177. What is server state vs client state?
+# 7. More Questions to Practice Without Looking at Solutions
 
-### Client state
+Use these as timed exercises. For each, explain edge cases and time/space complexity.
 
-Owned primarily by the application:
-
-```text
-modal visibility
-selected tab
-form draft
-local preferences
-UI state
-```
-
-### Server state
-
-Owned by backend systems:
-
-```text
-products
-orders
-profile data
-inventory
-notifications
-```
-
-Server state has unique concerns:
-
-```text
-cache
-freshness
-refetch
-staleness
-invalidation
-pagination
-synchronization
-```
-
-This is why a dedicated data-fetching/cache layer can be preferable to treating every API response as ordinary global UI state.
+1. Implement `once(fn)` so the wrapped function runs only once.
+2. Implement `pipe(fn1, fn2, fn3)` from left to right.
+3. Write a function that compares two shallow objects.
+4. Find the most frequent element in an array.
+5. Find all pairs whose sum equals a target.
+6. Move all zeroes to the end while preserving other item order.
+7. Rotate an array by `k` positions.
+8. Find the longest substring without repeated characters.
+9. Validate balanced brackets using a stack.
+10. Implement a queue using two stacks.
+11. Implement a basic LRU cache and explain its data structures.
+12. Create a function that retries only on selected HTTP status codes.
+13. Implement `Promise.all` and explain how rejection and ordering work.
+14. Build a request deduplication layer for identical GET requests.
+15. Implement a cache with a time-to-live (TTL) and explain stale entries.
+16. Create a generic `pick<T, K extends keyof T>()` function.
+17. Create a type-safe event map for analytics event names and payloads.
+18. Model a payment flow with a discriminated union.
+19. Implement a typed form field component with validation errors.
+20. Build a custom hook that tracks online/offline state and cleans up subscriptions.
+21. Implement pull-to-refresh and pagination without duplicating items.
+22. Implement optimistic cart updates and rollback on API failure.
+23. Write a selector that derives cart subtotal without mutating state.
+24. Debug an effect that causes an infinite API request loop.
+25. Explain how you would profile a slow `FlatList` before optimizing it.
+26. Design a typed route parameter model for nested navigators.
+27. Build a runtime validator for a remote feature-flag payload.
+28. Prevent a stale token refresh response from overwriting a newer session.
+29. Handle a failed image request with a fallback image and accessible text.
+30. Design a test strategy for a login flow, cart, and checkout.
 
 ---
 
-## Q178. How would you design a reusable payment flow?
-
-Use a domain-level payment abstraction:
-
-```text
-Checkout UI
-   ↓
-Checkout service
-   ↓
-Payment gateway interface
-   ↓
-Stripe / another provider
-```
-
-The client should not be the authority for payment success. After the payment flow, the application should verify server-side order/payment state.
-
-Also consider:
-
-- duplicate taps
-- idempotency
-- timeout/retry
-- cancellation
-- app backgrounding
-- deep links
-- partial failures
-- analytics
-
----
-
-## Q179. How would you debug a production issue you cannot reproduce locally?
-
-Use observability:
-
-```text
-Crash report
- ↓
-Stack trace
- ↓
-Release/version/build
- ↓
-Device/OS
- ↓
-User/session context (privacy-safe)
- ↓
-API/network logs
- ↓
-Recent deployment/change
-```
-
-Then narrow the condition rather than guessing.
-
-A mature team should be able to correlate:
-
-```text
-app version
-build number
-environment
-release/OTA update
-backend version
-```
-
----
-
-## Q180. How do you evaluate whether a performance optimization actually worked?
-
-Before optimization define a measurable metric.
-
-Examples:
-
-```text
-startup time
-screen transition time
-JS frame workload
-UI frame drops
-render count
-memory baseline
-API latency
-list scroll stability
-```
-
-Then compare the same workload before and after the change.
-
-A performance change that “feels faster” but cannot be measured is less convincing in a senior review.
-
----
-
-# Final Revision Checklist
-
-## JavaScript
-
-- [ ] Scope
-- [ ] Hoisting
-- [ ] Temporal Dead Zone
-- [ ] Closures
-- [ ] Stale closures
-- [ ] `this`
-- [ ] `call`, `apply`, `bind`
-- [ ] Prototype chain
-- [ ] Classes
-- [ ] Shallow/deep copy
-- [ ] Immutability
-- [ ] Equality
-- [ ] Call stack
-- [ ] Event loop
-- [ ] Microtasks/tasks
-- [ ] Promises
-- [ ] `async/await`
-- [ ] Debounce/throttle
-- [ ] Garbage collection
-- [ ] Memory leaks
-
-## React
-
-- [ ] Components
-- [ ] Props/state
-- [ ] Render purity
-- [ ] Render phase / commit phase
-- [ ] Reconciliation
-- [ ] Keys
-- [ ] State batching
-- [ ] Functional updates
-- [ ] `useState`
-- [ ] `useEffect`
-- [ ] Effect dependencies
-- [ ] Effect cleanup
-- [ ] `useMemo`
-- [ ] `useCallback`
-- [ ] `React.memo`
-- [ ] `useRef`
-- [ ] Context
-- [ ] Custom hooks
-- [ ] Rules of Hooks
-- [ ] Strict Mode
-- [ ] Suspense/lazy loading
-- [ ] Error boundaries
-
-## React Native
-
-- [ ] RN architecture
-- [ ] Legacy Bridge
-- [ ] JSI
-- [ ] Fabric
-- [ ] TurboModules
-- [ ] Hermes
-- [ ] JS/UI/native execution concepts
-- [ ] FlatList
-- [ ] SectionList
-- [ ] VirtualizedList
-- [ ] `getItemLayout`
-- [ ] list optimization
-- [ ] images
-- [ ] startup
-- [ ] animations
-- [ ] gestures
-- [ ] native modules
-- [ ] autolinking
-
-## Expo
-
-- [ ] Expo Go
-- [ ] Development builds
-- [ ] Prebuild
-- [ ] Config plugins
-- [ ] EAS Build
-- [ ] EAS Submit
-- [ ] EAS Update
-- [ ] Build profiles
-- [ ] Runtime version compatibility
-- [ ] Environment variables
-- [ ] Expo Router
-- [ ] Deep linking
-- [ ] Branding/build-time configuration
-
-## State management
-
-- [ ] Context
-- [ ] Redux Toolkit
-- [ ] Immer
-- [ ] Middleware
-- [ ] Selectors
-- [ ] Memoized selectors
-- [ ] RTK Query
-- [ ] Client state vs server state
-- [ ] Persistence
-
-## Networking
-
-- [ ] API layer
-- [ ] Axios/fetch abstraction
-- [ ] Interceptors
-- [ ] Access token
-- [ ] Refresh token
-- [ ] Refresh race conditions
-- [ ] Cancellation
-- [ ] Retry/backoff
-- [ ] Pagination
-- [ ] Caching
-- [ ] Error states
-
-## Native / production
-
-- [ ] Gradle
-- [ ] AGP
-- [ ] Kotlin/Java
-- [ ] NDK/CMake basics
-- [ ] CocoaPods
-- [ ] Xcode
-- [ ] Permissions
-- [ ] Release configuration
-- [ ] CI/CD
-- [ ] Crash reporting
-- [ ] OTA/runtime compatibility
-- [ ] Store release lifecycle
-
-## Senior scenarios
-
-- [ ] API called twice
-- [ ] FlatList lag
-- [ ] app freeze
-- [ ] startup slowdown
-- [ ] production-only crash
-- [ ] Expo Go vs dev build mismatch
-- [ ] incompatible third-party library
-- [ ] authentication race
-- [ ] offline support
-- [ ] feature flags
-- [ ] backend-driven UI
-- [ ] white-label SaaS architecture
-- [ ] payment architecture
-- [ ] observability
-
----
-
-# Recommended 5+ Years Mock Interview Sequence
-
-Use this order for repeated practice:
-
-```text
-Round 1 — JavaScript fundamentals
-        ↓
-Round 2 — React rendering + hooks
-        ↓
-Round 3 — React Native architecture
-        ↓
-Round 4 — Expo + EAS
-        ↓
-Round 5 — Performance/debugging
-        ↓
-Round 6 — State/networking/auth
-        ↓
-Round 7 — Native Android/iOS
-        ↓
-Round 8 — Architecture/system design
-        ↓
-Round 9 — Coding round
-        ↓
-Round 10 — Project deep dive
-```
-
-For every round, practice answering each question in:
-
-```text
-20–30 seconds → concise interview answer
-60–90 seconds → detailed explanation
-3–5 minutes   → architecture/troubleshooting discussion
-```
-
----
-
-# Project Deep-Dive Questions You Should Prepare
-
-Interviewers often move from theory into your actual experience. Prepare strong, truthful answers for:
-
-1. Walk me through your most complex React Native application.
-2. Why did you choose React Native/Expo?
-3. Why did you choose your state-management approach?
-4. How did you handle authentication?
-5. How did you solve token refresh?
-6. How did you optimize a slow FlatList?
-7. What was your toughest Android build issue?
-8. What was your toughest iOS issue?
-9. Did you work with native modules?
-10. How did you manage environments?
-11. How did you release builds?
-12. How did you troubleshoot a production crash?
-13. What architecture did you use and why?
-14. How did you prevent duplicate API requests?
-15. How did you handle offline/error states?
-16. How did you implement payments?
-17. How did you handle push notifications?
-18. What was your biggest performance problem?
-19. What technical decision would you change if rebuilding the project?
-20. Tell me about a production incident and how you fixed it.
-
-**Important:** only claim technologies, scale, architecture decisions, performance improvements, native work, or production ownership that you can actually explain in depth.
-
----
-
-# How to Sound Like a 5+ Years Candidate
-
-Avoid absolute statements such as:
-
-```text
-“Redux is always better.”
-“useMemo should always be used.”
-“Expo cannot use native code.”
-“await blocks JavaScript.”
-“FlatList makes everything fast.”
-“AsyncStorage is secure.”
-“Memoization prevents rerenders.”
-```
-
-Prefer contextual answers:
-
-```text
-“It depends on the ownership and update frequency of the state.”
-“I would measure before optimizing.”
-“For native customization, I would use a development build/prebuild/config plugin or native project code.”
-“await suspends the async function's continuation rather than blocking the entire runtime.”
-“FlatList provides virtualization, but row complexity and JS/UI workload still matter.”
-“For sensitive data I would use platform-backed secure storage.”
-“Memoization can skip work when references/values are stable; it is not a universal rerender switch.”
-```
-
-That style communicates engineering judgment rather than memorization.
-
----
-
-# Current Official References
-
-For current React Native/Expo interview preparation, prioritize official documentation because architecture and tooling evolve.
-
-- React Native 0.82 / New Architecture: https://reactnative.dev/blog/2025/10/08/react-native-0.82
-- Expo New Architecture guide: https://docs.expo.dev/guides/new-architecture/
-- Expo development builds: https://docs.expo.dev/develop/development-builds/introduction/
-- Expo prebuild / CNG: https://docs.expo.dev/workflow/prebuild/
-- Expo Config Plugins: https://docs.expo.dev/config-plugins/introduction/
-- EAS Build: https://docs.expo.dev/build/introduction/
-- EAS Update / runtime compatibility: https://docs.expo.dev/build/updates/
-- Expo Router: https://docs.expo.dev/router/introduction/
-- React Native performance overview: https://reactnative.dev/docs/performance
-- React Native FlatList: https://reactnative.dev/docs/flatlist
-- React Native VirtualizedList: https://reactnative.dev/docs/virtualizedlist
-
-> **Current-tooling note:** React Native and Expo release frequently. Before an interview, verify the latest versions and official compatibility guidance for the exact stack the company uses.
-
----
-
-# End Goal
-
-By the time you finish this guide, you should be able to move naturally through:
-
-```text
-JavaScript
-   ↓
-React
-   ↓
-React Native
-   ↓
-Expo
-   ↓
-Performance
-   ↓
-Architecture
-   ↓
-Native debugging
-   ↓
-Production systems
-```
-
-The target is not to memorize 180 answers. The target is to build a mental model strong enough that you can explain **why** the code works, **when** to use a technology, **what trade-offs** it introduces, and **how you would debug it in production**.
+# 8. Senior-Level Coding Interview Checklist
+
+When you receive a coding question, use this sequence:
+
+1. **Clarify requirements:** Input constraints, output, sorting/order, duplicates, nullability, and failure behavior.
+2. **Give a simple correct solution first:** Make assumptions explicit.
+3. **Discuss complexity:** Time and space, including output storage.
+4. **Cover edge cases:** Empty input, one item, duplicate values, invalid arguments, rejected promises, cancellation, and stale data.
+5. **Improve only where justified:** Explain the trade-off instead of adding abstractions automatically.
+6. **Write tests:** Include typical cases, boundaries, and failure cases.
+7. **Connect to mobile production:** Consider responsiveness, lifecycle cleanup, memory, accessibility, secure storage, offline behavior, and backend consistency.
+
+## Common edge cases to mention
+
+- Empty and single-element arrays
+- Duplicate values and stable ordering
+- `null`, `undefined`, and unexpected API values
+- Unicode and locale-sensitive text
+- Invalid page/size/count parameters
+- Rejected requests and timeouts
+- Stale asynchronous responses
+- Component unmount during async work
+- Duplicate submit events
+- Runtime validation of server data
+- Accessibility and loading/error/empty states
+- Offline mode and retry semantics
+
+## What interviewers assess beyond the final code
+
+- Does the candidate clarify ambiguous requirements?
+- Can they explain each important line?
+- Do they understand closures, immutability, async scheduling, and type narrowing?
+- Can they distinguish UI state from server state?
+- Do they handle cleanup, cancellation, and stale results?
+- Do they know when a concise built-in is preferable to custom code?
+- Can they reason about production failure modes and test the solution?
+
+## Final practice rule
+
+Do not memorize these implementations line by line. Re-solve each from a blank file, narrate the reasoning, test edge cases, and then compare your solution. A 5+ years answer demonstrates not only that the code works, but also that you understand its assumptions, complexity, and behavior under production conditions.
